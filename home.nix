@@ -17,6 +17,7 @@ let
     "hypr" "waybar" "rofi" "wlogout" "swaync" "waypaper" "nwg-dock-hyprland"
     "matugen" "sidepad" "Iriun" "Kvantum" "vim" "ohmyposh" "nvim" "fish" "zshrc"
     "ml4w" # NOT the ML4W rice — your de-ML4W'd configs still read its settings/library files
+    "wpaperd" # wallpaper daemon with built-in rotation (replaced awww+rotate-timer)
   ];
 
   # hyproled — OLED burn-in shader (github.com/mklan/hyproled). Packaged from
@@ -129,19 +130,7 @@ in
     Install.WantedBy = [ "default.target" ];
   };
 
-  systemd.user.services.wallpaper-rotate = {
-    Unit.Description = "Rotate wallpapers (per-monitor random)";
-    Service = {
-      Type = "oneshot";
-      ExecStart = "${config.home.homeDirectory}/.local/bin/wallpaper-rotate.sh";
-      Environment = "PATH=/run/current-system/sw/bin:${config.home.homeDirectory}/.nix-profile/bin";
-    };
-  };
-  systemd.user.timers.wallpaper-rotate = {
-    Unit.Description = "Periodic wallpaper rotation";
-    Timer = { OnActiveSec = "5s"; OnUnitActiveSec = "10min"; AccuracySec = "15s"; };
-    Install.WantedBy = [ "timers.target" ];
-  };
+  # (wallpaper-rotate script + timer retired — wpaperd rotates natively now)
 
   # OLED burn-in: shift pixels in the bar area hourly (your old hyproled units).
   home.packages = [ hyproled ];

@@ -11,8 +11,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Upstream HyprPanel (nixpkgs' build hangs on astal dbus/pipewire — bar never draws)
-    hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
 
     plasma-manager = {
       url = "github:nix-community/plasma-manager";

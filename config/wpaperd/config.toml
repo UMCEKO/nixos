@@ -1,0 +1,6 @@
+[default]
+path = "/home/umceko/Pictures/Wallpapers/anime"
+duration = "10m"
+sorting = "random"
+recursive = true
+transition-time = 1500

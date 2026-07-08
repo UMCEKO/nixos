@@ -173,8 +173,6 @@
     brave
     discord
     zapret
-    # Upstream HyprPanel from its own flake (nixpkgs build hangs, never draws the bar)
-    inputs.hyprpanel.packages.${pkgs.system}.default
   ];
 
   services.zapret = {

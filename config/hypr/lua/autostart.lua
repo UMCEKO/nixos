@@ -9,23 +9,23 @@ hl.on("hyprland.start", function()
   -- System daemons (NixOS: no hardcoded /usr paths)
   hl.exec_cmd("hyprpolkitagent")
 
-  -- Wallpaper + theming
-  hl.exec_cmd(HYPRSCRIPTS .. "/wallpaper-restore.sh")
+  -- Wallpaper: wpaperd (built-in per-monitor random rotation from
+  -- ~/Pictures/Wallpapers/anime — replaces waypaper/awww/rotate-timer chain)
+  hl.exec_cmd("wpaperd")
   hl.exec_cmd(HYPRSCRIPTS .. "/gtk.sh")
-  -- Wallpaper rotation runs from a systemd user timer (wallpaper-rotate.timer)
-  -- so no autostart entry needed here.
 
-  -- NOTE: no swaync here — hyprpanel IS the notification daemon; running both
-  -- races for org.freedesktop.Notifications and breaks hyprpanel's startup.
+  -- Notifications (waybar has no daemon of its own; hyprpanel is retired,
+  -- so swaync is back and unconflicted)
+  hl.exec_cmd("swaync")
   hl.exec_cmd("hypridle")
   hl.exec_cmd("wl-paste --watch cliphist store")
 
   -- Cleanup (removes stale ~/.cache/gamemode flag)
   hl.exec_cmd(HYPRSCRIPTS .. "/cleanup.sh")
 
-  -- Bar: hyprpanel (upstream flake build; slow first paint — give it minutes,
-  -- not seconds). waybar stays installed as fallback: ~/.config/waybar/launch.sh
-  hl.exec_cmd("hyprpanel")
+  -- Bar: waybar (hyprpanel retired 2026-07-08 — caused dbus races + silent
+  -- slow init; maintenance-mode upstream)
+  hl.exec_cmd(os.getenv("HOME") .. "/.config/waybar/launch.sh")
 
   -- App autostart. Workspace pinning lives in window_rules.lua (class-based)
   -- so apps that spawn helper windows still land on the right workspace.

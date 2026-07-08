@@ -51,7 +51,7 @@
     kdePackages.kdenlive kdePackages.filelight kdePackages.okular kdePackages.kcalc
 
     # ── Wayland / Hyprland desktop stack ───────────────────────────
-    psmisc waybar rofi wlogout swaynotificationcenter waypaper
+    psmisc waybar wpaperd rofi wlogout swaynotificationcenter waypaper
     nwg-dock-hyprland nwg-displays nwg-look
     hyprlock hypridle hyprpaper hyprpicker hyprshade hyprsunset
     hyprpolkitagent
