@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Auto-hide HyprPanel: shows on cursor near top edge, hides otherwise
 
 THRESHOLD_SHOW=5

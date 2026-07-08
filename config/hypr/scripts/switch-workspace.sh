@@ -186,6 +186,11 @@ echo "Debug: Target Display: '$target_display_name' (ID: $monitor_id)"
 echo "Debug: Input: $input_workspace -> Target: $target_workspace"
 
 # Execute the final command using hyprctl.
-hyprctl dispatch "$command" "$target_workspace"
+# Hyprland 0.55 lua config manager: dispatch takes hl.dsp.* expressions
+case "$command" in
+workspace)              hyprctl dispatch "hl.dsp.focus({ workspace = $target_workspace })" ;;
+movetoworkspace)        hyprctl dispatch "hl.dsp.window.move({ workspace = $target_workspace })" ;;
+movetoworkspacesilent)  hyprctl dispatch "hl.dsp.window.move({ workspace = $target_workspace, silent = true })" ;;
+esac
 
-echo "Executed: hyprctl dispatch $command $target_workspace"
+echo "Executed: $command -> $target_workspace"

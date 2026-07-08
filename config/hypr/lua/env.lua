@@ -33,8 +33,12 @@ hl.env("SDL_VIDEODRIVER", "wayland")
 
 -- Dolphin / KService "Open With" fix
 -- XDG_MENU_PREFIX is the key — without it kbuildsycoca6 indexes 0 apps
+-- NixOS paths (was hardcoded Arch /usr/share — broke rofi drun: zero .desktop files)
 hl.env("XDG_DATA_DIRS",
   "/home/umceko/.local/share/flatpak/exports/share:" ..
   "/var/lib/flatpak/exports/share:" ..
-  "/usr/local/share:/usr/share")
+  "/home/umceko/.local/share:" ..
+  "/home/umceko/.nix-profile/share:" ..
+  "/etc/profiles/per-user/umceko/share:" ..
+  "/run/current-system/sw/share")
 hl.env("XDG_MENU_PREFIX", "plasma-")

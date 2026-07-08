@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Hyprland Monitor Profile Switcher
 # Toggles between monitor profiles in ~/.config/hypr/conf/monitors/
