@@ -10,12 +10,22 @@
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Upstream HyprPanel (nixpkgs' build hangs on astal dbus/pipewire — bar never draws)
+    hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
+
+    plasma-manager = {
+      url = "github:nix-community/plasma-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs: {
     # `nixos` here must match the `#nixos` you build with below.
     nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
+      specialArgs = { inherit inputs; };
       modules = [
         ./configuration.nix
         home-manager.nixosModules.home-manager

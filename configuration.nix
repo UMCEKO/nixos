@@ -2,12 +2,22 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      # ── Ported CachyOS setup (see MORNING-README.md) ──
+      ./packages.nix
+      ./gaming.nix
+      ./desktop.nix
+      ./peripherals.nix
+      ./vr.nix
+      ./drives.nix
+      ./system-tweaks.nix
+      ./nginx.nix
+      ./nvim-lsp.nix
     ];
 
   # Bootloader.
@@ -15,6 +25,10 @@
   boot.loader.efi.canTouchEfiVariables = true;
   
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  # Faster downloads: many parallel fetches fill a high-latency link (TR -> Fastly).
+  nix.settings.http-connections = 128;      # default 25
+  nix.settings.max-substitution-jobs = 32;  # default 16 — packages fetched at once
+  nix.settings.connect-timeout = 5;         # fail fast on a dead mirror connection
 
   # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -35,17 +49,7 @@
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
 
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "tr_TR.UTF-8";
-    LC_IDENTIFICATION = "tr_TR.UTF-8";
-    LC_MEASUREMENT = "tr_TR.UTF-8";
-    LC_MONETARY = "tr_TR.UTF-8";
-    LC_NAME = "tr_TR.UTF-8";
-    LC_NUMERIC = "tr_TR.UTF-8";
-    LC_PAPER = "tr_TR.UTF-8";
-    LC_TELEPHONE = "tr_TR.UTF-8";
-    LC_TIME = "tr_TR.UTF-8";
-  };
+  # All LC_* categories inherit defaultLocale (en_US.UTF-8) — no Turkish, no overrides.
 
   # Enable the X11 windowing system.
   # You can disable this if you're only using the Wayland session.
@@ -66,7 +70,9 @@
 
 
   # Enable the KDE Plasma Desktop Environment.
-  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm = {
+    enable = true;
+  };
   services.desktopManager.plasma6.enable = true;
 
 
@@ -114,27 +120,34 @@
   users.users."umceko" = {
     isNormalUser = true;
     description = "Umut Cevdet Kocak";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [
+      "networkmanager" "wheel" "docker" "gamemode"
+      "video" "render" "storage" "lp" "scanner" "libvirtd"  # ported from old box
+    ];
+    shell = pkgs.zsh;                    # your CachyOS login shell
     packages = with pkgs; [
       kdePackages.kate
     #  thunderbird
     ];
   };
 
-  home-manager.users.umceko = { pkgs, ... }: {
-  
-    programs.git = {
-      enable = true;
-      settings = {
-        user = {
-          email = "umutcevdetkocak@gmail.com";
-          name = "umceko";
-        };
-      };
-    };
+  # zsh must be enabled at system level to be a valid login shell.
+  programs.zsh.enable = true;
 
-    home.stateVersion = "26.05";
-  };
+  # Docker (you used it on CachyOS).
+  virtualisation.docker.enable = true;
+
+  # Tailscale (was running on CachyOS). After switching, run `sudo tailscale up`
+  # to re-authenticate this node (or restore old identity — see below).
+  services.tailscale.enable = true;
+  # You host an exit node → enable IP forwarding (replaces the old ip_forward sysctl).
+  services.tailscale.useRoutingFeatures = "server";
+
+  home-manager.useGlobalPkgs = true;
+  home-manager.useUserPackages = true;
+  home-manager.backupFileExtension = "hm-bak"; # backup clobbered files instead of failing
+  home-manager.sharedModules = [ inputs.plasma-manager.homeManagerModules.plasma-manager ];
+  home-manager.users.umceko = import ./home.nix;
 
   # Install firefox.
   programs.firefox.enable = true;
@@ -148,6 +161,9 @@
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+  # An installed app bundles an EOL Electron. Permitted so the build passes;
+  # see MORNING-README.md (security note) — remove the app to drop this.
+  nixpkgs.config.permittedInsecurePackages = [ "electron-39.8.10" ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -157,8 +173,8 @@
     brave
     discord
     zapret
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  #  wget
+    # Upstream HyprPanel from its own flake (nixpkgs build hangs, never draws the bar)
+    inputs.hyprpanel.packages.${pkgs.system}.default
   ];
 
   services.zapret = {
@@ -174,6 +190,11 @@
   environment.variables = {
     EDITOR = "nvim";
     BROWSER = "brave";
+  };
+
+  # Rebuild shortcut (nrs = nixos-rebuild switch, the common convention).
+  environment.shellAliases = {
+    nrs = "sudo nixos-rebuild switch --flake ~/nixos#nixos";
   };
 
 

@@ -1,0 +1,16 @@
+[Annotations]
+annotationToolType=6
+freehandStrokeColor=0,0,0
+freehandStrokeWidth=1
+highlighterStrokeColor=255,0,0
+highlighterStrokeWidth=10
+rectangleFillColor=0,0,0,0
+rectangleStrokeColor=255,0,0
+textFont=Noto Sans,20,-1,0,400,0,0,0,0,0,0,0,0,0,0,1
+
+[ImageSave]
+lastImageSaveLocation=file:///home/umceko/Pictures/Screenshots/Screenshot_20251126_160338.png
+translatedScreenshotsFolder=Screenshots
+
+[VideoSave]
+translatedScreencastsFolder=Screencasts

@@ -1,0 +1,33 @@
+[General]
+LastUsedVersion=210800
+SideBarPage=operations
+
+[MainWindow]
+MenuBar=Disabled
+
+[Recent Files]
+File1[$e]=$HOME/Desktop/Discord/discord.png
+File10[$e]=/mnt/secondary/projects/Moontekno-BA/infrastructure/infra-graph.svg
+File2[$e]=$HOME/Downloads/uni.png
+File3[$e]=$HOME/Downloads/image.png
+File4[$e]=$HOME/Downloads/IMG_2454.png
+File5[$e]=$HOME/Downloads/WhatsApp Image 2025-11-16 at 6.13.23 PM.jpeg
+File6[$e]=$HOME/Downloads/Henyacharge/Henyacharge4.png
+File7[$e]=$HOME/Downloads/Henyacharge/henyacharge3.png
+File8[$e]=$HOME/Downloads/Henyacharge/henyacharge1.png
+File9[$e]=$HOME/Downloads/Henyacharge/Henyacharge2.png
+Name1[$e]=discord.png
+Name10[$e]=infra-graph.svg
+Name2[$e]=uni.png
+Name3[$e]=image.png
+Name4[$e]=IMG_2454.png
+Name5[$e]=WhatsApp Image 2025-11-16 at 6.13.23 PM.jpeg
+Name6[$e]=Henyacharge4.png
+Name7[$e]=henyacharge3.png
+Name8[$e]=henyacharge1.png
+Name9[$e]=Henyacharge2.png
+
+[SideBar]
+InformationSplitterSizes=220,255
+IsVisible ViewMode=true
+SideBarSplitterSizes=227,1689
