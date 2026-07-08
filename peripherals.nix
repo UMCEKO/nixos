@@ -16,6 +16,9 @@
   # OpenRGB (RGB control) — provides udev rules + the openrgb service.
   services.hardware.openrgb.enable = true;
 
+  # SteelSeries Arctis (headsetcontrol) — udev rules so battery reads work unprivileged.
+  services.udev.packages = [ pkgs.headsetcontrol ];
+
   # Wooting keyboards need a udev rule to be accessible (wootility was AUR;
   # the udev rule is what actually matters and is easy to declare).
   services.udev.extraRules = ''

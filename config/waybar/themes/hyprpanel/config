@@ -7,7 +7,7 @@
     "height": 44,
     "spacing": 8,
     "modules-left": ["custom/dashboard", "hyprland/workspaces", "hyprland/window"],
-    "modules-center": ["mpris"],
+    "modules-center": ["custom/media"],
     "modules-right": ["pulseaudio", "network", "bluetooth", "custom/headset", "tray", "clock", "custom/notifications"],
 
     "custom/dashboard": {
@@ -23,16 +23,15 @@
       "on-scroll-down": "hyprctl dispatch workspace e+1"
     },
     "hyprland/window": {
-      "format": "󰣆  {title}",
+      "format": "󰣆  {class}",
       "max-length": 44,
       "separate-outputs": true
     },
-    "mpris": {
-      "format": "<span foreground=\"#cba6f7\">󰝚</span>  {artist} - {title}",
-      "format-paused": "<span foreground=\"#cba6f7\">󰏤</span>  {artist} - {title}",
-      "max-length": 45,
-      "on-click": "playerctl play-pause",
-      "tooltip-format": "{player}: {title}"
+    "custom/media": {
+      "format": "<span foreground=\"#cba6f7\">󰝚</span>  {}",
+      "exec": "playerctl metadata --format '{{artist}} - {{title}}' 2>/dev/null | cut -c1-45 | grep . || echo Media",
+      "interval": 3,
+      "on-click": "playerctl play-pause"
     },
     "pulseaudio": {
       "format": "<span foreground=\"#f38ba8\">{icon}</span>  {volume}%",
@@ -102,7 +101,7 @@
       "on-scroll-up": "hyprctl dispatch workspace e-1",
       "on-scroll-down": "hyprctl dispatch workspace e+1"
     },
-    "hyprland/window": { "format": "󰣆  {title}", "max-length": 40, "separate-outputs": true },
+    "hyprland/window": { "format": "󰣆  {class}", "max-length": 40, "separate-outputs": true },
     "clock": { "format": "<span foreground=\"#fab387\">󰃭</span>  {:%a %b %d  %I:%M %p}", "tooltip-format": "<tt><small>{calendar}</small></tt>" }
   }
 ]

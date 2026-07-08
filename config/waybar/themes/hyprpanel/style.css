@@ -1,7 +1,7 @@
 /* Clone of the user's hyprpanel bar (catppuccin-mocha-like palette from the
  * reference screenshot): dark pills, colored icon per module, white text. */
 
-@define-color bar-bg       rgba(13, 13, 21, 0.75);
+@define-color bar-bg       rgba(10, 10, 18, 0.55);
 @define-color pill         #1e1e2e;
 @define-color text         #cdd6f4;
 @define-color ws-active    #f5c2e7;  /* pink pill  */
@@ -16,7 +16,7 @@
 
 * {
   font-family: "Fira Sans Semibold", "FiraCode Nerd Font", "JetBrainsMono Nerd Font", sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
   border: none;
   border-radius: 0;
@@ -31,7 +31,7 @@ window#waybar {
 #custom-dashboard,
 #workspaces,
 #window,
-#mpris,
+#custom-media,
 #pulseaudio,
 #network,
 #bluetooth,
@@ -41,9 +41,9 @@ window#waybar {
 #custom-notifications {
   background: @pill;
   color: @text;
-  border-radius: 1.2em;
-  margin: 5px 3px;
-  padding: 0 14px;
+  border-radius: 9999px;
+  margin: 6px 4px;
+  padding: 0 16px;
 }
 
 #custom-dashboard {
@@ -57,17 +57,17 @@ window#waybar {
 #workspaces { padding: 0 10px; }
 #workspaces button {
   color: @ws-dot;
-  font-size: 11px;
-  padding: 0 6px;
-  margin: 8px 1px;
+  font-size: 13px;
+  padding: 0 8px;
+  margin: 9px 2px;
   border-radius: 1em;
   transition: all 0.2s ease;
 }
 #workspaces button.active {
   background: @ws-active;
   color: @ws-active;
-  padding: 0 16px;
-  margin: 8px 3px;
+  padding: 0 20px;
+  margin: 9px 4px;
 }
 #workspaces button:hover {
   background: alpha(@ws-active, 0.35);
@@ -76,8 +76,8 @@ window#waybar {
 #window { color: @text; }
 window#waybar.empty #window { background: transparent; }
 
-#mpris { color: @text; }
-#mpris label { color: @text; }
+#custom-media { color: @text; }
+#custom-media label { color: @text; }
 
 #pulseaudio { color: @text; }
 #pulseaudio.muted { color: alpha(@icon-vol, 0.5); }
