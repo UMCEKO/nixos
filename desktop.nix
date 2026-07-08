@@ -17,6 +17,10 @@
 
   # Fonts (replaces the ttf-* / nerd-font Arch packages).
   fonts.packages = with pkgs; [
+    fira-sans          # waybar ml4w themes use "Fira Sans Semibold"
+    fira-code
+    nerd-fonts.fira-code
+    roboto             # theme fallback chain
     nerd-fonts.jetbrains-mono
     nerd-fonts.meslo-lg
     font-awesome
