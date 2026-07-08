@@ -1,7 +1,7 @@
 /* Clone of the user's hyprpanel bar (catppuccin-mocha-like palette from the
  * reference screenshot): dark pills, colored icon per module, white text. */
 
-@define-color bar-bg       rgba(14, 14, 22, 0.85);
+@define-color bar-bg       rgba(17, 17, 27, 0.72);
 @define-color pill         #1e1e2e;
 @define-color text         #cdd6f4;
 @define-color ws-active    #f5c2e7;  /* pink pill  */
@@ -16,9 +16,8 @@
 
 * {
   font-family: "Ubuntu Nerd Font", "Ubuntu Sans", "FiraCode Nerd Font", sans-serif;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
-  font-weight: 600;
   border: none;
   border-radius: 0;
   min-height: 0;
@@ -43,35 +42,49 @@ window#waybar {
   background: @pill;
   color: @text;
   border-radius: 9999px;
-  margin: 6px 4px;
-  padding: 0 16px;
+  margin: 4px 3px;
+  padding: 0 13px;
 }
 
 #custom-dashboard {
   color: @icon-launch;
-  font-size: 18px;
+  font-size: 16px;
   padding: 0 16px;
   margin-left: 8px;
 }
 
-/* workspaces: active = wide pink pill, others = teal dots */
+/* Workspaces — number-reveal capsule.
+ * Dots are drawn as button backgrounds (not glyphs) so they're perfectly even;
+ * the active workspace opens into a light capsule showing its number.
+ * Hierarchy: occupied dot > empty dot (nearly gone) > urgent (muted red).
+ */
 #workspaces { padding: 0 10px; }
 #workspaces button {
-  color: @ws-dot;
-  font-size: 13px;
-  padding: 0 8px;
-  margin: 9px 2px;
-  border-radius: 1em;
-  transition: all 0.2s ease;
+  color: transparent;               /* hide the number when inactive */
+  background: alpha(@text, 0.42);   /* the dot itself */
+  font-size: 1px;                   /* collapse label width -> true circle */
+  font-weight: 700;
+  min-width: 7px;
+  padding: 0;
+  margin: 14px 4px;
+  border-radius: 999px;
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+#workspaces button.empty {
+  background: alpha(@text, 0.15);
 }
 #workspaces button.active {
-  background: @ws-active;
-  color: @ws-active;
-  padding: 0 20px;
+  color: #11111b;                   /* number appears */
+  background: alpha(@text, 0.92);
+  font-size: 11px;
+  padding: 0 9px;
   margin: 9px 4px;
 }
+#workspaces button.urgent {
+  background: alpha(#f38ba8, 0.85);
+}
 #workspaces button:hover {
-  background: alpha(@ws-active, 0.35);
+  background: alpha(@text, 0.65);
 }
 
 #window { color: @text; }
@@ -90,7 +103,7 @@ window#waybar.empty #window { background: transparent; }
 #clock { color: @text; }
 #custom-notifications {
   color: @icon-bell;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   margin-right: 8px;
 }

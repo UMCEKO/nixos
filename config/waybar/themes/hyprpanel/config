@@ -4,7 +4,7 @@
     "output": "DP-3",
     "layer": "top",
     "position": "top",
-    "height": 44,
+    "height": 36,
     "spacing": 8,
     "modules-left": ["custom/dashboard", "hyprland/workspaces", "hyprland/window"],
     "modules-center": ["custom/media"],
@@ -16,7 +16,7 @@
       "on-click": "rofi -show drun"
     },
     "hyprland/workspaces": {
-      "format": "●",
+      "format": "{id}",
       "persistent-workspaces": { "*": 10 },
       "on-click": "activate",
       "on-scroll-up": "hyprctl dispatch workspace e-1",
@@ -93,14 +93,14 @@
     "output": "DP-4",
     "layer": "top",
     "position": "top",
-    "height": 44,
+    "height": 36,
     "spacing": 8,
     "modules-left": ["hyprland/workspaces", "hyprland/window"],
     "modules-center": ["clock"],
     "modules-right": [],
 
     "hyprland/workspaces": {
-      "format": "●",
+      "format": "{id}",
       "persistent-workspaces": { "*": 10 },
       "on-click": "activate",
       "on-scroll-up": "hyprctl dispatch workspace e-1",
