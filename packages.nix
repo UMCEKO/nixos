@@ -57,7 +57,7 @@
     hyprpolkitagent
     grim slurp satty grimblast wf-recorder wl-clipboard cliphist
     nsxiv gromit-mpx kdotool matugen awww cava waypipe
-    kitty ghostty
+    alacritty kitty ghostty
     brightnessctl playerctl
 
     # ── Theming / fonts helpers ────────────────────────────────────

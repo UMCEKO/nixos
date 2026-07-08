@@ -6,7 +6,7 @@ local HYPRSCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
 local function exec(cmd) return hl.dsp.exec_cmd(cmd) end
 
 -- ===== Applications =====
-hl.bind(mainMod .. " + RETURN",     exec("kitty"))
+hl.bind(mainMod .. " + RETURN",     exec("alacritty"))
 hl.bind(mainMod .. " + B",          exec("brave"))
 hl.bind(mainMod .. " + E",          exec("nautilus --new-window"))
 hl.bind(mainMod .. " + CTRL + E",   exec("rofi -modi emoji -show emoji"))

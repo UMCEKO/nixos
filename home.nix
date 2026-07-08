@@ -18,6 +18,7 @@ let
     "matugen" "sidepad" "Iriun" "Kvantum" "vim" "ohmyposh" "nvim" "fish" "zshrc"
     "ml4w" # NOT the ML4W rice — your de-ML4W'd configs still read its settings/library files
     "wpaperd" # wallpaper daemon with built-in rotation (replaced awww+rotate-timer)
+    "alacritty" # your Super+Return terminal (Nord theme, per binds.lua)
   ];
 
   # hyproled — OLED burn-in shader (github.com/mklan/hyproled). Packaged from
@@ -86,7 +87,10 @@ in
       selection_foreground = "none";
       selection_background = "none";
     };
-    extraConfig = "include colors-matugen.conf"; # matugen writes this into ~/.config/kitty at runtime
+    extraConfig = ''
+      include colors-matugen.conf
+      cursor_trail 1
+    ''; # colors: matugen writes at runtime; cursor_trail: animated cursor from your cachy setup
   };
 
   programs.fastfetch.settings =
