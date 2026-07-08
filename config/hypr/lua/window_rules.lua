@@ -13,14 +13,25 @@ local function float_centered(name, match_, w, h, opts)
 end
 
 -- ===== Floating + centered + sized utilities =====
+-- gsimplecal: calendar dropdown under the clock (right side)
+hl.window_rule({
+  name      = "calendar-dropdown",
+  match     = { class = "gsimplecal" },
+  float     = true,
+  move      = "100%-330 40",
+  animation = "slide top",
+  pin       = true,
+})
+
 -- pavucontrol as a bar dropdown: floated, pinned, anchored top-right under the bar
 hl.window_rule({
-  name  = "pavucontrol-dropdown",
-  match = { class = ".*org.pulseaudio.pavucontrol.*" },
-  float = true,
-  size  = { 480, 560 },
-  move  = { "100%-490", "56" },
-  pin   = true,
+  name      = "pavucontrol-dropdown",
+  match     = { class = ".*org.pulseaudio.pavucontrol.*" },
+  float     = true,
+  size      = { 480, 560 },
+  move      = "100%-490 40",
+  animation = "slide top",
+  pin       = true,
 })
 float_centered("waypaper",      { class = ".*waypaper.*"                  }, 900, 700, { pin = true })
 float_centered("blueman",       { class = "blueman-manager"               }, 800, 600 )

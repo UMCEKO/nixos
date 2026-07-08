@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# PATH shim: anchors rofi menus (network/bluetooth dropdowns) under the bar, top-right.
+exec /run/current-system/sw/bin/rofi -theme-str 'window { location: northeast; anchor: northeast; y-offset: 36px; x-offset: -8px; width: 380px; }' "$@"

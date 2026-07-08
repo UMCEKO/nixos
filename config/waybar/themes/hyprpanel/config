@@ -38,7 +38,7 @@
       "format": "<span foreground=\"#f38ba8\">{icon}</span>  {volume}%",
       "format-muted": "<span foreground=\"#f38ba8\">󰝟</span>  {volume}%",
       "format-icons": { "default": ["󰕿", "󰖀", "󰕾"] },
-      "on-click": "pavucontrol",
+      "on-click": "$HOME/.config/waybar/scripts/dropdown.sh pavucontrol 480 pavucontrol",
       "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
       "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+",
       "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-"
@@ -48,14 +48,14 @@
       "format-ethernet": "<span foreground=\"#a6e3a1\">󰈀</span>  Wired",
       "format-disconnected": "󰤭  Off",
       "tooltip-format": "{ifname}: {ipaddr} ↓{bandwidthDownBytes} ↑{bandwidthUpBytes}",
-      "on-click": "networkmanager_dmenu",
+      "on-click": "env PATH=$HOME/.config/waybar/shims:$PATH networkmanager_dmenu",
       "interval": 5
     },
     "bluetooth": {
       "format": "<span foreground=\"#89b4fa\">󰂯</span>  On",
       "format-connected": "<span foreground=\"#89b4fa\">󰂱</span>  {num_connections}",
       "format-disabled": "󰂲  Off",
-      "on-click": "rofi-bluetooth",
+      "on-click": "env PATH=$HOME/.config/waybar/shims:$PATH rofi-bluetooth",
       "tooltip-format-connected": "{device_enumerate}",
       "tooltip-format-enumerate-connected": "{device_alias}"
     },
@@ -69,7 +69,7 @@
     "clock": {
       "format": "<span foreground=\"#fab387\">󰃭</span>  {:%a %b %d  %I:%M:%S %p}",
       "interval": 1,
-      "on-click": "gsimplecal",
+      "on-click": "$HOME/.config/waybar/scripts/dropdown.sh gsimplecal 250 gsimplecal",
       "tooltip-format": "<tt><small>{calendar}</small></tt>",
       "calendar": { "mode": "month" }
     },

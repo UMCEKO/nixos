@@ -18,7 +18,6 @@ let
     "matugen" "sidepad" "Iriun" "Kvantum" "vim" "ohmyposh" "nvim" "fish" "zshrc"
     "ml4w" # NOT the ML4W rice — your de-ML4W'd configs still read its settings/library files
     "wpaperd" # wallpaper daemon with built-in rotation (replaced awww+rotate-timer)
-    "alacritty" # your Super+Return terminal (Nord theme, per binds.lua)
   ];
 
   # hyproled — OLED burn-in shader (github.com/mklan/hyproled). Packaged from
