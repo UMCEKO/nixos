@@ -16,7 +16,7 @@
 
 * {
   font-family: "Ubuntu Nerd Font", "Ubuntu Sans", "FiraCode Nerd Font", sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   border: none;
   border-radius: 0;
@@ -42,13 +42,13 @@ window#waybar {
   background: @pill;
   color: @text;
   border-radius: 9999px;
-  margin: 4px 3px;
-  padding: 0 13px;
+  margin: 3px 3px;
+  padding: 0 12px;
 }
 
 #custom-dashboard {
   color: @icon-launch;
-  font-size: 16px;
+  font-size: 15px;
   padding: 0 16px;
   margin-left: 8px;
 }
@@ -66,7 +66,7 @@ window#waybar {
   font-weight: 700;
   min-width: 7px;
   padding: 0;
-  margin: 14px 4px;
+  margin: 11px 4px;
   border-radius: 999px;
   transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -76,9 +76,9 @@ window#waybar {
 #workspaces button.active {
   color: #11111b;                   /* number appears */
   background: alpha(@text, 0.92);
-  font-size: 11px;
-  padding: 0 9px;
-  margin: 9px 4px;
+  font-size: 10px;
+  padding: 0 8px;
+  margin: 7px 4px;
 }
 #workspaces button.urgent {
   background: alpha(#f38ba8, 0.85);
@@ -103,7 +103,7 @@ window#waybar.empty #window { background: transparent; }
 #clock { color: @text; }
 #custom-notifications {
   color: @icon-bell;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   margin-right: 8px;
 }
