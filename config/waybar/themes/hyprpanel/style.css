@@ -1,85 +1,104 @@
-/* hyprpanel-like: transparent bar, rounded (0.5em) pill modules, matugen palette */
-@import '../../colors.css';
+/* Clone of the user's hyprpanel bar (catppuccin-mocha-like palette from the
+ * reference screenshot): dark pills, colored icon per module, white text. */
+
+@define-color bar-bg       rgba(13, 13, 21, 0.75);
+@define-color pill         #1e1e2e;
+@define-color text         #cdd6f4;
+@define-color ws-active    #f5c2e7;  /* pink pill  */
+@define-color ws-dot       #94e2d5;  /* teal dots  */
+@define-color icon-launch  #f9e2af;  /* yellow     */
+@define-color icon-vol     #f38ba8;  /* red/pink   */
+@define-color icon-net     #a6e3a1;  /* green      */
+@define-color icon-bt      #89b4fa;  /* blue       */
+@define-color icon-clock   #fab387;  /* peach      */
+@define-color icon-bell    #f5c2e7;  /* pink       */
+@define-color icon-media   #cba6f7;  /* mauve      */
 
 * {
-  font-family: "Fira Sans Semibold", "JetBrainsMono Nerd Font", "Font Awesome 6 Free", sans-serif;
-  font-size: 14px;
+  font-family: "Fira Sans Semibold", "FiraCode Nerd Font", "JetBrainsMono Nerd Font", sans-serif;
+  font-size: 15px;
+  font-weight: 600;
   border: none;
   border-radius: 0;
   min-height: 0;
 }
 
 window#waybar {
-  background: transparent;
+  background: @bar-bg;
 }
 
-/* pill look for every module, like hyprpanel's buttons */
+/* dark pills */
 #custom-dashboard,
 #workspaces,
 #window,
-#clock,
 #mpris,
 #pulseaudio,
 #network,
 #bluetooth,
-#custom-notifications,
-#tray {
-  background: alpha(@background, 0.75);
-  color: @on_surface;
-  border-radius: 0.5em;
-  margin: 4px 2px;
-  padding: 0 12px;
-}
-
-#custom-dashboard {
-  color: @primary;
-  font-size: 16px;
+#custom-headset,
+#tray,
+#clock,
+#custom-notifications {
+  background: @pill;
+  color: @text;
+  border-radius: 1.2em;
+  margin: 5px 3px;
   padding: 0 14px;
 }
 
-#workspaces {
-  padding: 0 4px;
+#custom-dashboard {
+  color: @icon-launch;
+  font-size: 18px;
+  padding: 0 16px;
+  margin-left: 8px;
 }
+
+/* workspaces: active = wide pink pill, others = teal dots */
+#workspaces { padding: 0 10px; }
 #workspaces button {
-  color: @on_surface;
-  border-radius: 0.5em;
-  padding: 0 8px;
-  margin: 2px 1px;
+  color: @ws-dot;
+  font-size: 11px;
+  padding: 0 6px;
+  margin: 8px 1px;
+  border-radius: 1em;
+  transition: all 0.2s ease;
 }
 #workspaces button.active {
-  background: @primary;
-  color: @on_primary;
+  background: @ws-active;
+  color: @ws-active;
+  padding: 0 16px;
+  margin: 8px 3px;
 }
 #workspaces button:hover {
-  background: alpha(@primary, 0.4);
+  background: alpha(@ws-active, 0.35);
 }
 
-#window {
-  font-weight: normal;
-}
-window#waybar.empty #window {
-  background: transparent;
+#window { color: @text; }
+window#waybar.empty #window { background: transparent; }
+
+#mpris { color: @text; }
+#mpris label { color: @text; }
+
+#pulseaudio { color: @text; }
+#pulseaudio.muted { color: alpha(@icon-vol, 0.5); }
+#network { color: @text; }
+#network.disconnected { color: alpha(@text, 0.4); }
+#bluetooth { color: @text; }
+#bluetooth.disabled { color: alpha(@text, 0.4); }
+#custom-headset { color: @icon-bt; }
+#clock { color: @text; }
+#custom-notifications {
+  color: @icon-bell;
+  font-size: 16px;
+  margin-right: 8px;
 }
 
-#clock {
-  background: alpha(@primary, 0.85);
-  color: @on_primary;
-  font-weight: bold;
-}
-
-#pulseaudio.muted { color: alpha(@on_surface, 0.5); }
-#network.disconnected { color: @error; }
-#bluetooth.disabled { color: alpha(@on_surface, 0.5); }
-#custom-notifications { color: @primary; }
-
-#tray {
-  padding: 0 10px;
-}
+#tray { padding: 0 12px; }
 #tray > .passive { -gtk-icon-effect: dim; }
 
 tooltip {
-  background: @background;
-  border: 1px solid @primary;
-  border-radius: 0.5em;
+  background: @pill;
+  border: 1px solid @ws-active;
+  border-radius: 0.8em;
 }
-tooltip label { color: @on_surface; }
+tooltip label { color: @text; }

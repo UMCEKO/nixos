@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Hyprland Display-Aware Workspace Command Wrapper (Using Display Names)
 #
 # Description:

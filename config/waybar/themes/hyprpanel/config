@@ -1,67 +1,73 @@
-// Waybar theme replicating the retired hyprpanel setup (spec: ~/.config/hyprpanel/config.json)
-// Bar 1 = DP-3 (main): dashboard | workspaces | window ... clock ... media vol net bt notif tray
-// Bar 2 = DP-4:        workspaces | window ... clock
+// Waybar clone of the user's hyprpanel bar (reference: CachyOS side-by-side screenshot).
 [
   {
     "output": "DP-3",
     "layer": "top",
     "position": "top",
-    "height": 34,
-    "spacing": 6,
+    "height": 44,
+    "spacing": 8,
     "modules-left": ["custom/dashboard", "hyprland/workspaces", "hyprland/window"],
-    "modules-center": ["clock"],
-    "modules-right": ["mpris", "pulseaudio", "network", "bluetooth", "custom/notifications", "tray"],
+    "modules-center": ["mpris"],
+    "modules-right": ["pulseaudio", "network", "bluetooth", "custom/headset", "tray", "clock", "custom/notifications"],
 
     "custom/dashboard": {
-      "format": "",
+      "format": "󱄅",
       "tooltip-format": "App launcher",
       "on-click": "rofi -show drun"
     },
     "hyprland/workspaces": {
-      "format": "{id}",
+      "format": "●",
+      "persistent-workspaces": { "*": 10 },
       "on-click": "activate",
       "on-scroll-up": "hyprctl dispatch workspace e-1",
       "on-scroll-down": "hyprctl dispatch workspace e+1"
     },
     "hyprland/window": {
-      "max-length": 48,
+      "format": "󰣆  {title}",
+      "max-length": 44,
       "separate-outputs": true
     },
-    "clock": {
-      "format": "{:%a %d %b  %H:%M}",
-      "tooltip-format": "<tt><small>{calendar}</small></tt>",
-      "calendar": { "mode": "month" }
-    },
     "mpris": {
-      "format": "{player_icon} {artist} - {title}",
-      "format-paused": "{status_icon} {artist} - {title}",
-      "max-length": 40,
-      "player-icons": { "default": "▶" },
-      "status-icons": { "paused": "⏸" },
-      "on-click": "playerctl play-pause"
+      "format": "<span foreground=\"#cba6f7\">󰝚</span>  {artist} - {title}",
+      "format-paused": "<span foreground=\"#cba6f7\">󰏤</span>  {artist} - {title}",
+      "max-length": 45,
+      "on-click": "playerctl play-pause",
+      "tooltip-format": "{player}: {title}"
     },
     "pulseaudio": {
-      "format": "{icon} {volume}%",
-      "format-muted": "󰝟 {volume}%",
+      "format": "<span foreground=\"#f38ba8\">{icon}</span>  {volume}%",
+      "format-muted": "<span foreground=\"#f38ba8\">󰝟</span>  {volume}%",
       "format-icons": { "default": ["󰕿", "󰖀", "󰕾"] },
       "on-click": "pavucontrol",
       "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+",
       "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-"
     },
     "network": {
-      "format-wifi": "󰤨",
-      "format-ethernet": "󰈀",
-      "format-disconnected": "󰤭",
-      "tooltip-format": "{ifname}: {ipaddr} ({signalStrength}%)",
-      "tooltip-format-ethernet": "{ifname}: {ipaddr} ↓{bandwidthDownBytes} ↑{bandwidthUpBytes}",
+      "format-wifi": "<span foreground=\"#a6e3a1\">󰤨</span>  {essid}",
+      "format-ethernet": "<span foreground=\"#a6e3a1\">󰈀</span>  Wired",
+      "format-disconnected": "󰤭  Off",
+      "tooltip-format": "{ifname}: {ipaddr} ↓{bandwidthDownBytes} ↑{bandwidthUpBytes}",
       "interval": 5
     },
     "bluetooth": {
-      "format": "󰂯",
-      "format-connected": "󰂱 {num_connections}",
-      "format-disabled": "󰂲",
+      "format": "<span foreground=\"#89b4fa\">󰂯</span>  On",
+      "format-connected": "<span foreground=\"#89b4fa\">󰂱</span>  {num_connections}",
+      "format-disabled": "󰂲  Off",
       "tooltip-format-connected": "{device_enumerate}",
       "tooltip-format-enumerate-connected": "{device_alias}"
+    },
+    "custom/headset": {
+      "format": "󰋋  {}",
+      "exec": "headsetcontrol -b 2>/dev/null | grep -oE '[0-9]+%' | head -1 || true",
+      "interval": 60,
+      "exec-if": "headsetcontrol -b >/dev/null 2>&1"
+    },
+    "tray": { "spacing": 10 },
+    "clock": {
+      "format": "<span foreground=\"#fab387\">󰃭</span>  {:%a %b %d  %I:%M:%S %p}",
+      "interval": 1,
+      "tooltip-format": "<tt><small>{calendar}</small></tt>",
+      "calendar": { "mode": "month" }
     },
     "custom/notifications": {
       "tooltip": false,
@@ -77,32 +83,26 @@
       "on-click": "swaync-client -t -sw",
       "on-click-right": "swaync-client -d -sw",
       "escape": true
-    },
-    "tray": { "spacing": 10 }
+    }
   },
   {
     "output": "DP-4",
     "layer": "top",
     "position": "top",
-    "height": 34,
-    "spacing": 6,
+    "height": 44,
+    "spacing": 8,
     "modules-left": ["hyprland/workspaces", "hyprland/window"],
     "modules-center": ["clock"],
     "modules-right": [],
 
     "hyprland/workspaces": {
-      "format": "{id}",
+      "format": "●",
+      "persistent-workspaces": { "*": 10 },
       "on-click": "activate",
       "on-scroll-up": "hyprctl dispatch workspace e-1",
       "on-scroll-down": "hyprctl dispatch workspace e+1"
     },
-    "hyprland/window": {
-      "max-length": 40,
-      "separate-outputs": true
-    },
-    "clock": {
-      "format": "{:%a %d %b  %H:%M}",
-      "tooltip-format": "<tt><small>{calendar}</small></tt>"
-    }
+    "hyprland/window": { "format": "󰣆  {title}", "max-length": 40, "separate-outputs": true },
+    "clock": { "format": "<span foreground=\"#fab387\">󰃭</span>  {:%a %b %d  %I:%M %p}", "tooltip-format": "<tt><small>{calendar}</small></tt>" }
   }
 ]
