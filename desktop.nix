@@ -21,6 +21,7 @@
 
   # Fonts (replaces the ttf-* / nerd-font Arch packages).
   fonts.packages = with pkgs; [
+    ubuntu-sans nerd-fonts.ubuntu   # hyprpanel-look font for the waybar clone
     fira-sans          # waybar ml4w themes use "Fira Sans Semibold"
     fira-code
     nerd-fonts.fira-code

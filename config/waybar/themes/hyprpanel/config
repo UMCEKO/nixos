@@ -25,7 +25,8 @@
     "hyprland/window": {
       "format": "󰣆  {class}",
       "max-length": 44,
-      "separate-outputs": true
+      "separate-outputs": true,
+      "rewrite": { "󰣆  \\.(.*)-wrapped": "󰣆  $1", "󰣆  (.*)-wrapped": "󰣆  $1" }
     },
     "custom/media": {
       "format": "<span foreground=\"#cba6f7\">󰝚</span>  {}",
@@ -38,6 +39,7 @@
       "format-muted": "<span foreground=\"#f38ba8\">󰝟</span>  {volume}%",
       "format-icons": { "default": ["󰕿", "󰖀", "󰕾"] },
       "on-click": "pavucontrol",
+      "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
       "on-scroll-up": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+",
       "on-scroll-down": "wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-"
     },
@@ -53,7 +55,7 @@
       "format": "<span foreground=\"#89b4fa\">󰂯</span>  On",
       "format-connected": "<span foreground=\"#89b4fa\">󰂱</span>  {num_connections}",
       "format-disabled": "󰂲  Off",
-      "on-click": "blueman-manager",
+      "on-click": "rofi-bluetooth",
       "tooltip-format-connected": "{device_enumerate}",
       "tooltip-format-enumerate-connected": "{device_alias}"
     },

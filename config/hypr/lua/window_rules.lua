@@ -13,7 +13,15 @@ local function float_centered(name, match_, w, h, opts)
 end
 
 -- ===== Floating + centered + sized utilities =====
-float_centered("pavucontrol",   { class = ".*org.pulseaudio.pavucontrol.*" }, 700, 600, { pin = true })
+-- pavucontrol as a bar dropdown: floated, pinned, anchored top-right under the bar
+hl.window_rule({
+  name  = "pavucontrol-dropdown",
+  match = { class = ".*org.pulseaudio.pavucontrol.*" },
+  float = true,
+  size  = { 480, 560 },
+  move  = { "100%-490", "56" },
+  pin   = true,
+})
 float_centered("waypaper",      { class = ".*waypaper.*"                  }, 900, 700, { pin = true })
 float_centered("blueman",       { class = "blueman-manager"               }, 800, 600 )
 float_centered("missioncenter", { class = "io.missioncenter.MissionCenter"}, 900, 600, { pin = true })
