@@ -1,0 +1,85 @@
+/* hyprpanel-like: transparent bar, rounded (0.5em) pill modules, matugen palette */
+@import '../../colors.css';
+
+* {
+  font-family: "Fira Sans Semibold", "JetBrainsMono Nerd Font", "Font Awesome 6 Free", sans-serif;
+  font-size: 14px;
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+}
+
+window#waybar {
+  background: transparent;
+}
+
+/* pill look for every module, like hyprpanel's buttons */
+#custom-dashboard,
+#workspaces,
+#window,
+#clock,
+#mpris,
+#pulseaudio,
+#network,
+#bluetooth,
+#custom-notifications,
+#tray {
+  background: alpha(@background, 0.75);
+  color: @on_surface;
+  border-radius: 0.5em;
+  margin: 4px 2px;
+  padding: 0 12px;
+}
+
+#custom-dashboard {
+  color: @primary;
+  font-size: 16px;
+  padding: 0 14px;
+}
+
+#workspaces {
+  padding: 0 4px;
+}
+#workspaces button {
+  color: @on_surface;
+  border-radius: 0.5em;
+  padding: 0 8px;
+  margin: 2px 1px;
+}
+#workspaces button.active {
+  background: @primary;
+  color: @on_primary;
+}
+#workspaces button:hover {
+  background: alpha(@primary, 0.4);
+}
+
+#window {
+  font-weight: normal;
+}
+window#waybar.empty #window {
+  background: transparent;
+}
+
+#clock {
+  background: alpha(@primary, 0.85);
+  color: @on_primary;
+  font-weight: bold;
+}
+
+#pulseaudio.muted { color: alpha(@on_surface, 0.5); }
+#network.disconnected { color: @error; }
+#bluetooth.disabled { color: alpha(@on_surface, 0.5); }
+#custom-notifications { color: @primary; }
+
+#tray {
+  padding: 0 10px;
+}
+#tray > .passive { -gtk-icon-effect: dim; }
+
+tooltip {
+  background: @background;
+  border: 1px solid @primary;
+  border-radius: 0.5em;
+}
+tooltip label { color: @on_surface; }
