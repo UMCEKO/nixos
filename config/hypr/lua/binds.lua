@@ -83,18 +83,18 @@ hl.bind(mainMod .. " + CTRL + W", exec("waypaper"))
 hl.bind(mainMod .. " + ALT + W", exec(HYPRSCRIPTS .. "/wallpaper-automation.sh"))
 -- SUPER + space cycles keyboard layouts (us <-> tr)
 hl.bind(mainMod .. " + space", exec("hyprctl switchxkblayout current next"))
--- Tap SUPER (release SUPER_L with no other key pressed) opens the launcher
-hl.bind(mainMod .. " + SUPER_L", exec("pkill rofi || rofi -show drun -replace -i"), { release = true })
+-- Tap SUPER (release SUPER_L with no other key pressed) opens the DMS launcher
+hl.bind(mainMod .. " + SUPER_L", exec("dms ipc call spotlight toggle"), { release = true })
 -- Macro / code:201 keep the launcher shortcut as a fallback
-hl.bind("code:201", exec("pkill rofi || rofi -show drun -replace -i"), { ignore_mods = true })
+hl.bind("code:201", exec("dms ipc call spotlight toggle"), { ignore_mods = true })
 hl.bind(mainMod .. " + CTRL + K", exec(HYPRSCRIPTS .. "/keybindings.sh"))
-hl.bind(mainMod .. " + SHIFT + B", exec("hyprpanel -q; hyprpanel"))
-hl.bind(mainMod .. " + CTRL + B", exec("hyprpanel -t bar-0"))
+hl.bind(mainMod .. " + N", exec("dms ipc call control-center toggle"))  -- notifications / quick settings
+hl.bind(mainMod .. " + SHIFT + B", exec("dms ipc call bar toggle"))     -- show/hide the bar
 hl.bind(mainMod .. " + SHIFT + R", exec(HYPRSCRIPTS .. "/loadconfig.sh"))
 hl.bind(mainMod .. " + V", exec(HYPRSCRIPTS .. "/cliphist.sh"))
-hl.bind(mainMod .. " + CTRL + T", exec("hyprpanel -t settings-dialog"))
+hl.bind(mainMod .. " + CTRL + T", exec("dms ipc call settings browse general"))
 hl.bind(mainMod .. " + ALT + G", exec(HYPRSCRIPTS .. "/gamemode.sh"))
-hl.bind(mainMod .. " + CTRL + L", exec(HYPRSCRIPTS .. "/power.sh lock"))
+hl.bind(mainMod .. " + CTRL + L", exec("dms ipc call lock lock"))
 hl.bind(mainMod .. " + SHIFT + H", exec(HYPRSCRIPTS .. "/hyprshade.sh"))
 hl.bind("CTRL + Tab", exec(HYPRSCRIPTS .. "/focus.sh"))
 hl.bind(mainMod .. " + P", exec(HYPRSCRIPTS .. "/switch-monitor.sh"))

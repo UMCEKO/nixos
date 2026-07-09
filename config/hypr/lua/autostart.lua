@@ -9,23 +9,21 @@ hl.on("hyprland.start", function()
   -- System daemons (NixOS: no hardcoded /usr paths)
   hl.exec_cmd("hyprpolkitagent")
 
-  -- Wallpaper: wpaperd (built-in per-monitor random rotation from
-  -- ~/Pictures/Wallpapers/anime — replaces waypaper/awww/rotate-timer chain)
-  hl.exec_cmd("wpaperd")
+  -- Wallpaper + idle now handled by DMS (draws wallpaper w/ 10-min cycling;
+  -- own idle daemon for screen-off/lock). wpaperd + hypridle retired.
   hl.exec_cmd(HYPRSCRIPTS .. "/gtk.sh")
-
-  -- Notifications (waybar has no daemon of its own; hyprpanel is retired,
-  -- so swaync is back and unconflicted)
-  hl.exec_cmd("swaync")
-  hl.exec_cmd("hypridle")
   hl.exec_cmd("wl-paste --watch cliphist store")
 
   -- Cleanup (removes stale ~/.cache/gamemode flag)
   hl.exec_cmd(HYPRSCRIPTS .. "/cleanup.sh")
 
-  -- Bar: waybar (hyprpanel retired 2026-07-08 — caused dbus races + silent
-  -- slow init; maintenance-mode upstream)
-  hl.exec_cmd(os.getenv("HOME") .. "/.config/waybar/launch.sh")
+  -- Bar + shell: DankMaterialShell (replaces waybar/eww/swaync).
+  -- Import the Hyprland env into the systemd user manager so the service can
+  -- reach the compositor, then start our own supervised unit (dms-shell.service,
+  -- Restart=on-failure). It has no WantedBy, so it only ever runs here (Hyprland),
+  -- never in KDE. NOT the packaged dms.service (masked).
+  hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP HYPRLAND_INSTANCE_SIGNATURE")
+  hl.exec_cmd("systemctl --user start dms-shell.service")
 
   -- App autostart. Workspace pinning lives in window_rules.lua (class-based)
   -- so apps that spawn helper windows still land on the right workspace.

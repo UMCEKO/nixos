@@ -4,6 +4,15 @@
 
 { config, pkgs, inputs, ... }:
 
+let
+  # ── Session switch ─────────────────────────────────────────────────────────
+  # Which session SDDM auto-logs into. Flip this, `nrs`, then log out / reboot.
+  #   "hyprland"      — Hyprland (plain; what the DMS setup is tuned for)
+  #   "hyprland-uwsm" — Hyprland via UWSM (systemd-managed session)
+  #   "plasma"        — KDE Plasma (Wayland)
+  # KDE stays installed either way; this only picks what boots automatically.
+  autoSession = "hyprland-uwsm";
+in
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -18,6 +27,8 @@
       ./system-tweaks.nix
       ./nginx.nix
       ./nvim-lsp.nix
+      ./dms.nix
+      ./keyring.nix
     ];
 
   # Bootloader.
@@ -66,6 +77,10 @@
   hardware = {
     graphics.enable = true;
     nvidia.open = true;
+    # Save/restore VRAM across suspend (nvidia-suspend/resume services +
+    # NVreg_PreserveVideoMemoryAllocations=1); without it the GPU loses all
+    # state on S3 resume and the compositor crashes to a black screen.
+    nvidia.powerManagement.enable = true;
   };
 
 
@@ -74,6 +89,24 @@
     enable = true;
   };
   services.desktopManager.plasma6.enable = true;
+
+  # No autologin: you type your password at SDDM. That password is what
+  # pam_kwallet uses to auto-unlock the keyring (below) — autologin would enter
+  # no password, leaving the keyring locked (disk isn't LUKS-encrypted, so an
+  # empty-password keyring would mean plaintext secrets). `defaultSession` just
+  # pre-selects the session in the greeter; flip `autoSession` to change it.
+  services.displayManager.autoLogin.enable = false;
+  services.displayManager.defaultSession = autoSession;
+
+  # Single shared keyring for BOTH KDE and Hyprland: KDE's kwalletd/ksecretd
+  # answers org.freedesktop.secrets in either session, so a secret saved in one
+  # is visible in the other. pam_kwallet auto-unlocks "kdewallet" with the login
+  # password — and the plasma6 module ALREADY wires pam_kwallet into the `login`
+  # PAM stack (see /etc/pam.d/login), so we don't set it here (doing so conflicts
+  # on the package). The real blocker was autologin (no password to unlock with);
+  # with password login above, the existing kwallet setup just works, in both
+  # sessions. If the wallet password differs from the login password, KDE prompts
+  # once to reconcile them.
 
 
   # Enable CUPS to print documents.
@@ -133,6 +166,7 @@
 
   # zsh must be enabled at system level to be a valid login shell.
   programs.zsh.enable = true;
+
 
   # Docker (you used it on CachyOS).
   virtualisation.docker.enable = true;

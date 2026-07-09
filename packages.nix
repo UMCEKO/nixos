@@ -25,7 +25,8 @@
     ollama claude-code codex
     android-tools apktool jadx
     typescript-language-server vtsls dioxus-cli
-    temurin-bin flutter
+    temurin-bin flutter tree-sitter imagemagick
+
 
     # ── Neovim runtime deps (your nvim config's :checkhealth wanted these) ──
     gcc gnumake        # C compiler + make: treesitter parser compilation, hererocks/luarocks
@@ -51,12 +52,15 @@
     kdePackages.kdenlive kdePackages.filelight kdePackages.okular kdePackages.kcalc
 
     # ── Wayland / Hyprland desktop stack ───────────────────────────
-    psmisc libnotify networkmanager_dmenu rofi-bluetooth gsimplecal waybar wpaperd rofi wlogout swaynotificationcenter waypaper
-    nwg-dock-hyprland nwg-displays nwg-look
-    hyprlock hypridle hyprpaper hyprpicker hyprshade hyprsunset
+    # Bar/popups/notifications/wallpaper/idle all retired → DankMaterialShell:
+    # DMS draws the wallpaper itself (10-min cycling) and has its own idle daemon
+    # (screen-off 5m / lock 7m). wpaperd + hypridle removed 2026-07-09.
+    psmisc libnotify rofi wlogout
+    nwg-displays nwg-look
+    hyprlock hyprpicker hyprshade hyprsunset
     hyprpolkitagent
     grim slurp satty grimblast wf-recorder wl-clipboard cliphist
-    nsxiv gromit-mpx kdotool matugen awww cava waypipe
+    nsxiv gromit-mpx kdotool matugen cava waypipe
     kitty ghostty
     brightnessctl playerctl
 

@@ -14,10 +14,15 @@ let
   # (kitty/fastfetch/swaync are native modules below — matugen still works there
   # because modules write per-file into a real dir, so its color file sits alongside.)
   writableConfigs = [
-    "hypr" "waybar" "rofi" "wlogout" "swaync" "waypaper" "nwg-dock-hyprland"
-    "matugen" "sidepad" "Iriun" "Kvantum" "vim" "ohmyposh" "nvim" "fish" "zshrc"
+    "hypr" "rofi" "wlogout"
+    "matugen" "sidepad" "Iriun" "Kvantum" "vim" "ohmyposh" "nvim" "fish"
+    # NOTE: "zshrc" removed — zsh is now a native programs.zsh module (below),
+    # so home-manager writes ~/.zshrc directly. The old ~/.config/zshrc/*
+    # modular files (ML4W, oh-my-posh) are no longer sourced.
     "ml4w" # NOT the ML4W rice — your de-ML4W'd configs still read its settings/library files
-    "wpaperd" # wallpaper daemon with built-in rotation (replaced awww+rotate-timer)
+    "quickshell" # editable DMS fork (config/quickshell/dms) — dms-shell.service runs it via -c
+    # Retired 2026-07-09 (→ DankMaterialShell): waybar, eww, swaync, waypaper,
+    # networkmanager-dmenu, nwg-dock-hyprland, wpaperd. Dirs deleted from config/.
   ];
 
   # hyproled — OLED burn-in shader (github.com/mklan/hyproled). Packaged from
@@ -62,6 +67,20 @@ in
     source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nixos/config/${name}";
   });
 
+  # Default browser = Brave. This writes ~/.config/mimeapps.list, which is the
+  # real "default browser" for the desktop: http/https links, .html files, and
+  # apps that call xdg-open all resolve here. (The BROWSER=brave env var in
+  # configuration.nix only covers terminal programs — separate mechanism.)
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "x-scheme-handler/http"  = "brave-browser.desktop";
+      "x-scheme-handler/https" = "brave-browser.desktop";
+      "text/html"              = "brave-browser.desktop";
+      "application/xhtml+xml"  = "brave-browser.desktop";
+    };
+  };
+
   # ── Native home-manager modules (the nix-y way; matugen-safe per-file writes) ──
   programs.kitty = {
     enable = true;
@@ -99,11 +118,73 @@ in
   # too (conflicting with KDE notifications). It's a writable-symlink config
   # launched only from Hyprland's autostart. (services.swaync would be session-agnostic.)
 
-  # zsh was your login shell on CachyOS. Your zsh config lives at ~/.config/zshrc,
-  # so point ~/.zshrc at it.
-  home.file.".zshrc".text = ''
-    [ -f "$HOME/.config/zshrc" ] && source "$HOME/.config/zshrc"
-  '';
+  # ── zsh — native port of your CachyOS ~/.zshrc (was oh-my-zsh + starship) ──
+  # Previously ~/.zshrc did `[ -f ~/.config/zshrc ] && source …`, but that path
+  # was a *directory* (the ML4W modular files), so nothing actually loaded.
+  # Now home-manager owns ~/.zshrc via this module. Same tools you had on Cachy:
+  # oh-my-zsh (git plugin) + autosuggestions + syntax highlighting, prompt = starship.
+  programs.zsh = {
+    enable = true;
+    autosuggestion.enable = true;      # was zsh-autosuggestions from /usr/share
+    syntaxHighlighting.enable = true;  # was fast-syntax-highlighting
+    history = { size = 10000; save = 10000; };  # matches your HISTSIZE/SAVEHIST
+
+    oh-my-zsh = {
+      enable = true;
+      plugins = [ "git" ];  # your active .zshrc used plugins=(git)
+      theme = "";           # empty: OMZ sets no prompt — starship owns it
+    };
+
+    shellAliases = {
+      c = "clear";
+      nf = "fastfetch"; pf = "fastfetch"; ff = "fastfetch";
+      ls = "eza -a --icons=always";
+      ll = "eza -al --icons=always";
+      lt = "eza -a --tree --level=1 --icons=always";
+      v = "$EDITOR"; vim = "$EDITOR";
+      wifi = "nmtui";
+      shutdown = "systemctl poweroff";
+      k = "kubectl";
+      # git (from your CachyOS .zshrc)
+      gs = "git status"; ga = "git add"; gc = "git commit -m";
+      gp = "git push"; gpl = "git pull"; gst = "git stash";
+      gsp = "git stash; git pull"; gfo = "git fetch origin";
+      gcheck = "git checkout";
+      gcredential = "git config credential.helper store";
+      # Dropped as CachyOS/ML4W/qtile-specific (didn't carry over to NixOS):
+      #   ml4w* (flatpak apps), ts/cleanup/ascii/ml4w-update (~/.config/ml4w scripts),
+      #   Qtile=startx, res1/res2, setkb (X11/qtile — you're on Wayland),
+      #   update-grub (NixOS uses systemd-boot, not grub).
+    };
+
+    initContent = ''
+      # PATH additions from your CachyOS .zshrc (bun/ccache dropped — not installed)
+      export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+      setopt append_history
+
+      # pyenv (installed via nix; init still works even without $PYENV_ROOT/bin)
+      export PYENV_ROOT="$HOME/.pyenv"
+      [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+      eval "$(pyenv init - zsh)"
+
+      # md(): render a markdown file to HTML and open it (needs pandoc).
+      # unalias first — NixOS's /etc/zshrc defines md='mkdir -p', and without
+      # this the function definition is a parse error that aborts the rest of
+      # ~/.zshrc (this mirrors your CachyOS .zshrc, which also unaliased md).
+      unalias md 2>/dev/null
+      md() { pandoc "$1" -s -o /tmp/md.html && xdg-open /tmp/md.html; }
+
+      # fastfetch greeting on interactive shells (your CachyOS autostart)
+      if [[ -o interactive ]]; then
+        fastfetch
+      fi
+    '';
+  };
+
+  # starship prompt — this was the prompt in your most-recent CachyOS ~/.zshrc
+  # (`eval "$(starship init zsh)"`). No ~/.config/starship.toml existed, so it
+  # ran on the default preset — same here (add programs.starship.settings to tune).
+  programs.starship.enable = true;
 
   programs.git = {
     enable = true;
@@ -113,6 +194,33 @@ in
         name = "umceko";
       };
     };
+  };
+
+  # ── DankMaterialShell service (Hyprland only) ──
+  # Own unit (not the packaged dms.service, which is masked): that one is
+  # WantedBy/Requisite=graphical-session.target — inactive under our SDDM-launched
+  # Hyprland (so it fails) and active under KDE (so it would leak into Plasma).
+  # This one has NO WantedBy, so nothing auto-starts it; Hyprland's autostart.lua
+  # starts it explicitly (`systemctl --user start dms-shell.service`), which never
+  # happens in KDE. Restart=on-failure gives the crash recovery `dms run -d` lacked.
+  systemd.user.services.dms-shell = {
+    Unit = {
+      Description = "DankMaterialShell (Hyprland session)";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "simple";
+      # -c points at the editable clone (config/quickshell/dms, live-symlinked to
+      # ~/.config/quickshell/dms). The dms wrapper hardcodes -c <store>; a second
+      # -c wins, so this overrides it. Lets us hand-edit the QML. NOTE: on a
+      # dms-shell package bump, re-sync the clone from the new store path.
+      ExecStart = "${pkgs.dms-shell}/bin/dms run --session -c ${config.home.homeDirectory}/.config/quickshell/dms";
+      Restart = "on-failure";
+      RestartSec = 2;
+      Slice = "session.slice";
+    };
+    # deliberately no Install.WantedBy — started from Hyprland autostart only.
   };
 
   # ── User services ported from CachyOS (~/.config/systemd/user) ──
@@ -136,17 +244,19 @@ in
   # (wallpaper-rotate script + timer retired — wpaperd rotates natively now)
 
   # OLED burn-in: shift pixels in the bar area hourly (your old hyproled units).
-  home.packages = [ hyproled ];
-  systemd.user.services.hyproled = {
-    Unit.Description = "Shift OLED pixels on bar area";
-    Service = {
-      Type = "oneshot";
-      ExecStart = "${hyproled}/bin/hyproled -s -m 0 -a 0:0:3840:75";
-    };
-  };
-  systemd.user.timers.hyproled = {
-    Unit.Description = "Hourly OLED pixel shift for bar area";
-    Timer = { OnBootSec = "5min"; OnUnitActiveSec = "1h"; Persistent = true; };
-    Install.WantedBy = [ "timers.target" ];
-  };
+  # DISABLED 2026-07-08 (per request). Re-enable by uncommenting all three below;
+  # the `hyproled` derivation up top stays defined and ready.
+  # home.packages = [ hyproled ];
+  # systemd.user.services.hyproled = {
+  #   Unit.Description = "Shift OLED pixels on bar area";
+  #   Service = {
+  #     Type = "oneshot";
+  #     ExecStart = "${hyproled}/bin/hyproled -s -m 0 -a 0:0:3840:75";
+  #   };
+  # };
+  # systemd.user.timers.hyproled = {
+  #   Unit.Description = "Hourly OLED pixel shift for bar area";
+  #   Timer = { OnBootSec = "5min"; OnUnitActiveSec = "1h"; Persistent = true; };
+  #   Install.WantedBy = [ "timers.target" ];
+  # };
 }
