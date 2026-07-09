@@ -1,13 +1,23 @@
 # Gaming stack — replaces CachyOS's cachyos-gaming-meta.
 # Uses NixOS program modules (declarative) instead of loose packages.
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 {
   programs.steam = {
     enable = true;                       # unfree — allowed via nixpkgs.config.allowUnfree
     gamescopeSession.enable = true;      # "Steam (gamescope)" session in SDDM
     remotePlay.openFirewall = true;
     dedicatedServer.openFirewall = true;
-    extraCompatPackages = [ pkgs.proton-ge-bin ];  # ProtonGE, like protonup gave you
+    extraCompatPackages = [
+      pkgs.proton-ge-bin                 # ProtonGE, like protonup gave you
+      # From the chaotic flake, package only (see flake.nix warning).
+      inputs.chaotic.legacyPackages.${pkgs.system}.proton-cachyos_x86_64_v3
+    ];
+  };
+
+  # Prebuilt chaotic packages (proton-cachyos) — avoids compiling Proton.
+  nix.settings = {
+    extra-substituters = [ "https://nyx-cache.chaotic.cx/" ];
+    extra-trusted-public-keys = [ "nyx-cache.chaotic.cx:dJxTrgMC3V3cFfyIiBQDQorG6k1LsqurH/srpMSq7qk=" ];
   };
 
   programs.gamescope = {

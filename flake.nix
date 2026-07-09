@@ -26,6 +26,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Used ONLY for the proton-cachyos package (prebuilt via nyx-cache).
+    # Do NOT import its module/overlay — it world-rebuilds core packages
+    # (that's what broke gnugrep when we tried the CachyOS kernel).
+    chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
+
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs: {
