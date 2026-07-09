@@ -72,7 +72,16 @@ in
       { layout = "tr"; displayName = "tr"; }   # Turkish Q (default variant, not F)
     ];
     shortcuts."KDE Keyboard Layout Switcher"."Switch to Next Keyboard Layout" = "Meta+Space";
+
+    # KDE apps (Dolphin) read text/view colors from kdeglobals [Colors:*], NOT
+    # from the Kvantum style — so Kvantum's dark bg + KDE's default light scheme
+    # = dark-on-dark. This applies a matching dark scheme so text is readable.
+    workspace.colorScheme = "CatppuccinMochaMauve";
   };
+
+  # The scheme plasma-apply-colorscheme resolves the name above against.
+  home.file.".local/share/color-schemes/CatppuccinMochaMauve.colors".source =
+    ./config/color-schemes/CatppuccinMochaMauve.colors;
 
   # Live symlinks to ~/nixos/config (writable — required for matugen + app state).
   xdg.configFile = lib.genAttrs writableConfigs (name: {
