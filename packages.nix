@@ -27,6 +27,22 @@
     typescript-language-server vtsls dioxus-cli
     temurin-bin flutter tree-sitter imagemagick
 
+    # ── Dev tooling NOT ported by the initial migration ───────────────────
+    # These were `cargo install`'d (~/.cargo/bin) or bun's own installer on
+    # CachyOS, so they weren't in the pacman list the migration ported from.
+    # This restores the comera-ai (Rust + gRPC/protobuf + bun) stack etc.
+    bun                          # JS runtime + `bun generate:api` (was ~/.bun)
+    protobuf                     # `protoc` — prost/tonic gRPC codegen
+    pkg-config cmake             # build essentials for Rust -sys / native crates
+    mold sccache                 # fast linker + shared compile cache
+    grpcurl                      # gRPC CLI (poke services by hand)
+    # Rust cargo subcommands (were in ~/.cargo/bin; standalone bins, fine with rustup)
+    sqlx-cli sea-orm-cli         # DB migrations + SeaORM codegen (provides `sqlx`)
+    cargo-expand cargo-machete cargo-license
+    cargo-zigbuild cargo-xwin    # cross-compile (zig / MSVC), as on CachyOS
+    # DB CLIs (servers run in docker; these are just the clients)
+    postgresql redis             # `psql` / `redis-cli`
+
 
     # ── Neovim runtime deps (your nvim config's :checkhealth wanted these) ──
     gcc gnumake        # C compiler + make: treesitter parser compilation, hererocks/luarocks
