@@ -25,11 +25,8 @@ let
     # networkmanager-dmenu, nwg-dock-hyprland, wpaperd. Dirs deleted from config/.
   ];
 
-  # git-credential-libsecret — the canonical keyring-backed git credential helper.
-  # nixpkgs ships only the .c source in git's contrib/, so we compile it here
-  # against libsecret + glib. It stores HTTPS credentials in gnome-keyring (our
-  # unified Secret Service), so any host — self-hosted GitLab, Bitbucket, etc. —
-  # is authenticated once (enter a PAT) and remembered, with no plaintext on disk.
+  # git credential helper backed by gnome-keyring. nixpkgs ships only the .c
+  # source in git's contrib/, so compile it against libsecret + glib.
   git-credential-libsecret = pkgs.runCommand "git-credential-libsecret"
     { nativeBuildInputs = [ pkgs.gcc pkgs.pkg-config ];
       buildInputs = [ pkgs.glib pkgs.libsecret ]; }
@@ -208,34 +205,21 @@ in
         email = "umutcevdetkocak@gmail.com";
         name = "umceko";
       };
-      # Prompt on the TERMINAL, never the GUI askpass. Plasma6 exports
-      # SSH_ASKPASS=ksshaskpass globally; under Hyprland that Qt app can't
-      # register its portal (the "Failed to register with host portal" spam) and
-      # then dead-ends at a password prompt GitHub/GitLab no longer accept. An
-      # empty core.askpass makes git skip askpass entirely and use the tty.
+      # Empty so git prompts on the tty instead of the broken ksshaskpass that
+      # plasma6 exports globally (its Qt portal can't register under Hyprland).
       core.askpass = "";
       credential = {
-        # Default for every host: store the credential in gnome-keyring (our
-        # Secret Service) via libsecret. First push to a host asks once for a
-        # PAT, then it's remembered — covers self-hosted GitLab and anything else.
+        # Every host → gnome-keyring (asked once per host). github uses gh's
+        # OAuth token instead; leading "" resets libsecret so only gh answers.
         helper = "${git-credential-libsecret}/bin/git-credential-libsecret";
-        # GitHub is special: use the gh CLI's OAuth token (auto-refreshing) rather
-        # than a static PAT in the keyring. The leading "" resets the inherited
-        # libsecret helper for this host so ONLY gh answers, avoiding a stale
-        # cached token when gh rotates it.
         "https://github.com".helper = [ "" "!gh auth git-credential" ];
         "https://gist.github.com".helper = [ "" "!gh auth git-credential" ];
       };
     };
   };
 
-  # ── DankMaterialShell service (Hyprland only) ──
-  # Own unit (not the packaged dms.service, which is masked): that one is
-  # WantedBy/Requisite=graphical-session.target — inactive under our SDDM-launched
-  # Hyprland (so it fails) and active under KDE (so it would leak into Plasma).
-  # This one has NO WantedBy, so nothing auto-starts it; Hyprland's autostart.lua
-  # starts it explicitly (`systemctl --user start dms-shell.service`), which never
-  # happens in KDE. Restart=on-failure gives the crash recovery `dms run -d` lacked.
+  # DMS unit with no WantedBy — autostart.lua starts it, so it only runs under
+  # Hyprland, never KDE (see dms.nix). Restart=on-failure adds crash recovery.
   systemd.user.services.dms-shell = {
     Unit = {
       Description = "DankMaterialShell (Hyprland session)";

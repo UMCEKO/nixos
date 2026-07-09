@@ -18,12 +18,8 @@
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
 
-    # Hyprland-session portal routing. Without this, plasma6's KDE portal config
-    # (default=kde, Secret=kwallet) is applied to the Hyprland session too —
-    # screencast/screenshot go through the KDE portal (wrong for Hyprland) and
-    # the Secret portal prompts for kwallet even though gnome-keyring is our
-    # Secret Service. Route screen* to hyprland's portal and Secret to
-    # gnome-keyring; everything else falls back hyprland -> gtk.
+    # Hyprland portal routing — else plasma6's KDE config (default=kde,
+    # Secret=kwallet) bleeds into the Hyprland session.
     config.hyprland = {
       default = [ "hyprland" "gtk" ];
       "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
@@ -57,12 +53,8 @@
     carlito                          # Calibri-metric-compatible sans
   ];
 
-  # Reject Unifont from the fallback chain. NixOS's fonts.enableDefaultPackages
-  # (on by default) pulls in Unifont as a last-resort fallback; CachyOS never
-  # had it. The difference: for codepoints no real font covers (unassigned ones,
-  # rare scripts, exotic symbols), Unifont draws a box with the hex number inside
-  # — which showed up as "wrong-looking characters" in Discord. Rejecting it makes
-  # those render as a plain blank box, matching how CachyOS behaved.
+  # Reject Unifont (NixOS default fallback) — its hex-box glyphs for uncovered
+  # codepoints showed as garbage in Discord. CachyOS never had it.
   fonts.fontconfig.localConf = ''
     <?xml version="1.0"?>
     <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
