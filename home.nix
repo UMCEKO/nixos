@@ -241,7 +241,7 @@ in
     Install.WantedBy = [ "default.target" ];
   };
 
-  # (wallpaper-rotate script + timer retired — wpaperd rotates natively now)
+  # (wallpaper-rotate script + timer retired — DMS draws + cycles wallpaper now)
 
   # OLED burn-in: shift pixels in the bar area hourly (your old hyproled units).
   # DISABLED 2026-07-08 (per request). Re-enable by uncommenting all three below;

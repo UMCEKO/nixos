@@ -15,7 +15,6 @@ end
 -- ===== Floating + centered + sized utilities =====
 -- pavucontrol: opened via middle-click on volume pill (deep mixer)
 float_centered("pavucontrol", { class = ".*org.pulseaudio.pavucontrol.*" }, 700, 600, { pin = true })
-float_centered("waypaper",      { class = ".*waypaper.*"                  }, 900, 700, { pin = true })
 float_centered("blueman",       { class = "blueman-manager"               }, 800, 600 )
 float_centered("missioncenter", { class = "io.missioncenter.MissionCenter"}, 900, 600, { pin = true })
 float_centered("gnome-calc",    { class = "org.gnome.Calculator"          }, 700, 600 )

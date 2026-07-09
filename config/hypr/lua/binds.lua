@@ -78,9 +78,8 @@ hl.bind(mainMod .. " + ALT + F", exec(HYPRSCRIPTS .. "/screenshot.sh --instant")
 hl.bind(mainMod .. " + SHIFT + S", exec(HYPRSCRIPTS .. "/screenshot.sh --instant-area --clipboard"))
 hl.bind(mainMod .. " + ALT + R", exec(HYPRSCRIPTS .. "/record-area.sh"))
 hl.bind(mainMod .. " + CTRL + Q", exec(HYPRSCRIPTS .. "/wlogout.sh"))
-hl.bind(mainMod .. " + SHIFT + W", exec("waypaper --random"))
-hl.bind(mainMod .. " + CTRL + W", exec("waypaper"))
-hl.bind(mainMod .. " + ALT + W", exec(HYPRSCRIPTS .. "/wallpaper-automation.sh"))
+-- Wallpaper is handled by DMS now (draws + cycles it, picker in the control
+-- center). The old waypaper / wallpaper-automation binds are retired.
 -- SUPER + space cycles keyboard layouts (us <-> tr)
 hl.bind(mainMod .. " + space", exec("hyprctl switchxkblayout current next"))
 -- Tap SUPER (release SUPER_L with no other key pressed) opens the DMS launcher

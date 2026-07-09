@@ -15,10 +15,6 @@ if [ -f $HOME/.config/ml4w/settings/gamemode-enabled ]; then
     cat $ml4w_cache_folder/last_monitor.conf > $HOME/.config/hypr/conf/monitor.conf
     rm $ml4w_cache_folder/last_monitor.conf
   fi
-  if [ -f $ml4w_cache_folder/restart-wpauto ]; then
-    rm $ml4w_cache_folder/restart-wpauto
-    $HOME/.config/hypr/scripts/wallpaper-automation.sh &
-  fi
   hyprctl reload
   rm $HOME/.config/ml4w/settings/gamemode-enabled
   notify-send "Gamemode deactivated" "Animations and blur enabled"
@@ -26,10 +22,6 @@ else
   if [ -f $gamemode_monitor ]; then
     cat $HOME/.config/hypr/conf/monitor.conf > $ml4w_cache_folder/last_monitor.conf
     echo "source = $gamemode_monitor" > $HOME/.config/hypr/conf/monitor.conf
-  fi
-  if [ -f $ml4w_cache_folder/wallpaper-automation ]; then
-    touch $ml4w_cache_folder/restart-wpauto
-    $HOME/.config/hypr/scripts/wallpaper-automation.sh
   fi
   hyprctl --batch "\
     keyword animations:enabled 0;\
