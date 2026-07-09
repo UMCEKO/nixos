@@ -50,7 +50,9 @@
     spotify obsidian
     bitwarden-desktop keepassxc anydesk rustdesk-flutter
     onlyoffice-desktopeditors figma-linux
-    vlc haruna obs-studio gpu-screen-recorder krita mpv
+    vlc haruna gpu-screen-recorder krita mpv
+    # OBS wrapped with vkcapture: provides `obs-gamecapture` (Finals launch opts)
+    (wrapOBS { plugins = with obs-studio-plugins; [ obs-vkcapture ]; })
     qdirstat quickemu unetbootin pavucontrol
     stremio-linux-shell     # native (was flatpak); plain `stremio` removed from nixpkgs (Qt5 webengine CVE)
     pulseaudio              # provides `pactl` client (chatmix script needs it)
