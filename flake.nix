@@ -2,12 +2,12 @@
   description = "umceko's NixOS configuration";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     # home-manager as a proper flake input, replacing the fetchTarball.
     # `follows` makes it use the SAME nixpkgs as above (no second copy).
     home-manager = {
-      url = "github:nix-community/home-manager/release-26.05";
+      url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

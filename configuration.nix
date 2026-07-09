@@ -180,7 +180,7 @@ in
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
   home-manager.backupFileExtension = "hm-bak"; # backup clobbered files instead of failing
-  home-manager.sharedModules = [ inputs.plasma-manager.homeManagerModules.plasma-manager ];
+  home-manager.sharedModules = [ inputs.plasma-manager.homeModules.plasma-manager ];
   home-manager.users.umceko = import ./home.nix;
 
   # Install firefox.
