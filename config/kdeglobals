@@ -103,7 +103,7 @@ Splitter State=\x00\x00\x00\xff\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x8c\
 [General]
 BrowserApplication=google-chrome.desktop
 ColorSchemeHash=9f63c7711a13123582e720791ea0f8c0172977d2
-TerminalApplication=ghostty
+TerminalApplication=alacritty
 TerminalService=Alacritty.desktop
 
 [KDE]
