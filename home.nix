@@ -25,6 +25,21 @@ let
     # networkmanager-dmenu, nwg-dock-hyprland, wpaperd. Dirs deleted from config/.
   ];
 
+  # git-credential-libsecret — the canonical keyring-backed git credential helper.
+  # nixpkgs ships only the .c source in git's contrib/, so we compile it here
+  # against libsecret + glib. It stores HTTPS credentials in gnome-keyring (our
+  # unified Secret Service), so any host — self-hosted GitLab, Bitbucket, etc. —
+  # is authenticated once (enter a PAT) and remembered, with no plaintext on disk.
+  git-credential-libsecret = pkgs.runCommand "git-credential-libsecret"
+    { nativeBuildInputs = [ pkgs.gcc pkgs.pkg-config ];
+      buildInputs = [ pkgs.glib pkgs.libsecret ]; }
+    ''
+      mkdir -p $out/bin
+      gcc -o $out/bin/git-credential-libsecret \
+        ${pkgs.git}/share/git/contrib/credential/libsecret/git-credential-libsecret.c \
+        $(pkg-config --cflags --libs libsecret-1 glib-2.0)
+    '';
+
   # hyproled — OLED burn-in shader (github.com/mklan/hyproled). Packaged from
   # source since it's not in nixpkgs. Wrapped with hyprctl on PATH.
   hyproled = pkgs.stdenv.mkDerivation {
@@ -192,6 +207,24 @@ in
       user = {
         email = "umutcevdetkocak@gmail.com";
         name = "umceko";
+      };
+      # Prompt on the TERMINAL, never the GUI askpass. Plasma6 exports
+      # SSH_ASKPASS=ksshaskpass globally; under Hyprland that Qt app can't
+      # register its portal (the "Failed to register with host portal" spam) and
+      # then dead-ends at a password prompt GitHub/GitLab no longer accept. An
+      # empty core.askpass makes git skip askpass entirely and use the tty.
+      core.askpass = "";
+      credential = {
+        # Default for every host: store the credential in gnome-keyring (our
+        # Secret Service) via libsecret. First push to a host asks once for a
+        # PAT, then it's remembered — covers self-hosted GitLab and anything else.
+        helper = "${git-credential-libsecret}/bin/git-credential-libsecret";
+        # GitHub is special: use the gh CLI's OAuth token (auto-refreshing) rather
+        # than a static PAT in the keyring. The leading "" resets the inherited
+        # libsecret helper for this host so ONLY gh answers, avoiding a stale
+        # cached token when gh rotates it.
+        "https://github.com".helper = [ "" "!gh auth git-credential" ];
+        "https://gist.github.com".helper = [ "" "!gh auth git-credential" ];
       };
     };
   };
