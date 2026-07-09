@@ -57,6 +57,7 @@
     # ventoy-full omitted — flagged insecure (EOL); re-add via permittedInsecurePackages if needed
     # KDE apps not already pulled by plasma6
     kdePackages.kdenlive kdePackages.filelight kdePackages.okular kdePackages.kcalc
+    nautilus                # file manager from CachyOS (SUPER+E)
 
     # ── Wayland / Hyprland desktop stack ───────────────────────────
     # Bar/popups/notifications/wallpaper/idle all retired → DankMaterialShell:

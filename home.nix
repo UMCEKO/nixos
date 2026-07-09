@@ -99,6 +99,7 @@ in
       "x-scheme-handler/https" = "brave-browser.desktop";
       "text/html"              = "brave-browser.desktop";
       "application/xhtml+xml"  = "brave-browser.desktop";
+      "inode/directory"        = "org.gnome.Nautilus.desktop";  # not Dolphin
     };
   };
 
