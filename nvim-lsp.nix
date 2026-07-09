@@ -9,12 +9,12 @@
     # ── LSP servers ──
     lua-language-server
     yaml-language-server
-    dockerfile-language-server-nodejs
+    dockerfile-language-server
     tailwindcss-language-server
     vscode-langservers-extracted     # html / css / json / eslint LSPs
     helm-ls
     just-lsp
-    postgres-lsp
+    postgres-language-server
     matlab-language-server
     gopls                            # you do Go dev
     # typescript-language-server, vtsls, rust-analyzer already in packages.nix
