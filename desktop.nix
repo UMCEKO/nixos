@@ -69,12 +69,13 @@
     </fontconfig>
   '';
 
-  # Qt theming via Kvantum. style=kvantum sets QT_STYLE_OVERRIDE for BOTH Qt5
-  # and Qt6, so Qt6 KDE apps (Dolphin) get the dark theme too — qt5ct alone only
-  # covered Qt5. Theme is catppuccin-mocha-mauve (config/Kvantum), matching DMS.
+  # Qt theming: Kvantum draws widgets (QT_STYLE_OVERRIDE), but the *palette*
+  # (text colors!) comes from the platform theme. qt5ct/qt6ct shipped a light
+  # palette -> dark text on Kvantum's dark bg. kde = plasma-integration, which
+  # reads kdeglobals — where plasma-manager applies CatppuccinMochaMauve.
   qt = {
     enable = true;
-    platformTheme = "qt5ct";
+    platformTheme = "kde";
     style = "kvantum";
   };
 }
