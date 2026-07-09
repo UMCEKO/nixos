@@ -10,7 +10,7 @@ end
 -- ===== Applications =====
 hl.bind(mainMod .. " + RETURN", exec("ghostty"))
 hl.bind(mainMod .. " + B", exec("brave"))
-hl.bind(mainMod .. " + E", exec("nautilus --new-window"))
+hl.bind(mainMod .. " + E", exec("dolphin"))
 hl.bind(mainMod .. " + CTRL + E", exec("rofi -modi emoji -show emoji"))
 hl.bind(mainMod .. " + CTRL + C", exec("gnome-calculator"))
 
