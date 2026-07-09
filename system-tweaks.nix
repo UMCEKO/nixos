@@ -35,7 +35,12 @@
   virtualisation.libvirtd.enable = true;   # VMs via virt-manager
   services.ollama.enable = true;           # local LLM daemon
   services.openssh.enable = true;          # sshd (auto-opens firewall port 22)
-  services.ananicy.enable = true;          # CachyOS auto-nice daemon (desktop responsiveness)
+  services.ananicy = {                     # CachyOS auto-nice daemon
+    enable = true;
+    package = pkgs.ananicy-cpp;            # the cpp rewrite CachyOS ships
+    rulesProvider = pkgs.ananicy-rules-cachyos;  # CachyOS's own rules pack
+  };
+  services.irqbalance.enable = true;       # spread IRQs across cores (CachyOS default)
   services.mullvad-vpn.enable = true;      # NOTE: you also run tailscale — watch for routing conflicts
   services.flatpak.enable = true;          # remote + apps are manual (see MORNING-README)
 
