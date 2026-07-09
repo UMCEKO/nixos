@@ -69,9 +69,12 @@
     </fontconfig>
   '';
 
-  # Qt theming (Kvantum) — GTK/Qt look from your dotfiles.
+  # Qt theming via Kvantum. style=kvantum sets QT_STYLE_OVERRIDE for BOTH Qt5
+  # and Qt6, so Qt6 KDE apps (Dolphin) get the dark theme too — qt5ct alone only
+  # covered Qt5. Theme is catppuccin-mocha-mauve (config/Kvantum), matching DMS.
   qt = {
     enable = true;
     platformTheme = "qt5ct";
+    style = "kvantum";
   };
 }
