@@ -25,7 +25,7 @@ in
       ./nvim-lsp.nix
       ./dms.nix
       ./keyring.nix
-      # ./secureboot.nix   # staged; enable when doing the Secure Boot firmware steps
+      ./secureboot.nix
     ];
 
   # Bootloader.
