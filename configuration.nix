@@ -37,7 +37,9 @@ in
   nix.settings.max-substitution-jobs = 32;  # default 16 — packages fetched at once
   nix.settings.connect-timeout = 5;         # fail fast on a dead mirror connection
 
-  # Use latest kernel.
+  # Latest mainline kernel — already has sched_ext, so scx_lavd (the CachyOS
+  # gaming scheduler) runs on it. The CachyOS kernel is skipped because
+  # nvidia-open won't build against it locally (disallowedReferences on -dev).
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   networking.hostName = "nixos"; # Define your hostname.

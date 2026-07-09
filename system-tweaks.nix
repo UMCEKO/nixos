@@ -3,12 +3,12 @@
 { config, pkgs, ... }:
 {
 
-  # Kernel cmdline tweaks you had set.
   boot.kernelParams = [
-    "zswap.enabled=0"     # you disabled zswap
-    "loglevel=3"          # quieter boot
+    "zswap.enabled=0"     # off — using zram
+    "loglevel=3"
     "vsyscall=emulate"    # compat for older/anticheat binaries
-    "pcie_aspm=off"       # ROOT-CAUSE fix for igc/eno1 NIC dropping (was fix-eno1)
+    "pcie_aspm=off"       # fixes igc/eno1 NIC dropping after resume
+    "mitigations=off"     # CachyOS-style: reclaim CPU, drops Spectre-class mitigations
   ];
   boot.plymouth.enable = true;  # boot splash; drop this if it fights nvidia early-KMS
 
@@ -43,6 +43,20 @@
   services.udev.extraRules = ''
     ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="usb", ATTRS{idVendor}=="05e3", ATTRS{idProduct}=="0610", ATTR{power/wakeup}="enabled"
   '';
+
+  # ── Gaming / performance (CachyOS parity) ──────────────────────────────
+  powerManagement.cpuFreqGovernor = "performance";        # pin max clocks
+  zramSwap = { enable = true; memoryPercent = 50; };      # ~15G compressed swap
+  services.scx = { enable = true; scheduler = "scx_lavd"; };  # sched-ext gaming scheduler
+  boot.kernel.sysctl = {
+    "vm.max_map_count" = 2147483642;    # big / Proton / anticheat games
+    "vm.swappiness" = 100;              # zram is fast, favor it
+    "vm.page-cluster" = 0;              # zram: one page per swapin
+    "vm.vfs_cache_pressure" = 50;
+    "kernel.split_lock_mitigate" = 0;   # games that trip split-lock
+    "net.core.default_qdisc" = "cake";  # bufferbloat for online play
+    "net.ipv4.tcp_congestion_control" = "bbr";
+  };
 
   # Hardware workaround: your Intel 2.5GbE (igc) NIC drops after suspend — reload on resume.
   systemd.services.igc-resume = {

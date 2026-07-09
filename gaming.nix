@@ -10,8 +10,17 @@
     extraCompatPackages = [ pkgs.proton-ge-bin ];  # ProtonGE, like protonup gave you
   };
 
-  programs.gamescope.enable = true;
-  programs.gamemode.enable = true;       # `gamemoderun %command%` in Steam launch opts
+  programs.gamescope = {
+    enable = true;
+    capSysNice = true;                   # lets gamescope raise its scheduling priority
+  };
+  programs.gamemode = {
+    enable = true;                       # `gamemoderun %command%` in Steam launch opts
+    settings.general = {
+      renice = 10;
+      inhibit_screensaver = 1;
+    };
+  };
 
   # 32-bit graphics libs — needed by Steam/Proton/Wine (replaces all the lib32-* pkgs).
   hardware.graphics.enable32Bit = true;
