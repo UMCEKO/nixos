@@ -1,0 +1,6 @@
+# nixos-rebuild build output symlink
+/result
+
+# DMS editable clone — heavy binary assets (live-symlinked, not edited)
+config/quickshell/dms/assets/
+config/quickshell/dms/translations/
