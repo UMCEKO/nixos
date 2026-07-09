@@ -17,6 +17,15 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
+
+    # Secure Boot: signed bootloader/kernel with your own keys (sbctl).
+    # master, not v0.4.2 — the tagged release still sets boot.bootspec.enable,
+    # which nixos-unstable now hard-asserts against.
+    lanzaboote = {
+      url = "github:nix-community/lanzaboote";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs: {
@@ -27,6 +36,7 @@
       modules = [
         ./configuration.nix
         home-manager.nixosModules.home-manager
+        inputs.lanzaboote.nixosModules.lanzaboote
       ];
     };
   };
