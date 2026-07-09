@@ -154,6 +154,9 @@ in
   # Docker (you used it on CachyOS).
   virtualisation.docker.enable = true;
 
+  # SteelSeries ChatMix daemon (module from the chatmixd flake input).
+  services.chatmixd.enable = true;
+
   # Tailscale (was running on CachyOS). After switching, run `sudo tailscale up`
   # to re-authenticate this node (or restore old identity — see below).
   services.tailscale.enable = true;

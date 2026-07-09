@@ -31,6 +31,9 @@
     # (that's what broke gnugrep when we tried the CachyOS kernel).
     chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
 
+    # Your SteelSeries ChatMix daemon (local checkout).
+    chatmixd.url = "git+file:///projects/chatmixd";
+
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs: {
@@ -42,6 +45,7 @@
         ./configuration.nix
         home-manager.nixosModules.home-manager
         inputs.lanzaboote.nixosModules.lanzaboote
+        inputs.chatmixd.nixosModules.default
       ];
     };
   };
