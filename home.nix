@@ -5,7 +5,7 @@
 # git-tracked files, so nothing can silently go missing). We LIVE-symlink them
 # (mkOutOfStoreSymlink) ~/.config/<x> -> ~/nixos/config/<x>, so you still edit in
 # place and commit them alongside the rest of the nix config.
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 let
   # Live symlinks (writable) to ~/nixos/config. These MUST stay writable because
   # matugen writes color files into these dirs at runtime (hypr/waybar/rofi/wlogout/
@@ -82,6 +82,11 @@ in
   # The scheme plasma-apply-colorscheme resolves the name above against.
   home.file.".local/share/color-schemes/CatppuccinMochaMauve.colors".source =
     ./config/color-schemes/CatppuccinMochaMauve.colors;
+
+  # Stable path to proton-cachyos for umu-launcher (PROTONPATH) — survives
+  # updates, unlike a raw /nix/store path. /bin is the compat-tool root.
+  home.file.".local/share/proton-cachyos".source =
+    "${inputs.chaotic.legacyPackages.${pkgs.system}.proton-cachyos_x86_64_v3}/bin";
 
   # Live symlinks to ~/nixos/config (writable — required for matugen + app state).
   xdg.configFile = lib.genAttrs writableConfigs (name: {

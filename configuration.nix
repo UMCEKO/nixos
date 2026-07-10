@@ -26,8 +26,6 @@ in
       ./dms.nix
       ./keyring.nix
       ./secureboot.nix
-      # Shell
-      ./shell.nix
     ];
 
   # Bootloader.
@@ -167,6 +165,7 @@ in
 
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
+  home-manager.extraSpecialArgs = { inherit inputs; };
   home-manager.backupFileExtension = "hm-bak"; # backup clobbered files instead of failing
   home-manager.sharedModules = [ inputs.plasma-manager.homeModules.plasma-manager ];
   home-manager.users.umceko = import ./home.nix;
