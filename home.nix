@@ -58,6 +58,12 @@ let
   };
 in
 {
+  # HUSH: installs the `hush` GUI + runs the `hushd` denoiser as a user service
+  # (the module bakes the runtime SDK dir into the unit's LD_LIBRARY_PATH; the SDK
+  # itself is downloaded once by the app on first launch).
+  imports = [ inputs.hush.homeManagerModules.default ];
+  services.hush.enable = true;
+
   home.stateVersion = "26.05";
 
   # KDE is now managed declaratively by plasma-manager (see rc2nix workflow),
@@ -87,6 +93,12 @@ in
   # updates, unlike a raw /nix/store path. /bin is the compat-tool root.
   home.file.".local/share/proton-cachyos".source =
     "${inputs.chaotic.legacyPackages.${pkgs.system}.proton-cachyos_x86_64_v3}/bin";
+
+  # OpenComposite (OpenVR->OpenXR shim) for VR_OVERRIDE consumers. Nix-built —
+  # an Arch-built copy can't load here (glibc/GL deps), and nix store paths
+  # stay visible inside the Steam Linux Runtime container.
+  home.file.".local/share/opencomposite".source =
+    "${pkgs.opencomposite}/lib/opencomposite";
 
   # Live symlinks to ~/nixos/config (writable — required for matugen + app state).
   xdg.configFile = lib.genAttrs writableConfigs (name: {

@@ -126,6 +126,26 @@
         "type": "github"
       }
     },
+    "hush": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783708396,
+        "narHash": "sha256-EJNhhkStwBnQBhAlpLjdUeiVJEGiFc4LhLFMTFBDYtM=",
+        "owner": "UMCEKO",
+        "repo": "hush",
+        "rev": "756fa9b176726ef3c40b1c797d1a49625a4d8da9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "UMCEKO",
+        "repo": "hush",
+        "type": "github"
+      }
+    },
     "lanzaboote": {
       "inputs": {
         "crane": "crane",
@@ -247,6 +267,7 @@
         "chaotic": "chaotic",
         "chatmixd": "chatmixd",
         "home-manager": "home-manager_2",
+        "hush": "hush",
         "lanzaboote": "lanzaboote",
         "nixpkgs": "nixpkgs_3",
         "plasma-manager": "plasma-manager"

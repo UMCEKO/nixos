@@ -34,6 +34,13 @@
     # Your SteelSeries ChatMix daemon.
     chatmixd.url = "github:UMCEKO/chatmixd";
 
+    # HUSH — Maxine denoiser virtual mic. `follows` reuses this nixpkgs (no 2nd copy).
+    # The GUI + hushd service come from its home-manager module (imported in home.nix).
+    hush = {
+      url = "github:UMCEKO/hush";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs: {
