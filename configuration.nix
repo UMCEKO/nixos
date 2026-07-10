@@ -26,6 +26,8 @@ in
       ./dms.nix
       ./keyring.nix
       ./secureboot.nix
+      # Shell
+      ./shell.nix
     ];
 
   # Bootloader.

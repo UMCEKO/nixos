@@ -26,17 +26,17 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1783630228,
-        "narHash": "sha256-OzsZKdchLCLuIV13D1VS1kLrfR6GlQw1BkO+yFpAGXE=",
-        "ref": "refs/heads/main",
-        "rev": "9b0a374a1b35762e25f8824dabb95f65ae82064d",
-        "revCount": 19,
-        "type": "git",
-        "url": "file:///projects/chatmixd"
+        "lastModified": 1783631250,
+        "narHash": "sha256-9Jp7GE9XKgagQkF70W0dLZMAdlsOAexQnN5tEOziHCU=",
+        "owner": "UMCEKO",
+        "repo": "chatmixd",
+        "rev": "71c8e807fd0352b33f1067ad7a0c7f506179c62c",
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "file:///projects/chatmixd"
+        "owner": "UMCEKO",
+        "repo": "chatmixd",
+        "type": "github"
       }
     },
     "crane": {

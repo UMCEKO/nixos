@@ -31,8 +31,8 @@
     # (that's what broke gnugrep when we tried the CachyOS kernel).
     chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
 
-    # Your SteelSeries ChatMix daemon (local checkout).
-    chatmixd.url = "git+file:///projects/chatmixd";
+    # Your SteelSeries ChatMix daemon.
+    chatmixd.url = "github:UMCEKO/chatmixd";
 
   };
 

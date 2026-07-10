@@ -250,23 +250,9 @@ in
     # deliberately no Install.WantedBy — started from Hyprland autostart only.
   };
 
-  # ── User services ported from CachyOS (~/.config/systemd/user) ──
-  # These run scripts in ~/.local/bin (copied over). Proper nixification
-  # (writeShellApplication with pinned runtimeInputs) is a follow-up.
-  systemd.user.services.chatmix-setup = {
-    Unit = {
-      Description = "Create ChatMix sinks routed to Arctis Nova 7";
-      After = [ "pipewire-pulse.service" "wireplumber.service" ];
-      Requires = [ "pipewire-pulse.service" ];
-    };
-    Service = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStart = "${config.home.homeDirectory}/.local/bin/chatmix-setup.sh";
-      Environment = "PATH=/run/current-system/sw/bin:${config.home.homeDirectory}/.nix-profile/bin";
-    };
-    Install.WantedBy = [ "default.target" ];
-  };
+  # (chatmix-setup service retired — the chatmixd daemon (flake input) creates
+  # the Game/Chat sinks itself on first dial input; the old ~/.local/bin script
+  # was never copied and the unit failed every boot.)
 
   # (wallpaper-rotate script + timer retired — DMS draws + cycles wallpaper now)
 
