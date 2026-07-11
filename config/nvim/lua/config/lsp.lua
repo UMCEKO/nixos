@@ -1,14 +1,8 @@
 vim.opt.exrc = true
 vim.opt.secure = true -- Recommended with exrc
 
-local lspconfig = require("lspconfig")
-
-lspconfig.postgres_lsp.setup({
-  settings = {
-    ["postgres-language-server"] = {},
-  },
-  filetypes = { "sql", "pgsql", "postgres", "sql.dockerfile" },
-})
+-- postgres_lsp is configured via the nvim-lspconfig spec (plugins/lsp.lua);
+-- requiring lspconfig here loads it before snacks.nvim and crashes LazyVim.
 vim.diagnostic.config({
   float = {
     focusable = true, -- Set this to true

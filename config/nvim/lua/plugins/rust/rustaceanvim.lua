@@ -37,7 +37,8 @@ return {
             prefix = "self",
           },
           -- Add clippy lints for Rust if using rust-analyzer
-          checkOnSave = {
+          checkOnSave = true,
+          check = {
             command = "check", -- or "clippy"
           },
           -- Enable diagnostics if using rust-analyzer

@@ -11,6 +11,12 @@ return {
     },
     opts = {
       servers = {
+        postgres_lsp = {
+          filetypes = { "sql", "pgsql", "postgres", "sql.dockerfile" },
+          settings = {
+            ["postgres-language-server"] = {},
+          },
+        },
         yamlls = {
           settings = {
             yaml = {

@@ -32,7 +32,7 @@
     bun protobuf pkg-config cmake mold sccache grpcurl
     sqlx-cli sea-orm-cli cargo-expand cargo-machete cargo-license
     cargo-zigbuild cargo-xwin
-    postgresql redis
+    postgresql redis shopify-cli
 
 
     # ── Neovim runtime deps (your nvim config's :checkhealth wanted these) ──
@@ -71,7 +71,7 @@
     hyprpolkitagent
     grim slurp satty grimblast wf-recorder wl-clipboard cliphist
     nsxiv gromit-mpx kdotool matugen cava waypipe
-    kitty ghostty
+    kitty ghostty wayvr xrizer umu-launcher reqable bs-manager
     brightnessctl playerctl
 
     # ── Theming / fonts helpers ────────────────────────────────────
@@ -82,8 +82,12 @@
     openrgb polychromatic headsetcontrol gpustat
     vulkan-tools
 
+    # Phone-as-webcam; vendor .deb repack (Qt5 → libsForQt5 scope for
+    # qtbase/qtwayland/wrapQtAppsHook). v4l2loopback lives in system-tweaks.nix.
+    (libsForQt5.callPackage ./pkgs/iriunwebcam.nix { })
+
     # ── NOT in nixpkgs (were AUR / vendor) — handle later, see README:
-    # curseforge, bs-manager, nordpass, reqable, iriunwebcam, antigravity-cli,
+    # curseforge, bs-manager, nordpass, reqable, antigravity-cli,
     # win11-clipboard-history, wallpaper-engine-kde-plugin, chatmixd,
     # char-white (cursor), wayvr / xrizer / xrgears (VR — see vr.nix)
   ];

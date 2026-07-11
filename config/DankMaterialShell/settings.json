@@ -1,8 +1,15 @@
 {
-  "currentThemeName": "red",
-  "currentThemeCategory": "generic",
-  "customThemeFile": "",
-  "registryThemeVariants": {},
+  "currentThemeName": "custom",
+  "currentThemeCategory": "registry",
+  "customThemeFile": "/home/umceko/.config/DankMaterialShell/themes/deepdark/theme.json",
+  "registryThemeVariants": {
+    "deepdark": {
+      "dark": {
+        "flavor": "voltage",
+        "accent": "purple"
+      }
+    }
+  },
   "matugenScheme": "scheme-tonal-spot",
   "runUserMatugenTemplates": true,
   "matugenTargetMonitor": "DP-3",
@@ -239,7 +246,7 @@
   "soundVolumeChanged": true,
   "soundPluggedIn": true,
   "acMonitorTimeout": 300,
-  "acLockTimeout": 420,
+  "acLockTimeout": 300,
   "acSuspendTimeout": 0,
   "acSuspendBehavior": 0,
   "acProfileName": "",
@@ -262,6 +269,7 @@
   "audioInputDevicePins": {},
   "audioOutputDevicePins": {
     "preferredOutput": [
+      "wivrn.sink",
       "alsa_output.pci-0000_01_00.1.pro-output-7",
       "Game"
     ]
@@ -297,7 +305,7 @@
   "matugenTemplateVscode": true,
   "matugenTemplateEmacs": true,
   "matugenTemplateZed": true,
-  "showDock": true,
+  "showDock": false,
   "dockAutoHide": false,
   "dockSmartAutoHide": false,
   "dockGroupByApp": true,
@@ -410,32 +418,43 @@
       "id": "default",
       "name": "Main Bar",
       "enabled": true,
-      "position": 0,
+      "position": 1,
       "screenPreferences": [
         "all"
       ],
       "showOnLastDisplay": true,
       "leftWidgets": [
-        "launcherButton",
-        "workspaceSwitcher",
-        "focusedWindow"
-      ],
-      "centerWidgets": [
-        "music",
-        "clock",
-        "weather"
-      ],
-      "rightWidgets": [
         {
-          "id": "controlCenterButton",
+          "id": "launcherButton",
           "enabled": true
         },
+        "workspaceSwitcher",
+        {
+          "id": "focusedWindow",
+          "enabled": true
+        }
+      ],
+      "centerWidgets": [
+        {
+          "id": "clock",
+          "enabled": true
+        },
+        {
+          "id": "music",
+          "enabled": true
+        },
+        {
+          "id": "weather",
+          "enabled": true
+        }
+      ],
+      "rightWidgets": [
         {
           "id": "cpuUsage",
           "enabled": true
         },
         {
-          "id": "notificationButton",
+          "id": "controlCenterButton",
           "enabled": true
         },
         {
@@ -443,31 +462,31 @@
           "enabled": true
         },
         {
-          "id": "clipboard",
+          "id": "notificationButton",
           "enabled": true
         }
       ],
-      "spacing": 4,
+      "spacing": 0,
       "innerPadding": 4,
       "bottomGap": 0,
       "transparency": 1,
       "widgetTransparency": 1,
-      "squareCorners": false,
+      "squareCorners": true,
       "noBackground": false,
-      "maximizeWidgetIcons": false,
+      "maximizeWidgetIcons": true,
       "maximizeWidgetText": false,
       "removeWidgetPadding": false,
       "widgetPadding": 8,
-      "gothCornersEnabled": false,
-      "gothCornerRadiusOverride": false,
-      "gothCornerRadiusValue": 12,
-      "borderEnabled": false,
-      "borderColor": "surfaceText",
-      "borderOpacity": 1,
+      "gothCornersEnabled": true,
+      "gothCornerRadiusOverride": true,
+      "gothCornerRadiusValue": 39,
+      "borderEnabled": true,
+      "borderColor": "primary",
+      "borderOpacity": 0.5,
       "borderThickness": 1,
       "widgetOutlineEnabled": false,
       "widgetOutlineColor": "primary",
-      "widgetOutlineOpacity": 1,
+      "widgetOutlineOpacity": 0.5,
       "widgetOutlineThickness": 1,
       "fontScale": 1,
       "iconScale": 1,
