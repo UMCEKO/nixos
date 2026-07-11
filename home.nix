@@ -21,6 +21,8 @@ let
     # modular files (ML4W, oh-my-posh) are no longer sourced.
     "ml4w" # NOT the ML4W rice — your de-ML4W'd configs still read its settings/library files
     "quickshell" # editable DMS fork (config/quickshell/dms) — dms-shell.service runs it via -c
+    "DankMaterialShell" # DMS settings (settings.json etc.) — DMS writes these at runtime
+    "danksearch" # dsearch config.toml
     # Retired 2026-07-09 (→ DankMaterialShell): waybar, eww, swaync, waypaper,
     # networkmanager-dmenu, nwg-dock-hyprland, wpaperd. Dirs deleted from config/.
   ];

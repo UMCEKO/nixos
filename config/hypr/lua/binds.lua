@@ -90,7 +90,7 @@ hl.bind(mainMod .. " + CTRL + K", exec(HYPRSCRIPTS .. "/keybindings.sh"))
 hl.bind(mainMod .. " + N", exec("dms ipc call control-center toggle"))  -- notifications / quick settings
 hl.bind(mainMod .. " + SHIFT + B", exec("dms ipc call bar toggle"))     -- show/hide the bar
 hl.bind(mainMod .. " + SHIFT + R", exec(HYPRSCRIPTS .. "/loadconfig.sh"))
-hl.bind(mainMod .. " + V", exec(HYPRSCRIPTS .. "/cliphist.sh"))
+hl.bind(mainMod .. " + V", exec("dms ipc call clipboard toggle"))
 hl.bind(mainMod .. " + CTRL + T", exec("dms ipc call settings browse general"))
 hl.bind(mainMod .. " + ALT + G", exec(HYPRSCRIPTS .. "/gamemode.sh"))
 hl.bind(mainMod .. " + CTRL + L", exec("dms ipc call lock lock"))
