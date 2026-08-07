@@ -7,3 +7,7 @@ config/quickshell/dms/translations/
 
 # DMS writes a timestamped snapshot of config/hypr/dms on every theme change
 config/hypr/.dms-backups/
+
+# Written by the standalone uv installer; sources ~/.local/bin/env.fish, which
+# lives outside this repo. uv itself is declarative (packages.nix).
+config/fish/conf.d/uv.env.fish
