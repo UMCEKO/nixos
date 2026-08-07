@@ -11,6 +11,14 @@
     "mitigations=off"     # CachyOS-style: reclaim CPU, drops Spectre-class mitigations
     "ignore_loglevel"     # DEBUG(2026-08-03): every printk to console → netconsole
                           # sees it. Drop this once the lockups are solved.
+    # Mitigation RE-ARMED 2026-08-05: the wake fault survived BIOS 3881 —
+    # recurrence #11, the classic signature (died seconds after iriunwebcam's
+    # launch-time USB enumeration, on a 7-hour-aged boot where devices had
+    # long autosuspended; watchdog reset). 3881 lowered the hazard (~64h vs
+    # minutes) but didn't fix the silicon. Verdict: 7900X SoC domain — CPU
+    # swap is the fix; these two lines are the proven-safe config until then.
+    "processor.max_cstate=1"   # no C2/C3 package sleep
+    "usbcore.autosuspend=-1"   # never runtime-suspend USB devices
   ];
   boot.plymouth.enable = true;  # boot splash; drop this if it fights nvidia early-KMS
 
@@ -52,6 +60,11 @@
   # Enable USB wakeup on the Wooting hub (hardware tweak, merges with peripherals.nix rules).
   services.udev.extraRules = ''
     ACTION=="add", SUBSYSTEM=="usb", DRIVERS=="usb", ATTRS{idVendor}=="05e3", ATTRS{idProduct}=="0610", ATTR{power/wakeup}="enabled"
+
+    # Wake-fault mitigation (re-armed 2026-08-05): pin xHCI/GPU/HDA runtime PM.
+    ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x0c0330", ATTR{power/control}="on"
+    ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x030000", ATTR{power/control}="on"
+    ACTION=="add", SUBSYSTEM=="pci", ATTR{class}=="0x040300", ATTR{power/control}="on"
   '';
 
   # ── Gaming / performance (CachyOS parity) ──────────────────────────────
