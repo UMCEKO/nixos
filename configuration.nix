@@ -218,12 +218,11 @@ in
   ];
 
   services.zapret = {
-    enable = true;
+    enable = false;
     params = [
       "--dpi-desync=fake" 
-      "--dpi-desync-ttl=7" 
+      "--dpi-desync-ttl=4" 
       "--dpi-desync-fooling=md5sig" 
-      "--ipset-exclude-ip=176.88.249.180,149.34.196.177"
     ];
   };
 
