@@ -61,6 +61,8 @@
 
   # Services that were enabled on the old box.
   services.avahi.enable = true;            # mDNS / *.local discovery
+  networking.firewall.allowedUDPPorts = [ 4698 ];  # Iriun phone discovery/stream
+  networking.firewall.allowedTCPPorts = [ 25565 ]; # Minecraft server
   virtualisation.libvirtd.enable = true;   # VMs via virt-manager
   services.ollama.enable = true;           # local LLM daemon
   services.openssh.enable = true;          # sshd (auto-opens firewall port 22)
