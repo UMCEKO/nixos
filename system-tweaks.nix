@@ -24,8 +24,24 @@
 
   # Module tweaks.
   boot.blacklistedKernelModules = [ "wacom" ];
+  # v4l2loopback exonerated in the 2026-08 lockup hunt (box crashed with it
+  # never loaded); 0.15.4 override below fixes a real UAF race in 0.15.3.
   boot.kernelModules = [ "v4l2loopback" "snd-aloop" ];      # Iriun virtual cam + audio loopback (chatmix)
-  boot.extraModulePackages = [ config.boot.kernelPackages.v4l2loopback ];
+  boot.extraModulePackages = [
+    # 0.15.4 (2026-06-24) instead of nixpkgs' 0.15.3: fixes a kernel UAF race
+    # ("dev->image could be freed by concurrent VIDIOC_S_FMT during memcpy")
+    # matching the 2026-08-02 lockup signature — dies on first writer/reader
+    # touch, memory corruption = total wedge with zero logs.
+    (config.boot.kernelPackages.v4l2loopback.overrideAttrs (old: {
+      version = "0.15.4";
+      src = pkgs.fetchFromGitHub {
+        owner = "v4l2loopback";
+        repo = "v4l2loopback";
+        rev = "v0.15.4";
+        hash = "sha256-+9wJIeEUP6iaGnfKPl06OuPW5oZdQyHuNDN/1SeHw5s=";
+      };
+    }))
+  ];
   boot.extraModprobeConfig = ''
     options v4l2loopback exclusive_caps=1 devices=1 card_label="Iriun Webcam,Iriun Webcam #2,Iriun Webcam #3,Iriun Webcam #4"
   '';
