@@ -31,6 +31,11 @@ in
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  # Memtest entry in the boot menu (2026-08-03). The hard lockups leave no
+  # kernel trace at all, which is what memory/SoC instability looks like, and
+  # the box has no ECC reporting to rule DRAM in or out. Boot it overnight:
+  # a single error means stop debugging software.
+  boot.loader.systemd-boot.memtest86.enable = true;
   
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   # Faster downloads: many parallel fetches fill a high-latency link (TR -> Fastly).

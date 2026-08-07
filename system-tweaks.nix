@@ -9,6 +9,8 @@
     "vsyscall=emulate"    # compat for older/anticheat binaries
     "pcie_aspm=off"       # fixes igc/eno1 NIC dropping after resume
     "mitigations=off"     # CachyOS-style: reclaim CPU, drops Spectre-class mitigations
+    "ignore_loglevel"     # DEBUG(2026-08-03): every printk to console → netconsole
+                          # sees it. Drop this once the lockups are solved.
   ];
   boot.plymouth.enable = true;  # boot splash; drop this if it fights nvidia early-KMS
 
@@ -26,6 +28,9 @@
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
     LIBVA_DRIVER_NAME = "nvidia";
   };
+
+  # (crash-lab / igpu-only debug boot entries removed 2026-08-03 post-BIOS-3881
+  # — base entry is stock now, so the reproducer runs anywhere.)
 
   # SDDM on Wayland (nvidia greeter env is set automatically by the nvidia module).
   services.displayManager.sddm.wayland.enable = true;
@@ -90,7 +95,24 @@
     "kernel.split_lock_mitigate" = 0;   # games that trip split-lock
     "net.core.default_qdisc" = "cake";  # bufferbloat for online play
     "net.ipv4.tcp_congestion_control" = "bbr";
+
+    # ── Crash forensics (2026-08-02, v4l2loopback lockups) ────────────────
+    # The lockups left zero logs because nothing was allowed to panic — the
+    # box just wedged silently. Now any lockup/oops panics: dmesg (with
+    # backtrace) is dumped to EFI pstore (efi_pstore backend is registered;
+    # systemd-pstore copies it to /var/lib/systemd/pstore on next boot), then
+    # the box reboots itself.
+    "kernel.sysrq" = 1;               # full SysRq: REISUB works on a half-dead box
+    "kernel.softlockup_panic" = 1;    # CPU stuck in kernel >26s → panic, not WARN
+    "kernel.hardlockup_panic" = 1;    # NMI watchdog trip → panic
+    "kernel.hung_task_panic" = 1;     # task in D-state >120s → panic
+    "kernel.panic_on_oops" = 1;       # oops → panic instead of limping on wedged
+    "kernel.panic" = 20;              # reboot 20s after panic
   };
+
+  # SP5100 TCO hardware watchdog: PID1 pets /dev/watchdog0; on a total wedge
+  # where even the panic path is dead, the board resets itself within 30s.
+  systemd.watchdog.runtimeTime = "30s";
 
   # Hardware workaround: your Intel 2.5GbE (igc) NIC drops after suspend — reload on resume.
   systemd.services.igc-resume = {
