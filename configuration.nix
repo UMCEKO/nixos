@@ -67,6 +67,10 @@ in
   # Enable networking
   networking.networkmanager.enable = true;
 
+  # eno1 and wlp8s0 are both on 192.168.0.0/24; wifi wins the route lookup, so
+  # strict rpfilter drops every reply arriving on eno1 in mangle PREROUTING.
+  networking.firewall.checkReversePath = "loose";
+
   # Set your time zone.
   time.timeZone = "Europe/Istanbul";
 
