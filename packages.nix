@@ -11,7 +11,7 @@
     ripgrep fd eza bat zoxide fzf jq yq-go just
     btop htop fastfetch starship nushell
     yt-dlp ncdu duf tokei trash-cli pandoc tesseract
-    unzip p7zip unrar sshpass
+    unzip p7zip unrar sshpass parted net-tools
     # network / diagnostics
     nmap tcpdump mtr traceroute whois ethtool usbutils pciutils dmidecode dnsutils
 
@@ -47,7 +47,7 @@
     # ── GUI apps ───────────────────────────────────────────────────
     brave google-chrome tor-browser            # firefox via programs.firefox
     discord vesktop element-desktop slack
-    spotify obsidian
+    spotify obsidian gparted thunderbird
     bitwarden-desktop keepassxc anydesk rustdesk-flutter
     onlyoffice-desktopeditors figma-linux
     vlc haruna gpu-screen-recorder krita mpv
@@ -60,6 +60,9 @@
     # KDE apps not already pulled by plasma6
     kdePackages.kdenlive kdePackages.filelight kdePackages.okular kdePackages.kcalc
     nautilus                # file manager from CachyOS (SUPER+E)
+    inkscape
+    kopuz                   # goated music player fr
+    wootility               # keyboard mgmt
 
     # ── Wayland / Hyprland desktop stack ───────────────────────────
     # Bar/popups/notifications/wallpaper/idle all retired → DankMaterialShell:
