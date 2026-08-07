@@ -4,3 +4,6 @@
 # DMS editable clone — heavy binary assets (live-symlinked, not edited)
 config/quickshell/dms/assets/
 config/quickshell/dms/translations/
+
+# DMS writes a timestamped snapshot of config/hypr/dms on every theme change
+config/hypr/.dms-backups/
