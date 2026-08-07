@@ -52,7 +52,7 @@
     onlyoffice-desktopeditors figma-linux
     vlc haruna gpu-screen-recorder krita mpv
     # OBS wrapped with vkcapture: provides `obs-gamecapture` (Finals launch opts)
-    (wrapOBS { plugins = with obs-studio-plugins; [ obs-vkcapture ]; })
+    (wrapOBS { plugins = with obs-studio-plugins; [ obs-vkcapture obs-multi-rtmp obs-pipewire-audio-capture ]; })
     qdirstat quickemu unetbootin pavucontrol
     stremio-linux-shell     # native (was flatpak); plain `stremio` removed from nixpkgs (Qt5 webengine CVE)
     pulseaudio              # provides `pactl` client (chatmix script needs it)
