@@ -426,7 +426,7 @@
       "id": "default",
       "name": "Main Bar",
       "enabled": true,
-      "position": 1,
+      "position": 0,
       "screenPreferences": [
         "all"
       ],
@@ -457,6 +457,11 @@
         }
       ],
       "rightWidgets": [
+        {
+          "id": "memUsage",
+          "enabled": true,
+          "minimumWidth": true
+        },
         {
           "id": "cpuUsage",
           "enabled": true
