@@ -96,6 +96,25 @@ in
   home.file.".local/share/proton-cachyos".source =
     "${inputs.chaotic.legacyPackages.${pkgs.system}.proton-cachyos_x86_64_v3}/bin";
 
+  # Register proton-cachyos as a Steam compatibility tool. It must be a REAL,
+  # writable directory, NOT a store symlink: Steam/Proton/BSManager write a lock
+  # file into the Proton folder on launch, which fails on the read-only /nix/store
+  # (BSManager rejects it as an "invalid proton folder"). So copy it out with write
+  # perms each activation. Restart Steam after a rebuild to pick it up.
+  home.activation.protonCachyosCompatTool =
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      src="${inputs.chaotic.legacyPackages.${pkgs.system}.proton-cachyos_x86_64_v3}/bin"
+      dst="$HOME/.local/share/Steam/compatibilitytools.d/proton-cachyos"
+      rm -rf "$dst"
+      mkdir -p "$dst"
+      cp -rT --no-preserve=ownership "$src" "$dst"   # keep modes (+x on proton/wine), just not root ownership
+      chmod -R u+w "$dst"                            # add write on top of the store's read-only modes
+      # BSManager validates a Proton folder by requiring files/bin/wine64, but
+      # proton-cachyos uses new WoW64 wine (single `wine`, no wine64). Symlink it
+      # so BSManager accepts the folder (Proton runs via its `proton` script).
+      ln -sf wine "$dst/files/bin/wine64"
+    '';
+
   # OpenComposite (OpenVR->OpenXR shim) for VR_OVERRIDE consumers. Nix-built —
   # an Arch-built copy can't load here (glibc/GL deps), and nix store paths
   # stay visible inside the Steam Linux Runtime container.
