@@ -180,6 +180,9 @@ in
   services.tailscale.enable = true;
   # You host an exit node → enable IP forwarding (replaces the old ip_forward sysctl).
   services.tailscale.useRoutingFeatures = "server";
+  # Re-applied via `tailscale set` on every boot (tailscaled-set.service), so the
+  # exit-node advertisement survives a state wipe. Approval lives in the admin console.
+  services.tailscale.extraSetFlags = [ "--advertise-exit-node" ];
 
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
