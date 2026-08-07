@@ -12,5 +12,7 @@
   boot.lanzaboote = {
     enable = true;
     pkiBundle = "/var/lib/sbctl";
+    configurationLimit = 10;  # boot menu was at 62 entries after the 2026-08-03
+                              # lockup-debug rebuild spree; cap it
   };
 }
