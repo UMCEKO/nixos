@@ -39,8 +39,11 @@ in
   nix.settings.connect-timeout = 5;         # fail fast on a dead mirror connection
 
   # Mainline latest — has sched_ext, so scx_lavd (the CachyOS scheduler) runs on
-  # it. CachyOS kernel via chaotic is shelved: its overlay world-rebuilds and
-  # breaks gnugrep against this nixpkgs pin (nvidia-open override worked fine).
+  # it. CachyOS kernel via chaotic ABANDONED 2026-07-12: the build blockers were
+  # all solved (gnugrep test-suite break → skip doCheck; nvidia-open
+  # allowedReferences → null), but nyx-cache rate-limits the kernel/nvidia
+  # downloads into oblivion (HTTP 429, ~68s backoff/path). Their infra, not fixable
+  # our side. scx_lavd already delivers the scheduler win. See MEMORY.
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   networking.hostName = "nixos"; # Define your hostname.

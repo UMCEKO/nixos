@@ -40,11 +40,9 @@ in
     ];
   };
 
-  # Prebuilt chaotic packages (proton-cachyos) — avoids compiling Proton.
-  nix.settings = {
-    extra-substituters = [ "https://nyx-cache.chaotic.cx/" ];
-    extra-trusted-public-keys = [ "nyx-cache.chaotic.cx:dJxTrgMC3V3cFfyIiBQDQorG6k1LsqurH/srpMSq7qk=" ];
-  };
+  # nyx-cache substituter REMOVED 2026-07-12 — it rate-limits (HTTP 429) and stalls
+  # every rebuild. proton-cachyos is already in the local store; if it ever needs a
+  # rebuild it'll compile locally. Re-add temporarily only to fetch a new proton.
 
   programs.gamescope = {
     enable = true;
