@@ -27,14 +27,17 @@ let
     pkgs.appimageTools.wrapType2 {
       inherit pname version src;
 
-      # Tray icon (StatusNotifierItem). GTK/WebKit are bundled in the AppImage.
-      extraPkgs = p: [ p.libayatana-appindicator ];
-
+      # No extraPkgs: the AppImage bundles libappindicator3.so.1, which is what
+      # the binary dlopens for its tray when libayatana-appindicator3.so.1 is
+      # absent, and xdg-open ships in usr/bin.
       extraInstallCommands = ''
         install -Dm444 "${contents}/usr/share/applications/Wooting Background Service.desktop" \
           $out/share/applications/${pname}.desktop
-        install -Dm444 ${contents}/usr/share/icons/hicolor/128x128/apps/${pname}.png \
-          -t $out/share/icons/hicolor/128x128/apps
+
+        for size in 32x32 128x128; do
+          install -Dm444 ${contents}/usr/share/icons/hicolor/$size/apps/${pname}.png \
+            -t $out/share/icons/hicolor/$size/apps
+        done
       '';
 
       meta = {
