@@ -1,6 +1,22 @@
 # DankMaterialShell — Quickshell desktop shell. Replaces waybar/eww/swaync.
 { ... }:
 {
+  # Quickshell classifies PipeWire nodes by EXACT media.class match, so virtual
+  # sources ("Audio/Source/Virtual" — e.g. HUSH's Maxine mic) fall through as
+  # untracked and DMS never lists them in the input picker (Discord/pavucontrol
+  # do, via the Pulse API). Treat them as regular audio sources.
+  nixpkgs.overlays = [
+    (final: prev: {
+      quickshell = prev.quickshell.overrideAttrs (old: {
+        postPatch = (old.postPatch or "") + ''
+          substituteInPlace src/services/pipewire/node.cpp \
+            --replace-fail 'strcmp(mediaClass, "Audio/Source") == 0' \
+              '(strcmp(mediaClass, "Audio/Source") == 0 || strcmp(mediaClass, "Audio/Source/Virtual") == 0)'
+        '';
+      });
+    })
+  ];
+
   programs.dms-shell = {
     enable = true;
     # KDE-gating: the module's dms.service is wantedBy=graphical-session.target,
