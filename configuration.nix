@@ -37,6 +37,12 @@ in
   nix.settings.http-connections = 128;      # default 25
   nix.settings.max-substitution-jobs = 32;  # default 16 — packages fetched at once
   nix.settings.connect-timeout = 5;         # fail fast on a dead mirror connection
+  # Memory headroom: max-jobs defaults to `auto` = 24 on this 7900X, and 24
+  # concurrent derivations can each take GBs. A rebuild that races the desktop
+  # into OOM is what froze the box on 2026-08-02 (see system-tweaks.nix).
+  # 8 jobs x 3 cores = 24 threads, same throughput, far smaller peak RSS.
+  nix.settings.max-jobs = 8;
+  nix.settings.cores = 3;
 
   # Mainline latest — has sched_ext, so scx_lavd (the CachyOS scheduler) runs on
   # it. CachyOS kernel via chaotic ABANDONED 2026-07-12: the build blockers were

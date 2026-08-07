@@ -1,6 +1,6 @@
 # Non-default system tweaks recovered from the old CachyOS /etc + /boot.
 # (hostname left as-is; DNS/firewall/nginx/user-units are decisions — see MORNING-README.)
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 {
 
   boot.kernelParams = [
@@ -52,7 +52,36 @@
   # ── Gaming / performance (CachyOS parity) ──────────────────────────────
   powerManagement.cpuFreqGovernor = "performance";        # pin max clocks
   zramSwap = { enable = true; memoryPercent = 50; };      # ~15G compressed swap
-  services.scx = { enable = true; scheduler = "scx_lavd"; };  # sched-ext gaming scheduler
+
+  # ── Memory-pressure safety net (2026-08-02) ────────────────────────────
+  # Freeze post-mortem: a nixos-rebuild alongside Brave/Discord/Steam/Claude
+  # filled all 32G of RAM *and* all 15.9G of zram ("Free swap = 0kB"), so the
+  # kernel sat in reclaim thrash — I/O pressure full ~48%, i.e. half of all
+  # wall-clock time every task on the box was stalled — until the last-resort
+  # OOM killer fired ~60s later. systemd-oomd was active the whole time but
+  # every slice reported ManagedOOMSwap=auto (= supervised nothing), because
+  # enableUserSlices defaults to false. This makes it actually do its job:
+  # one app dies in ~2s instead of the desktop hanging for a minute.
+  systemd.oomd = {
+    enable = true;
+    enableRootSlice = true;   # ManagedOOMSwap=kill on -.slice: acts on swap
+                              # exhaustion itself, the exact failure above
+    enableUserSlices = true;  # memory-pressure kills among desktop apps
+  };
+  # system.slice left unmanaged on purpose — oomd there could kill sshd /
+  # libvirtd VMs / nginx. nix build memory is capped by policy instead
+  # (nix.settings.max-jobs in configuration.nix).
+
+  # Second swap tier on the NVMe root, priority below zram's 5 → only touched
+  # once zram is full. zram alone is a cliff, not a cushion: it's compressed
+  # RAM, so when it fills there is nowhere left to spill and you OOM on the
+  # spot. 814G free on ext4, so a 32G file is noise.
+  swapDevices = [{
+    device = "/var/lib/swapfile";
+    size = 32 * 1024;   # MB
+    priority = 1;       # < zramSwap's default priority of 5
+  }];
+  services.scx = { enable = true; scheduler = "scx_lavd"; };  # sched-ext gaming scheduler (exonerated in the lockup hunt)
   boot.kernel.sysctl = {
     "vm.max_map_count" = 2147483642;    # big / Proton / anticheat games
     "vm.swappiness" = 100;              # zram is fast, favor it
