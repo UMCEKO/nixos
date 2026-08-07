@@ -211,6 +211,10 @@ in
       gsp = "git stash; git pull"; gfo = "git fetch origin";
       gcheck = "git checkout";
       gcredential = "git config credential.helper store";
+      # cargo builds LOCALLY (default toolchain, currently 1.97.1). The Arch-box
+      # (192.168.0.3) offload shim is still installed — invoke it explicitly with
+      # `cargo-arch build/check/…` when you want the remote build.
+      # (was: cargo = "cargo-arch";)
       # Dropped as CachyOS/ML4W/qtile-specific (didn't carry over to NixOS):
       #   ml4w* (flatpak apps), ts/cleanup/ascii/ml4w-update (~/.config/ml4w scripts),
       #   Qtile=startx, res1/res2, setkb (X11/qtile — you're on Wayland),
