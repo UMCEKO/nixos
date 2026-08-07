@@ -226,6 +226,11 @@ in
     ];
   };
 
+  programs.appimage = {
+    enable = true;
+    binfmt = true;
+  };
+
   environment.variables = {
     EDITOR = "nvim";
     BROWSER = "brave";
