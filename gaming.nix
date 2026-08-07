@@ -1,6 +1,31 @@
 # Gaming stack — replaces CachyOS's cachyos-gaming-meta.
 # Uses NixOS program modules (declarative) instead of loose packages.
 { pkgs, inputs, ... }:
+let
+  # Steam hides the sniper/soldier containers from the per-game "Compatibility"
+  # dropdown (their toolmanifest has no display_name), so native Linux games can
+  # only ever be forced onto scout — which is too old for e.g. Dead Cells (no
+  # libdecor-0 / libXss). This tiny compat tool just gives Steam's *own* sniper
+  # install a display_name so it becomes selectable. It ships only a
+  # compatibilitytool.vdf; the toolmanifest is read from install_path (Steam's
+  # sniper dir). from/to oslist = linux → shows for native Linux games, the same
+  # slot scout occupies. Set it per-game via Properties → Compatibility.
+  sniper-selectable = pkgs.writeTextDir "compatibilitytool.vdf" ''
+    "compatibilitytools"
+    {
+      "compat_tools"
+      {
+        "SLR-sniper-manual"
+        {
+          "install_path" "/home/umceko/.local/share/Steam/steamapps/common/SteamLinuxRuntime_sniper"
+          "display_name" "Steam Linux Runtime 3.0 (sniper) [manual]"
+          "from_oslist"  "linux"
+          "to_oslist"    "linux"
+        }
+      }
+    }
+  '';
+in
 {
   programs.steam = {
     enable = true;                       # unfree — allowed via nixpkgs.config.allowUnfree
@@ -11,6 +36,7 @@
       pkgs.proton-ge-bin                 # ProtonGE, like protonup gave you
       # From the chaotic flake, package only (see flake.nix warning).
       inputs.chaotic.legacyPackages.${pkgs.system}.proton-cachyos_x86_64_v3
+      sniper-selectable                  # makes Steam's sniper container selectable for native games
     ];
   };
 
