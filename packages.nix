@@ -62,7 +62,7 @@
     nautilus                # file manager from CachyOS (SUPER+E)
     inkscape
     kopuz                   # goated music player fr
-    wootility               # keyboard mgmt
+                            # wootility comes from hardware.wooting (peripherals.nix)
 
     # ── Wayland / Hyprland desktop stack ───────────────────────────
     # Bar/popups/notifications/wallpaper/idle all retired → DankMaterialShell:

@@ -19,13 +19,11 @@
   # SteelSeries Arctis (headsetcontrol) — udev rules so battery reads work unprivileged.
   services.udev.packages = [ pkgs.headsetcontrol ];
 
-  # Wooting keyboards need a udev rule to be accessible (wootility was AUR;
-  # the udev rule is what actually matters and is easy to declare).
-  services.udev.extraRules = ''
-    # Wooting keyboards
-    KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="03eb", TAG+="uaccess"
-    KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="31e3", TAG+="uaccess"
-  '';
+  # Wooting keyboards — pulls wooting-udev-rules (uaccess on both hidraw and usb,
+  # incl. the One/Two update-mode product IDs) plus wootility. Replaces the
+  # hand-written rules, which were hidraw-only and matched all of vendor 03eb
+  # (Atmel), not just the two Wooting boards using it.
+  hardware.wooting.enable = true;
 
   # fwupd for firmware updates (you had fwupd).
   services.fwupd.enable = true;
