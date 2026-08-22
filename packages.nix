@@ -26,6 +26,7 @@
     android-tools apktool jadx
     typescript-language-server vtsls dioxus-cli
     temurin-bin flutter tree-sitter imagemagick
+    terraform kubeseal
 
     # Dev tooling that was cargo-install'd / bun on CachyOS (not in the pacman
     # list the migration ported). protobuf = protoc; postgresql/redis = clients.
@@ -62,7 +63,10 @@
     nautilus                # file manager from CachyOS (SUPER+E)
     inkscape
     kopuz                   # goated music player fr
-                            # wootility comes from hardware.wooting (peripherals.nix)
+    audacity
+    qpwgraph carla          # PipeWire patchbay + LV2/VST host
+    openvpn
+
 
     # ── Wayland / Hyprland desktop stack ───────────────────────────
     # Bar/popups/notifications/wallpaper/idle all retired → DankMaterialShell:

@@ -36,6 +36,7 @@ in
   # the box has no ECC reporting to rule DRAM in or out. Boot it overnight:
   # a single error means stop debugging software.
   boot.loader.systemd-boot.memtest86.enable = true;
+  programs.kdeconnect.enable = true;
   
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   # Faster downloads: many parallel fetches fill a high-latency link (TR -> Fastly).

@@ -10,7 +10,12 @@ vim.api.nvim_create_autocmd("BufReadPre", {
 
 -- Detect SSH
 local function is_ssh()
+  -- SSH_TTY is NOT propagated into tmux panes (it is absent from tmux's
+  -- update-environment), so inside tmux this returned nil and the OSC 52
+  -- block below was skipped. SSH_CONNECTION is propagated -- check it too.
   return os.getenv("SSH_TTY") ~= nil
+    or os.getenv("SSH_CONNECTION") ~= nil
+    or os.getenv("SSH_CLIENT") ~= nil
 end
 
 if is_ssh() then
