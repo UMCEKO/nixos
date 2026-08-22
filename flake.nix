@@ -11,6 +11,14 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Laptop hardware quirks. There is NO profile for the EliteBook 6 G1a (HP
+    # dropped the 3-digit naming this generation), so hosts/laptop imports the
+    # generic common/* modules directly — which is all the closest existing
+    # profile, hp/elitebook/845/g8, does anyway.
+    nixos-hardware = {
+      url = "github:NixOS/nixos-hardware/master";
+      inputs.nixpkgs.follows = "nixpkgs";  # else it drags in a second nixpkgs
+    };
 
     plasma-manager = {
       url = "github:nix-community/plasma-manager";
@@ -35,7 +43,8 @@
     chatmixd.url = "github:UMCEKO/chatmixd";
 
     # HUSH — Maxine denoiser virtual mic. `follows` reuses this nixpkgs (no 2nd copy).
-    # The GUI + hushd service come from its home-manager module (imported in home.nix).
+    # The GUI + hushd service come from its home-manager module (imported in
+    # hosts/desktop/home.nix — it needs CUDA, so desktop only).
     hush = {
       url = "github:UMCEKO/hush";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -43,17 +52,35 @@
 
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
-    # `nixos` here must match the `#nixos` you build with below.
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      specialArgs = { inherit inputs; };
-      modules = [
-        ./configuration.nix
+  outputs = { self, nixpkgs, home-manager, ... }@inputs:
+    let
+      # Modules every host gets. Per-host module lists live in hosts/<name>.
+      baseModules = [
+        ./modules/common.nix
         home-manager.nixosModules.home-manager
         inputs.lanzaboote.nixosModules.lanzaboote
-        inputs.chatmixd.nixosModules.default
       ];
+
+      mkHost = { modules }: nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        specialArgs = { inherit inputs; };
+        modules = baseModules ++ modules;
+      };
+    in
+    {
+      # Attribute name must match networking.hostName — the `nrs` alias in
+      # modules/common.nix builds ~/nixos#${config.networking.hostName}.
+      nixosConfigurations = {
+        nixos = mkHost {
+          modules = [
+            ./hosts/desktop
+            inputs.chatmixd.nixosModules.default
+          ];
+        };
+
+        laptop = mkHost {
+          modules = [ ./hosts/laptop ];
+        };
+      };
     };
-  };
 }

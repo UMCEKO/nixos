@@ -1,0 +1,66 @@
+# HP EliteBook 6 G1a — Ryzen AI 7 350 (Krackan Point: Zen 5 + Zen 5c,
+# Radeon 860M / RDNA 3.5), 32 GB, 512 GB NVMe, 14" WUXGA (1920x1200).
+#
+# nixos-hardware has NO profile for this machine: HP dropped the 3-digit model
+# numbers this generation ("EliteBook 6/8/X"), and the repo only carries
+# hp/elitebook/{2560p,830,845}. That is fine — the closest AMD analogue,
+# 845/g8, is almost nothing but a wrapper around the same generic modules we
+# import below, so we lose nothing by importing them directly.
+{ config, lib, pkgs, inputs, ... }:
+{
+  imports = with inputs.nixos-hardware.nixosModules; [
+    common-cpu-amd
+    common-cpu-amd-pstate  # amd_pstate=active on kernel >=6.3 — the EPP driver
+    common-gpu-amd         # sets videoDrivers = [ "amdgpu" ]
+    common-pc-laptop
+    common-pc-ssd
+  ];
+
+  # Krackan Point is recent silicon; the iGPU wants current firmware. If wifi
+  # turns out to need a redistributable-but-unfree blob, promote this to
+  # hardware.enableAllFirmware.
+  hardware.enableRedistributableFirmware = lib.mkDefault true;
+
+  # NOT set: amdgpu.sg_display=0. The 845/g8 profile carries it for a
+  # white-screen-after-display-reconfigure bug, but that is a Cezanne-era
+  # workaround and blindly applying old GPU quirks is how you inherit someone
+  # else's bug. If the panel goes white after hotplugging an external monitor,
+  # this is the first thing to try:
+  #   boot.kernelParams = [ "amdgpu.sg_display=0" ];
+
+  # Power management. power-profiles-daemon (pulled in by common-pc-laptop) and
+  # TLP are mutually exclusive — enabling both gives you two daemons fighting
+  # over the same sysfs knobs. ppd is the one that integrates with the KDE and
+  # DMS battery applets, so it wins; do not add TLP without removing this.
+  services.power-profiles-daemon.enable = true;
+  powerManagement.enable = true;
+
+  # Lid/suspend. AMD laptops of this generation are s2idle-only (no S3), which
+  # is also why suspend battery drain is the recurring complaint on them.
+  # Verify what the firmware actually offers before debugging any of it:
+  #   cat /sys/power/mem_sleep
+  services.logind.settings.Login = {
+    HandleLidSwitch = "suspend";
+    HandleLidSwitchExternalPower = "suspend";
+    HandleLidSwitchDocked = "ignore";
+  };
+
+  # Backlight: brightnessctl (already in modules/packages.nix) ships udev rules
+  # granting the `video` group write access to the backlight sysfs, and umceko
+  # is in `video` via modules/common.nix — so no extra module is needed.
+  # NOT programs.light: removed from nixpkgs (unmaintained upstream); the
+  # option now hard-asserts rather than warning.
+
+  # Firmware updates. HP business laptops are well covered by LVFS.
+  services.fwupd.enable = true;
+
+  # Fingerprint reader is deliberately NOT configured. HP EliteBooks commonly
+  # ship Synaptics or Goodix parts that libfprint does not support, and a
+  # half-working PAM fingerprint stack locks you out of your own machine.
+  # Check `lsusb` first, then enable services.fprintd if the part is supported.
+
+  # Bluetooth — the desktop gets this from peripherals.nix, which is
+  # desktop-only (it also carries Wooting/Razer/OpenRGB).
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
+}

@@ -3,6 +3,11 @@
 # Services/programs that have dedicated NixOS modules live in the other
 # *.nix files (gaming, desktop, peripherals, vr) — NOT here.
 # See MORNING-README.md for the full mapping + the "needs manual attention" list.
+#
+# SHARED BY BOTH HOSTS. Anything bound to desktop hardware (OpenRGB, Razer,
+# the SteelSeries headset, VR, the nvidia GPU, the Iriun virtual webcam) lives
+# in hosts/desktop/packages.nix instead — it would install fine on the laptop
+# and simply have nothing to talk to.
 { pkgs, ... }:
 {
   environment.systemPackages = with pkgs; [
@@ -78,7 +83,7 @@
     hyprpolkitagent
     grim slurp satty grimblast wf-recorder wl-clipboard cliphist
     nsxiv gromit-mpx kdotool matugen cava waypipe
-    kitty ghostty wayvr xrizer umu-launcher reqable bs-manager
+    kitty ghostty reqable
     brightnessctl playerctl
 
     # ── Theming / fonts helpers ────────────────────────────────────
@@ -86,16 +91,11 @@
     adw-gtk3 bibata-cursors pywal papirus-icon-theme
 
     # ── Hardware / misc utilities ──────────────────────────────────
-    openrgb polychromatic headsetcontrol gpustat
     vulkan-tools
 
-    # Phone-as-webcam; vendor .deb repack (Qt5 → libsForQt5 scope for
-    # qtbase/qtwayland/wrapQtAppsHook). v4l2loopback lives in system-tweaks.nix.
-    (libsForQt5.callPackage ./pkgs/iriunwebcam.nix { })
-
     # ── NOT in nixpkgs (were AUR / vendor) — handle later, see README:
-    # curseforge, bs-manager, nordpass, reqable, antigravity-cli,
+    # curseforge, nordpass, antigravity-cli,
     # win11-clipboard-history, wallpaper-engine-kde-plugin, chatmixd,
-    # char-white (cursor), wayvr / xrizer / xrgears (VR — see vr.nix)
+    # char-white (cursor), xrgears (VR — see hosts/desktop/vr.nix)
   ];
 }
