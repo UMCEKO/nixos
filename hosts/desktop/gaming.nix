@@ -63,8 +63,6 @@ in
     mangohud          # replaces mangojuice/mangohud
     protonup-qt       # GUI Proton manager (was protonplus/protonup-qt)
     protontricks
-    prismlauncher     # Minecraft launcher
-    osu-lazer-bin     # official release repack (tracks ppy servers; source build = osu-lazer). Settings live in ~/.local/share/osu/client.realm, not declarative
     r2modman          # mod manager
     wineWow64Packages.stable
     winetricks

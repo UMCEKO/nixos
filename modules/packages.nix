@@ -93,9 +93,7 @@
     # ── Hardware / misc utilities ──────────────────────────────────
     vulkan-tools
 
-    # ── NOT in nixpkgs (were AUR / vendor) — handle later, see README:
-    # curseforge, nordpass, antigravity-cli,
-    # win11-clipboard-history, wallpaper-engine-kde-plugin, chatmixd,
-    # char-white (cursor), xrgears (VR — see hosts/desktop/vr.nix)
+    prismlauncher     # Minecraft launcher
+    osu-lazer-bin     # official release repack (tracks ppy servers; source build = osu-lazer). Settings live in ~/.local/share/osu/client.realm, not declarative
   ];
 }
