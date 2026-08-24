@@ -1,4 +1,4 @@
-# laptop — HP EliteBook 6 G1a
+# elitebook — HP EliteBook 6 G1a
 
 Ryzen AI 7 350 (Krackan Point: 4x Zen 5 + 4x Zen 5c, Radeon 860M / RDNA 3.5),
 32 GB, 512 GB NVMe, 14" WUXGA 1920x1200, ships with FreeDOS.
@@ -31,7 +31,7 @@ first, then add `services.fprintd` if it is actually supported.
 
 **The root must be encrypted.** This machine carries the vCD API token (which
 can delete every vApp and VM in the org), the kubeconfig, the ArgoCD deploy key
-and Terraform state. `hosts/laptop/default.nix` asserts that a LUKS device
+and Terraform state. `hosts/elitebook/default.nix` asserts that a LUKS device
 exists, so an unencrypted install fails at build rather than quietly shipping
 prod credentials out of the building. Retrofitting LUKS means a reinstall.
 
@@ -45,7 +45,7 @@ Copy the generated hardware scan over the placeholder:
 
 ```bash
 cp /mnt/etc/nixos/hardware-configuration.nix \
-   ~/nixos/hosts/laptop/hardware-configuration.nix
+   ~/nixos/hosts/elitebook/hardware-configuration.nix
 ```
 
 Check the `boot.initrd.luks.devices` block survived the copy — the placeholder
@@ -54,7 +54,7 @@ has one, and the assertion will tell you immediately if the real scan does not.
 Then clone this repo to the target and install:
 
 ```bash
-sudo nixos-install --flake /mnt/home/umceko/nixos#laptop
+sudo nixos-install --flake /mnt/home/umceko/nixos#elitebook
 ```
 
 `nixos-generate-config` writes a stub `/etc/nixos/configuration.nix`. Ignore
@@ -66,7 +66,7 @@ The system is flake-managed from `~/nixos` only.
 
 ```bash
 tailscale up                 # this node is NOT an exit node — desktop-only
-nrs                          # alias resolves to ~/nixos#laptop via hostname
+nrs                          # alias resolves to ~/nixos#elitebook via hostname
 ```
 
 ## Secure Boot
@@ -86,6 +86,17 @@ Confirm in BIOS that Setup Mode and custom key enrollment are actually
 available before planning around this — HP business firmware with Sure Start
 can be particular about it.
 
+## Why "elitebook" and not "laptop"
+
+The host was originally called `laptop`. There is a second laptop, so the name
+described a form factor that two machines share rather than the machine it
+configures. Everything that keys off the hostname follows automatically: the
+`nrs` alias (`modules/common.nix`) interpolates `config.networking.hostName` at
+build time, and `config/hypr/lua/host.lua` reads `/etc/hostname` at runtime.
+
+Adding the second laptop means a `hosts/<name>/` directory, an entry in
+`flake.nix`, and one line in `host.lua`'s `SINGLE_PANEL` table.
+
 ## Known open questions
 
 - **Suspend drain.** s2idle-only is normal for this generation and is the
@@ -96,7 +107,7 @@ can be particular about it.
   white after hotplugging an external monitor, try it first.
 - **NPU.** XDNA 2 has a kernel driver (`amdxdna`) but the Ryzen AI userspace
   stack is Windows-first. Treat the "AI" in the model name as marketing.
-- **Hyprland monitor config.** `config/hypr` is shared through
-  `home/common.nix` and currently describes the desktop's DP-3 (scale 1.5) and
-  DP-4 (scale 2). The laptop panel is 1920x1200 at scale 1. Split the monitor
-  block per host before relying on the rice here.
+- **Per-host Hyprland config.** RESOLVED — `config/hypr/lua/host.lua` branches
+  on the hostname, so monitors, persistent workspaces and app workspace pinning
+  are correct on one panel and on the desktop's two. See lua/{monitors,
+  workspaces,window_rules}.lua.

@@ -1,4 +1,4 @@
-# Laptop: HP EliteBook 6 G1a, Ryzen AI 7 350, 32 GB, 512 GB, 14" WUXGA.
+# elitebook: HP EliteBook 6 G1a, Ryzen AI 7 350, 32 GB, 512 GB, 14" WUXGA.
 #
 # Shipped with FreeDOS, so there is no Windows install to preserve and no
 # dual-boot to work around.
@@ -18,7 +18,7 @@
     ./hardware.nix
   ];
 
-  networking.hostName = "laptop";
+  networking.hostName = "elitebook";
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -63,7 +63,7 @@
   assertions = [{
     assertion = config.boot.initrd.luks.devices != {};
     message = ''
-      hosts/laptop: no LUKS device configured.
+      hosts/elitebook: no LUKS device configured.
 
       This host holds production credentials and leaves the premises, so it
       must be installed onto an encrypted root. Re-run the installer with

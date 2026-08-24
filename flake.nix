@@ -12,8 +12,8 @@
     };
 
     # Laptop hardware quirks. There is NO profile for the EliteBook 6 G1a (HP
-    # dropped the 3-digit naming this generation), so hosts/laptop imports the
-    # generic common/* modules directly — which is all the closest existing
+    # dropped the 3-digit naming this generation), so hosts/elitebook imports
+    # the generic common/* modules directly — which is all the closest existing
     # profile, hp/elitebook/845/g8, does anyway.
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware/master";
@@ -78,8 +78,10 @@
           ];
         };
 
-        laptop = mkHost {
-          modules = [ ./hosts/laptop ];
+        # Named for the machine, not its form factor — there is a second
+        # laptop, and "laptop" would have had to be renamed the day it arrived.
+        elitebook = mkHost {
+          modules = [ ./hosts/elitebook ];
         };
       };
     };
