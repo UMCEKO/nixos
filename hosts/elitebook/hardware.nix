@@ -35,6 +35,24 @@
   services.power-profiles-daemon.enable = true;
   powerManagement.enable = true;
 
+  # Wi-Fi power save OFF. NetworkManager's default parks the radio between
+  # beacons on battery, and the AP then buffers your traffic until the next
+  # wake — which is invisible for a download and miserable for anything
+  # interactive. Measured here on an idle link with a -40 dBm signal, 0%
+  # loss and 0 tx failures, pinging the FIRST HOP:
+  #
+  #   power save on:   rtt min/avg/max/mdev = 2.1/63.3/452.1/126.9 ms
+  #   power save off:  rtt min/avg/max/mdev = 2.2/6.3/23.8/4.7 ms
+  #
+  # End to end over SSH that was the difference between a 950 ms average
+  # with 2.2 s spikes and a 28 ms average. Nothing was wrong with the link,
+  # the remote host, or sshd — the packets were asleep.
+  #
+  # The cost is battery: the radio no longer naps. If you ever want it back
+  # for a long flight, this is one line, and `iw dev wlp195s0 get power_save`
+  # tells you which state you are in.
+  networking.networkmanager.wifi.powersave = false;
+
   # Lid/suspend. AMD laptops of this generation are s2idle-only (no S3), which
   # is also why suspend battery drain is the recurring complaint on them.
   # Verify what the firmware actually offers before debugging any of it:
