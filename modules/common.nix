@@ -104,6 +104,11 @@ in
     extraGroups = [
       "networkmanager" "wheel" "docker" "gamemode"
       "video" "render" "storage" "lp" "scanner" "libvirtd"  # ported from old box
+      # DMS opens the evdev devices directly for its keyboard/media handling;
+      # without this it logs "insufficient permissions to access input devices"
+      # and silently drops those bindings. (`dms setup` does this imperatively —
+      # which is exactly the kind of thing that does not survive a reinstall.)
+      "input"
     ];
     shell = pkgs.zsh;                    # your CachyOS login shell
     packages = with pkgs; [
