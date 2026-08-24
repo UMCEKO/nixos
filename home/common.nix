@@ -44,6 +44,55 @@ let
         $(pkg-config --cflags --libs libsecret-1 glib-2.0)
     '';
 
+  # ── Per-host DMS settings ──────────────────────────────────────────────
+  # config/DankMaterialShell/settings.json is SHARED and is written by DMS
+  # itself at runtime, which is what we want for ~375 of its 381 keys: tune the
+  # bar on one machine, `git pull` on the other, done. The handful that describe
+  # the MACHINE rather than the rice cannot work that way — which NIC to prefer,
+  # which monitor matugen samples, whether there is a battery or a discrete GPU.
+  # Those live in config/DankMaterialShell/hosts/<hostname>.json and are merged
+  # over the shared file immediately before DMS reads it.
+  #
+  # See config/DankMaterialShell/hosts/README.md for the workflow.
+  dmsHostSettings = pkgs.writeShellScript "dms-apply-host-settings" ''
+    set -eu
+    dir="$HOME/nixos/config/DankMaterialShell"
+    base="$dir/settings.json"
+    over="$dir/hosts/$(cat /etc/hostname).json"
+    [ -f "$base" ] && [ -f "$over" ] || exit 0
+
+    # `*` is jq's RECURSIVE merge: nested objects are patched key-by-key rather
+    # than replaced wholesale, so a host file can override one field of
+    # screenPreferences without restating the rest of it.
+    merged=$(${pkgs.jq}/bin/jq -s '.[0] * .[1]' "$base" "$over")
+
+    # No-op if nothing would change. Without this, every activation and every
+    # DMS restart would bump the mtime of a git-tracked file for nothing — and
+    # DMS watches this file, so a pointless write is a pointless reload.
+    [ "$merged" = "$(cat "$base")" ] && exit 0
+
+    # DMS writes this file with NO trailing newline. Match it byte for byte
+    # (printf, not echo) or the merge itself shows up as a one-line diff.
+    printf '%s' "$merged" > "$base.new"
+    mv -f "$base.new" "$base"
+  '';
+
+  # git clean filter for the same file: strips every key any host overrides on
+  # the way into the index. The host-specific values therefore never reach git,
+  # so the two machines cannot fight over them and `git diff` on settings.json
+  # only ever shows real, shared changes.
+  #
+  # The key list is DERIVED from hosts/*.json rather than written out again
+  # here — one source of truth, and adding a key to the host files is all it
+  # takes. git runs clean filters from the repo root, hence the relative path.
+  dmsSettingsClean = pkgs.writeShellScript "dms-settings-clean" ''
+    set -eu
+    set -- config/DankMaterialShell/hosts/*.json
+    [ -e "$1" ] || exec cat            # no host files yet: pass through
+    keys=$(${pkgs.jq}/bin/jq -s 'add | keys' "$@")
+    exec ${pkgs.jq}/bin/jq --argjson k "$keys" 'delpaths([$k[] | [.]])'
+  '';
+
 in
 {
   home.stateVersion = "26.05";
@@ -210,6 +259,9 @@ in
       # Empty so git prompts on the tty instead of the broken ksshaskpass that
       # plasma6 exports globally (its Qt portal can't register under Hyprland).
       core.askpass = "";
+      # Strips the host-overridden DMS keys on the way into the index — see
+      # the dmsSettingsClean comment above and .gitattributes.
+      filter.dms-settings.clean = "${dmsSettingsClean}";
       credential = {
         # Every host → gnome-keyring (asked once per host). github uses gh's
         # OAuth token instead; leading "" resets libsecret so only gh answers.
@@ -230,6 +282,10 @@ in
     };
     Service = {
       Type = "simple";
+      # Stamp the host-specific keys over the shared settings.json BEFORE DMS
+      # reads it. This is the one that matters: whatever value the other
+      # machine last committed, this host starts with its own.
+      ExecStartPre = "${dmsHostSettings}";
       # -c points at the editable clone (config/quickshell/dms, live-symlinked to
       # ~/.config/quickshell/dms). The dms wrapper hardcodes -c <store>; a second
       # -c wins, so this overrides it. Lets us hand-edit the QML. NOTE: on a
@@ -273,6 +329,13 @@ in
         run ln -sfn ${pkgs.dms-shell}/share/quickshell/dms/assets       "$clone/assets"
         run ln -sfn ${pkgs.dms-shell}/share/quickshell/dms/translations "$clone/translations"
       fi
+    '';
+
+  # Same stamp on activation, so `nrs` fixes up a freshly-pulled settings.json
+  # without waiting for the next login. DMS watches the file and picks it up.
+  home.activation.dmsHostSettings =
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      run ${dmsHostSettings}
     '';
 
   # (chatmix-setup service retired — the chatmixd daemon (flake input) creates

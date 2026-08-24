@@ -1,0 +1,8 @@
+{
+  "networkPreference": "wifi",
+  "matugenTargetMonitor": "eDP-1",
+  "controlCenterShowBatteryIcon": true,
+  "controlCenterShowBrightnessIcon": true,
+  "controlCenterShowBrightnessPercent": true,
+  "showGpuTemp": false
+}

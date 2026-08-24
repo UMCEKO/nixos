@@ -1,0 +1,8 @@
+{
+  "networkPreference": "ethernet",
+  "matugenTargetMonitor": "DP-3",
+  "controlCenterShowBatteryIcon": false,
+  "controlCenterShowBrightnessIcon": false,
+  "controlCenterShowBrightnessPercent": false,
+  "showGpuTemp": true
+}
