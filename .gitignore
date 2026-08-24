@@ -8,6 +8,9 @@
 # /nix/store path. Bare paths match both.
 config/quickshell/dms/assets
 config/quickshell/dms/translations
+# One-time backup the activation script makes when it replaces a pre-existing
+# real directory with the symlink. Safe to delete once you have rebuilt.
+config/quickshell/dms/*.pre-symlink
 
 # DMS writes a timestamped snapshot of config/hypr/dms on every theme change
 config/hypr/.dms-backups/

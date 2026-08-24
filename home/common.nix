@@ -326,8 +326,27 @@ in
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       clone="$HOME/nixos/config/quickshell/dms"
       if [ -d "$clone" ]; then
-        run ln -sfn ${pkgs.dms-shell}/share/quickshell/dms/assets       "$clone/assets"
-        run ln -sfn ${pkgs.dms-shell}/share/quickshell/dms/translations "$clone/translations"
+        # NOT plain `ln -sfn`: against an EXISTING REAL DIRECTORY that creates
+        # the link *inside* it (assets/assets -> ...) and exits 0, so the fix
+        # silently does nothing. Both hosts had a real assets/ dir — an
+        # untracked copy left over from when the clone was made — so this is
+        # the normal case on first activation, not an edge case.
+        relink() {
+          if [ -L "$2" ]; then
+            run ln -sfn "$1" "$2"
+          elif [ -e "$2" ]; then
+            # Preserve the old copy once rather than deleting it outright; it
+            # is gitignored, and on the desktop it predates the current
+            # dms-shell so it is stale rather than precious.
+            if [ -e "$2.pre-symlink" ]; then run rm -rf "$2"
+            else run mv "$2" "$2.pre-symlink"; fi
+            run ln -s "$1" "$2"
+          else
+            run ln -s "$1" "$2"
+          fi
+        }
+        relink ${pkgs.dms-shell}/share/quickshell/dms/assets       "$clone/assets"
+        relink ${pkgs.dms-shell}/share/quickshell/dms/translations "$clone/translations"
       fi
     '';
 
