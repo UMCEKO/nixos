@@ -92,6 +92,7 @@
 
     # ── Hardware / misc utilities ──────────────────────────────────
     vulkan-tools
+    iw                # wifi link/regdomain inspection: iw dev <if> link, iw reg get
 
     prismlauncher     # Minecraft launcher
     osu-lazer-bin     # official release repack (tracks ppy servers; source build = osu-lazer). Settings live in ~/.local/share/osu/client.realm, not declarative

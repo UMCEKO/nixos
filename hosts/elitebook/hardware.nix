@@ -71,7 +71,42 @@
   #                                     78% under 5 ms, nothing over 100 ms
   #
   # Costs a little idle power, like the power save line above.
-  boot.extraModprobeConfig = "options mt7925e disable_aspm=1";
+  boot.extraModprobeConfig = ''
+    options mt7925e disable_aspm=1
+    options cfg80211 ieee80211_regdom=US
+  '';
+
+  # Wi-Fi regulatory domain forced to US.
+  #
+  # Not where this machine is — the point is which channels the card is
+  # willing to see. Turkey follows ETSI, which prohibits UNII-3 (channels
+  # 149-165), and Android phone hotspots on "5 GHz" almost always land on
+  # channel 149. The card would not scan there, so the phone's hotspot was
+  # invisible here while every other device found it instantly.
+  #
+  # The regdomain was not configured anywhere: it came from the ASSOCIATED AP's
+  # 802.11d country IE (`iw dev wlp195s0 scan dump | grep Country:` ->
+  # "Country: TR Environment: bogus"). Attach to an AP that advertises TR and
+  # the kernel adopts TR, along with its channel restrictions.
+  #
+  # The modprobe line sets the domain when cfg80211 loads; the service below
+  # re-asserts it as a USER hint, which is the part that matters. Verified that
+  # a user hint is NOT overridden by the country IE: set US, disconnected,
+  # reconnected to the TR-advertising AP, and the domain stayed US with 5745
+  # MHz still listed at 30 dBm.
+  #
+  # Tradeoff: US forbids 2.4 GHz channels 12-13, which ETSI allows. Almost
+  # nothing uses them; if you ever meet an AP that does, that is this line.
+  systemd.services.wifi-regdom = {
+    description = "Set the Wi-Fi regulatory domain";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "NetworkManager.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "${pkgs.iw}/bin/iw reg set US";
+    };
+  };
 
   # Lid/suspend. AMD laptops of this generation are s2idle-only (no S3), which
   # is also why suspend battery drain is the recurring complaint on them.
