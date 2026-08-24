@@ -53,6 +53,26 @@
   # tells you which state you are in.
   networking.networkmanager.wifi.powersave = false;
 
+  # MT7925 PCIe ASPM off. The card is allowed into L1.2 deep sleep
+  # (LnkCtl: ASPM L1 Enabled, L1SubCtl1: ASPM_L1.2+), and waking it stalls
+  # packet delivery for seconds at a time. This is SEPARATE from the 802.11
+  # power save above and is not fixed by turning that off — the giveaway is
+  # that delayed pings come back in a burst with a descending ladder of RTTs
+  # (2418, 2210, 2002, 1794 ... each step one ping interval) rather than being
+  # dropped. They were queued, not lost.
+  #
+  # mt7925e ships exactly one module parameter and it is this one, which is a
+  # fair signal that the hardware's ASPM implementation is not trusted.
+  #
+  # Measured on the FIRST HOP, 750 packets over 150 s, 5 GHz, 0% loss:
+  #
+  #   ASPM on:   rtt min/avg/max/mdev = 1.9/154.3/2418.4/418.5 ms
+  #   ASPM off:  rtt min/avg/max/mdev = 1.2/  4.3/  81.5/  6.3 ms
+  #                                     78% under 5 ms, nothing over 100 ms
+  #
+  # Costs a little idle power, like the power save line above.
+  boot.extraModprobeConfig = "options mt7925e disable_aspm=1";
+
   # Lid/suspend. AMD laptops of this generation are s2idle-only (no S3), which
   # is also why suspend battery drain is the recurring complaint on them.
   # Verify what the firmware actually offers before debugging any of it:
