@@ -51,6 +51,20 @@
   # NOT programs.light: removed from nixpkgs (unmaintained upstream); the
   # option now hard-asserts rather than warning.
 
+  # TRIM through to the SSD. common-pc-ssd (above) enables fstrim.timer, but a
+  # dm-crypt mapping drops every discard it is not explicitly told to pass on —
+  # so without this the weekly fstrim runs, reports success and trims nothing
+  # (`sudo dmsetup table cryptroot` shows no allow_discards; `fstrim -v /`
+  # reports 0 B). The placeholder hardware-configuration.nix set this; the real
+  # nixos-generate-config scan that replaced it does not emit it, which is why
+  # it lives here instead — that file is generated and says not to edit it.
+  #
+  # The tradeoff is the usual one for encrypted SSDs: discards leak which
+  # blocks are unused, i.e. a rough picture of how full the disk is. Standard
+  # for a laptop; if you ever decide the leak matters more than the drive's
+  # write amplification, this is the line to remove.
+  boot.initrd.luks.devices."cryptroot".allowDiscards = true;
+
   # Firmware updates. HP business laptops are well covered by LVFS.
   services.fwupd.enable = true;
 
