@@ -242,6 +242,39 @@ in
     # deliberately no Install.WantedBy — started from Hyprland autostart only.
   };
 
+  # DMS editable clone: relink the heavy read-only assets from the packaged
+  # dms-shell on every activation.
+  #
+  # dms-shell.service runs the clone at ~/.config/quickshell/dms (-c above), and
+  # DMS loads its fonts by RELATIVE PATH, not by fontconfig family:
+  #   Widgets/DankIcon.qml    -> ../assets/fonts/material-design-icons/...MaterialSymbolsRounded...ttf
+  #   Widgets/StyledText.qml  -> ../assets/fonts/inter/InterVariable.ttf
+  #                              ../assets/fonts/nerd-fonts/FiraCodeNerdFont-Regular.ttf
+  # .gitignore excludes config/quickshell/dms/assets (and translations) as
+  # "heavy binary assets", so a fresh clone of this repo has no assets/ at all —
+  # every FontLoader resolves to nothing and EVERY ICON IN DMS DISAPPEARS. That
+  # is exactly what happened on the laptop's first install; the desktop only
+  # looked fine because its assets/ was left over, untracked, from the original
+  # copy out of the store. Adding material-symbols/inter to fonts.packages does
+  # NOT fix this — the FontLoader wants that path, not a font family.
+  #
+  # Symlinking from the pinned package makes the .gitignore comment true and
+  # ties the assets to the same dms-shell version everything else uses. Done in
+  # an activation script rather than xdg.configFile because ~/.config/quickshell
+  # is itself one mkOutOfStoreSymlink (see writableConfigs) and home-manager
+  # cannot place a file inside it.
+  #
+  # NOTE: the clone is currently v1.4.6 against a v1.5.3 package — re-sync it
+  # (see the ExecStart comment above) or drop the -c override entirely.
+  home.activation.dmsCloneAssets =
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      clone="$HOME/nixos/config/quickshell/dms"
+      if [ -d "$clone" ]; then
+        run ln -sfn ${pkgs.dms-shell}/share/quickshell/dms/assets       "$clone/assets"
+        run ln -sfn ${pkgs.dms-shell}/share/quickshell/dms/translations "$clone/translations"
+      fi
+    '';
+
   # (chatmix-setup service retired — the chatmixd daemon (flake input) creates
   # the Game/Chat sinks itself on first dial input; the old ~/.local/bin script
   # was never copied and the unit failed every boot.)

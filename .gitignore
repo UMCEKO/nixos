@@ -1,9 +1,13 @@
 # nixos-rebuild build output symlink
 /result
 
-# DMS editable clone — heavy binary assets (live-symlinked, not edited)
-config/quickshell/dms/assets/
-config/quickshell/dms/translations/
+# DMS editable clone — heavy binary assets, symlinked out of the pinned
+# dms-shell package by home.activation.dmsCloneAssets (home/common.nix).
+# NO TRAILING SLASH: that form matches directories only, so once these became
+# symlinks git stopped ignoring them and offered to commit a host-specific
+# /nix/store path. Bare paths match both.
+config/quickshell/dms/assets
+config/quickshell/dms/translations
 
 # DMS writes a timestamped snapshot of config/hypr/dms on every theme change
 config/hypr/.dms-backups/
