@@ -1,5 +1,7 @@
 -- Window rules (de-ML4W'd 2026-05-21)
 
+local host = require("host")
+
 local function float_centered(name, match_, w, h, opts)
   local rule = {
     name   = name,
@@ -121,7 +123,16 @@ hl.window_rule({
 -- Class-based so EVERY window the app spawns lands on the right workspace.
 -- The old `[workspace N silent]` exec prefixes only attached the first window;
 -- helper/updater windows would consume the rule and the real window leaked to ws 1.
-hl.window_rule({ name = "brave-ws1",    match = { class = "^(brave-browser)$" },                      workspace = "1 silent"  })
-hl.window_rule({ name = "discord-ws11", match = { class = "^(discord)$" },                            workspace = "11 silent" })
-hl.window_rule({ name = "steam-ws3",    match = { class = "^(steam)$" },                              workspace = "3 silent"  })
-hl.window_rule({ name = "pear-ws12",    match = { class = "^(com\\.github\\.th_ch\\.youtube_music)$" }, workspace = "12 silent" })
+--
+-- The 11-20 range is the DESKTOP's second monitor (see lua/workspaces.lua). The
+-- laptop only defines 1-10, and scripts/switch-workspace.sh maps SUPER+1..0 onto
+-- exactly that range — so pinning Discord to ws 11 there parked it on a
+-- workspace no keybind could reach. Fold the secondary-monitor apps into the
+-- primary range on single-panel hosts.
+local ws_discord = host.is_laptop and "4 silent" or "11 silent"
+local ws_ytmusic = host.is_laptop and "5 silent" or "12 silent"
+
+hl.window_rule({ name = "brave-ws1",  match = { class = "^(brave-browser)$" },                        workspace = "1 silent" })
+hl.window_rule({ name = "discord-ws", match = { class = "^(discord)$" },                              workspace = ws_discord })
+hl.window_rule({ name = "steam-ws3",  match = { class = "^(steam)$" },                                workspace = "3 silent" })
+hl.window_rule({ name = "pear-ws",    match = { class = "^(com\\.github\\.th_ch\\.youtube_music)$" }, workspace = ws_ytmusic })

@@ -1,6 +1,7 @@
 -- Autostart (de-ML4W'd 2026-05-21)
 
 local HYPRSCRIPTS = os.getenv("HOME") .. "/.config/hypr/scripts"
+local host = require("host")
 
 hl.on("hyprland.start", function()
   -- Cursor theme
@@ -28,9 +29,14 @@ hl.on("hyprland.start", function()
   -- App autostart. Workspace pinning lives in window_rules.lua (class-based)
   -- so apps that spawn helper windows still land on the right workspace.
   hl.exec_cmd("brave")
-  hl.exec_cmd("prismlauncher -l GTNH")
-  hl.exec_cmd("steam")
   hl.exec_cmd("discord")
+  -- Steam library + GTNH live on the desktop; hosts/desktop/gaming.nix is not
+  -- imported on the laptop, so these binaries do not exist there and every
+  -- login spent two exec-onces failing silently.
+  if host.is_desktop then
+    hl.exec_cmd("prismlauncher -l GTNH")
+    hl.exec_cmd("steam")
+  end
 
   -- Initial workspace focus
   hl.exec_cmd(HYPRSCRIPTS .. "/switch-workspace.sh workspace 1")
