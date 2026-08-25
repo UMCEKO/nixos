@@ -44,6 +44,28 @@
       { layout = "tr"; displayName = "tr"; }   # Turkish Q (default variant, not F)
     ];
 
+    # Power management, transcribed from the desktop's powerdevilrc. rc2nix
+    # writes a powerdevilrc but does NOT read the existing one, so without this
+    # plasma-manager was silently imposing its own defaults instead of what the
+    # desktop actually has. Only [AC] exists on the desktop; battery/lowBattery
+    # are left unset so Plasma's defaults apply on the laptop.
+    powerdevil.AC = {
+      powerButtonAction = "sleep";                   # PowerButtonAction=1
+      # AutoSuspendAction=0. The desktop's powerdevilrc also carries
+      # AutoSuspendIdleTimeoutSec=1800, but that value is inert while the action
+      # is "nothing" and plasma-manager asserts against setting the two together,
+      # so it is not reproduced. Set autoSuspend.action to bring it back.
+      autoSuspend.action = "nothing";
+      turnOffDisplay = {
+        idleTimeout = 300;                           # TurnOffDisplayIdleTimeoutSec
+        idleTimeoutWhenLocked = "immediately";        # ...WhenLockedSec=0
+      };
+      dimDisplay = {
+        enable = true;
+        idleTimeout = 120;                           # DimDisplayIdleTimeoutSec
+      };
+    };
+
     # The panel, as it exists on the desktop: floating, bottom edge, 46px.
     # `widgets` order IS the on-screen order (it becomes AppletOrder).
     panels = [
@@ -342,6 +364,7 @@
     };
     configFile = {
       dolphinrc.IconsMode.PreviewSize = 48;
+      dolphinrc.MainWindow.MenuBar = "Disabled";   # menubar hidden on the desktop
       dolphinrc."KFileDialog Settings"."Places Icons Auto-resize" = false;
       dolphinrc."KFileDialog Settings"."Places Icons Static Size" = 22;
       katerc.General."Days Meta Infos" = 30;
@@ -409,6 +432,23 @@
       kwalletrc.Wallet.Enabled = false;
       kwalletrc.Wallet."First Use" = false;
       plasma-localerc.Formats.LANG = "en_US.UTF-8";
+
+      # --- files rc2nix never reads (it works off a fixed allow-list) ---------
+      # Preferences only. The DATA in these same files is deliberately left out:
+      # okularrc [Recent Files] and arkrc [ExtractDialog] DirHistory hold client
+      # document names and local paths, and this repo is public.
+      arkrc.General.LockSidebar = true;
+      arkrc.General.ShowSidebar = true;
+      arkrc.MainWindow.StatusBar = "Disabled";
+      drkonqirc.SystemInformation.CompiledSources = false;
+      kate-externaltoolspluginrc.Global.firststart = false;
+      katevirc."Kate Vi Input Mode Settings"."Map Leader" = "\\";
+      konsolerc.General.ConfigVersion = 1;
+      konsolerc.UiSettings.ColorScheme = "";
+      okularpartrc."Main View".ShowLeftPanel = false;
+      okularrc."Desktop Entry".FullScreen = false;
+      okularrc.General.LockSidebar = true;
+      okularrc.General.ShowSidebar = true;
     };
   };
 }
