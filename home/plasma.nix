@@ -44,11 +44,16 @@
       { layout = "tr"; displayName = "tr"; }   # Turkish Q (default variant, not F)
     ];
 
-    # The panel, as it exists on the desktop: bottom edge, default thickness.
+    # The panel, as it exists on the desktop: floating, bottom edge, 46px.
     # `widgets` order IS the on-screen order (it becomes AppletOrder).
     panels = [
       {
         location = "bottom";
+        # floating + 46px thickness come from plasmashellrc [PlasmaViews][Panel 3]
+        # on the desktop. rc2nix does NOT read plasmashellrc, so these two are
+        # transcribed by hand — check them there if the panel ever looks wrong.
+        floating = true;
+        height = 46;
         widgets = [
           "org.kde.plasma.kickoff"
           "org.kde.plasma.pager"
@@ -397,6 +402,11 @@
       kuriikwsfilterrc.General.KeywordDelimiter = ":";
       kuriikwsfilterrc.General.PreferredWebShortcuts = "";
       kuriikwsfilterrc.General.UsePreferredWebShortcutsOnly = false;
+      # KWallet off entirely: gnome-keyring is the only Secret Service (see
+      # modules/keyring.nix). Leaving it on lets ksecretd claim
+      # org.freedesktop.secrets before gnome-keyring on some boots, which
+      # reintroduces the split-keychain browser logouts under Plasma.
+      kwalletrc.Wallet.Enabled = false;
       kwalletrc.Wallet."First Use" = false;
       plasma-localerc.Formats.LANG = "en_US.UTF-8";
     };
