@@ -133,8 +133,8 @@
       kmix.mute = "Volume Mute";
       kmix.push_to_talk = [ ];
       ksmserver."Halt Without Confirmation" = [ ];
-      ksmserver."Lock Session" = ["Screensaver" "Meta+L"];
-      ksmserver."Log Out" = "Ctrl+Alt+Del";
+      ksmserver."Lock Session" = ["Screensaver" "Meta+L" "Meta+Ctrl+L"];
+      ksmserver."Log Out" = ["Ctrl+Alt+Del" "Meta+Ctrl+Q"];
       ksmserver."Log Out Without Confirmation" = [ ];
       ksmserver.LogOut = [ ];
       ksmserver.Reboot = [ ];
@@ -151,7 +151,7 @@
       kwin.ExposeClassCurrentDesktop = [ ];
       kwin."Grid View" = "Meta+G";
       kwin."Increase Opacity" = [ ];
-      kwin."Kill Window" = "Meta+Ctrl+Esc";
+      kwin."Kill Window" = ["Meta+Ctrl+Esc" "Meta+Shift+Q"];
       kwin."Move Tablet to Next LogicalOutput" = [ ];
       kwin.MoveMouseToCenter = "Meta+F6";
       kwin.MoveMouseToFocus = "Meta+F5";
@@ -166,10 +166,10 @@
       kwin."Switch One Desktop Up" = "Meta+Ctrl+Up";
       kwin."Switch One Desktop to the Left" = "Meta+Ctrl+Left";
       kwin."Switch One Desktop to the Right" = "Meta+Ctrl+Right";
-      kwin."Switch Window Down" = "Meta+Alt+Down";
-      kwin."Switch Window Left" = "Meta+Alt+Left";
-      kwin."Switch Window Right" = "Meta+Alt+Right";
-      kwin."Switch Window Up" = "Meta+Alt+Up";
+      kwin."Switch Window Down" = "Meta+Down";
+      kwin."Switch Window Left" = "Meta+Left";
+      kwin."Switch Window Right" = "Meta+Right";
+      kwin."Switch Window Up" = "Meta+Up";
       kwin."Switch to Desktop 1" = ["Ctrl+F1" "Meta+F1"];
       kwin."Switch to Desktop 10" = [ ];
       kwin."Switch to Desktop 11" = [ ];
@@ -213,7 +213,7 @@
       kwin."Switch to Screen to the Right" = [ ];
       kwin."Toggle Night Color" = [ ];
       kwin."Toggle Window Raise/Lower" = [ ];
-      kwin."Walk Through Windows" = ["Alt+Tab" "Meta+Tab"];
+      kwin."Walk Through Windows" = ["Alt+Tab" "Meta+Tab" "Ctrl+Tab"];
       kwin."Walk Through Windows (Reverse)" = ["Alt+Shift+Tab" "Meta+Shift+Tab"];
       kwin."Walk Through Windows Alternative" = [ ];
       kwin."Walk Through Windows Alternative (Reverse)" = [ ];
@@ -223,16 +223,16 @@
       kwin."Walk Through Windows of Current Application Alternative (Reverse)" = [ ];
       kwin."Window Above Other Windows" = [ ];
       kwin."Window Below Other Windows" = [ ];
-      kwin."Window Close" = "Alt+F4";
+      kwin."Window Close" = ["Alt+F4" "Meta+Q"];
       kwin."Window Custom Quick Tile Bottom" = [ ];
       kwin."Window Custom Quick Tile Left" = [ ];
       kwin."Window Custom Quick Tile Right" = [ ];
       kwin."Window Custom Quick Tile Top" = [ ];
-      kwin."Window Fullscreen" = [ ];
+      kwin."Window Fullscreen" = "Meta+F";
       kwin."Window Grow Horizontal" = [ ];
       kwin."Window Grow Vertical" = [ ];
       kwin."Window Lower" = [ ];
-      kwin."Window Maximize" = "Meta+PgUp";
+      kwin."Window Maximize" = ["Meta+PgUp" "Meta+M"];
       kwin."Window Maximize Horizontal" = [ ];
       kwin."Window Maximize Vertical" = [ ];
       kwin."Window Minimize" = "Meta+PgDown";
@@ -253,12 +253,12 @@
       kwin."Window Pack Left" = [ ];
       kwin."Window Pack Right" = [ ];
       kwin."Window Pack Up" = [ ];
-      kwin."Window Quick Tile Bottom" = "Meta+Down";
+      kwin."Window Quick Tile Bottom" = "Meta+Shift+Down";
       kwin."Window Quick Tile Bottom Left" = [ ];
       kwin."Window Quick Tile Bottom Right" = [ ];
-      kwin."Window Quick Tile Left" = "Meta+Left";
-      kwin."Window Quick Tile Right" = "Meta+Right";
-      kwin."Window Quick Tile Top" = "Meta+Up";
+      kwin."Window Quick Tile Left" = "Meta+Shift+Left";
+      kwin."Window Quick Tile Right" = "Meta+Shift+Right";
+      kwin."Window Quick Tile Top" = "Meta+Shift+Up";
       kwin."Window Quick Tile Top Left" = [ ];
       kwin."Window Quick Tile Top Right" = [ ];
       kwin."Window Raise" = [ ];
@@ -351,7 +351,7 @@
       plasmashell.cycleNextAction = [ ];
       plasmashell.cyclePrevAction = [ ];
       plasmashell.edit_clipboard = [ ];
-      plasmashell."manage activities" = "Meta+Q";
+      plasmashell."manage activities" = [ ];   # freed for Window Close (Hyprland SUPER+Q)
       plasmashell."next activity" = "Meta+A";
       plasmashell."previous activity" = "Meta+Shift+A";
       plasmashell.repeat_action = [ ];
@@ -449,6 +449,36 @@
       okularrc."Desktop Entry".FullScreen = false;
       okularrc.General.LockSidebar = true;
       okularrc.General.ShowSidebar = true;
+
+      # --- Hyprland keybind parity: app launches -----------------------------
+      # Ported from config/hypr/lua/binds.lua. This is the [services][<app>.desktop]
+      # _launch form that System Settings > Shortcuts > "Add Application" writes,
+      # which is how Meta+Return was bound by hand — it reuses the app's real
+      # .desktop instead of synthesising one, so the entry shows the right name
+      # and icon in System Settings.
+      kglobalshortcutsrc."services/com.mitchellh.ghostty.desktop"._launch = "Meta+Return";
+      kglobalshortcutsrc."services/brave-browser.desktop"._launch = "Meta+B";
+      kglobalshortcutsrc."services/org.gnome.Nautilus.desktop"._launch = "Meta+E";
+      # Hyprland runs gnome-calculator; that is not installed here, so the KDE
+      # equivalent takes the binding.
+      kglobalshortcutsrc."services/org.kde.kcalc.desktop"._launch = "Meta+Ctrl+C";
+      kglobalshortcutsrc."services/rofi-emoji.desktop"._launch = "Meta+Ctrl+E";
     };
   };
+
+  # rofi ships no .desktop for the emoji picker, so provide one and bind it the
+  # same [services] way as the real apps above.
+  #
+  # Deliberately NOT plasma-manager's `hotkeys.commands`: that routes through
+  # `xdg.desktopEntries`, and this config sets `xdg.enable = false`, under which
+  # home-manager computes desktopEntries but never writes them — the shortcut
+  # would register against a .desktop that does not exist and launch nothing.
+  home.file.".local/share/applications/rofi-emoji.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=Emoji Picker
+    Exec=rofi -modi emoji -show emoji
+    NoDisplay=true
+    StartupNotify=false
+  '';
 }
