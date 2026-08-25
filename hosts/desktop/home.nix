@@ -76,4 +76,36 @@ in
   #   Timer = { OnBootSec = "5min"; OnUnitActiveSec = "1h"; Persistent = true; };
   #   Install.WantedBy = [ "timers.target" ];
   # };
+
+  # ---- KDE, desktop-only ----------------------------------------------------
+  # The shared capture lives in home/plasma.nix; these are tied to THIS box's
+  # hardware and would be wrong on the laptop.
+  programs.plasma.configFile = {
+    # XWayland apps render at 1x and get upscaled by this factor. 1.7 matches
+    # the 4K panels here; the laptop's 1920x1200 wants its own value, so this
+    # is deliberately not in the shared module.
+    kwinrc.Xwayland.Scale = 1.7;
+
+    # The "Finals Force Tearing" KWin rule, reproduced verbatim from the desktop.
+    #
+    # Written as raw kwinrulesrc rather than via plasma-manager's `window-rules`
+    # option on purpose: that option emits BOTH `<prop>` and `<prop>rule` keys,
+    # so `apply.tearingrule` would produce `tearingrule` + `tearingrulerule`.
+    # The property here is literally named `tearing`, and only its *rule* key
+    # was ever written on the source machine.
+    #
+    # NOTE: this rule is incomplete as captured — it has no match criteria
+    # (no wmclass/title) and no `tearing=` value, only `tearingrule=2` ("force").
+    # That is what is actually on the desktop today, so it is what is committed;
+    # it is not doing anything useful. To make it real, set it up in System
+    # Settings > Window Management > Window Rules and re-capture.
+    kwinrulesrc = {
+      General.count = 1;
+      General.rules = "finals-force-tearing";
+      finals-force-tearing = {
+        Description = "Finals Force Tearing";
+        tearingrule = 2;
+      };
+    };
+  };
 }

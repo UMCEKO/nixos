@@ -97,26 +97,12 @@ in
 {
   home.stateVersion = "26.05";
 
-  # KDE is now managed declaratively by plasma-manager (see rc2nix workflow),
-  # so KDE rc files are NOT symlinked here anymore.
-  programs.plasma = {
-    enable = true;
+  # KDE/Plasma is managed declaratively by plasma-manager. The whole captured
+  # setup — shortcuts, panel, app prefs — lives in ./plasma.nix, which also
+  # documents the rc2nix workflow for folding in future GUI changes.
+  imports = [ ./plasma.nix ];
 
-    # Keyboard layouts (us + Turkish) with your switch shortcut — this is the
-    # persistent, reproducible source of truth (writes kxkbrc on rebuild).
-    input.keyboard.layouts = [
-      { layout = "us"; displayName = "en"; }   # English Q
-      { layout = "tr"; displayName = "tr"; }   # Turkish Q (default variant, not F)
-    ];
-    shortcuts."KDE Keyboard Layout Switcher"."Switch to Next Keyboard Layout" = "Meta+Space";
-
-    # KDE apps (Dolphin) read text/view colors from kdeglobals [Colors:*], NOT
-    # from the Kvantum style — so Kvantum's dark bg + KDE's default light scheme
-    # = dark-on-dark. This applies a matching dark scheme so text is readable.
-    workspace.colorScheme = "CatppuccinMochaMauve";
-  };
-
-  # The scheme plasma-apply-colorscheme resolves the name above against.
+  # The scheme workspace.colorScheme in ./plasma.nix resolves against.
   home.file.".local/share/color-schemes/CatppuccinMochaMauve.colors".source =
     ../config/color-schemes/CatppuccinMochaMauve.colors;
 
