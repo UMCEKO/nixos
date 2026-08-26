@@ -14,7 +14,7 @@
     # ── CLI / shell tools ──────────────────────────────────────────
     wget curl aria2 rsync pv file tree tmux
     ripgrep fd eza bat zoxide fzf jq yq-go just
-    btop htop fastfetch starship nushell
+    btop htop fastfetch starship nushell rclone
     yt-dlp ncdu duf tokei trash-cli pandoc tesseract
     unzip p7zip unrar sshpass parted net-tools
     # network / diagnostics
