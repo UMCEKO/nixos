@@ -148,14 +148,9 @@ in
     zapret
   ];
 
-  services.zapret = {
-    enable = false;
-    params = [
-      "--dpi-desync=fake"
-      "--dpi-desync-ttl=4"
-      "--dpi-desync-fooling=md5sig"
-    ];
-  };
+  # services.zapret lives in hosts/desktop/zapret.nix, NOT here -- this file is
+  # shared with the roaming laptop and a TTL tuned for the home TT line is wrong
+  # on any other network. The package stays above for `blockcheck` on both.
 
   programs.appimage = {
     enable = true;

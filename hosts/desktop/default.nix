@@ -14,6 +14,7 @@
     ./drives.nix
     ./system-tweaks.nix
     ./nginx.nix
+    ./zapret.nix
   ];
 
   networking.hostName = "nixos";

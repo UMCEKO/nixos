@@ -11,6 +11,21 @@ return {
     },
     opts = {
       servers = {
+        ts_ls = {
+          cmd = { "typescript-language-server", "--stdio" },
+          filetypes = {
+            "javascript",
+            "javascriptreact",
+            "typescript",
+            "typescriptreact",
+          },
+          root_markers = {
+            "tsconfig.json",
+            "jsconfig.json",
+            "package.json",
+            ".git",
+          },
+        },
         postgres_lsp = {
           filetypes = { "sql", "pgsql", "postgres", "sql.dockerfile" },
           settings = {

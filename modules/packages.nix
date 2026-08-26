@@ -22,14 +22,14 @@
 
     # ── Development ────────────────────────────────────────────────
     git neovim vim
-    rustup rust-analyzer zig nasm mono uv pyenv
+    rustup zig nasm mono uv pyenv
     nodejs python3 go
     gh github-desktop meld
     kubectl kubernetes-helm k9s argocd pulumi
     awscli2 google-cloud-sdk stripe-cli mongosh
     ollama claude-code codex
     android-tools apktool jadx
-    typescript-language-server vtsls dioxus-cli
+    dioxus-cli
     temurin-bin flutter tree-sitter imagemagick
     terraform kubeseal
 

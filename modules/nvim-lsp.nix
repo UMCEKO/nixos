@@ -17,7 +17,9 @@
     postgres-language-server
     matlab-language-server
     gopls                            # you do Go dev
-    # typescript-language-server, vtsls, rust-analyzer already in packages.nix
+    typescript-language-server 
+    vtsls
+    rust-analyzer
 
     # ── Formatters / linters ──
     prettier
