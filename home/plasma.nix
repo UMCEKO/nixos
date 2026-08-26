@@ -11,6 +11,19 @@
 #
 # Captured from host `nixos` (the desktop) on 2026-08-25.
 #
+# THE macOS LOOK
+#   The appearance below reproduces the "plasma6-macos 4.2" transformation pack
+#   from its two credited upstreams, which are free and packaged in ../pkgs:
+#     sumac-theme          Plasma style, Aurorae, Kvantum, colours, icon packs
+#     liquidglass-widgets  the macOS plasmoids (weather, clock, calendar, music)
+#   The pack's own install.sh is not usable here: it drives apt/dnf/pacman/zypper
+#   and installs imperatively into ~/.local/share, which this file would then
+#   overwrite on the next rebuild.
+#
+#   One substitution: 4.2 credits its window-title widget to Liquid Glass, but
+#   that project ships no such widget (checked at rev 02b4476). antroids'
+#   application-title-bar is used instead — see the top panel below.
+#
 # DELIBERATELY NOT CAPTURED — rc2nix emits these, they must not be committed:
 #   dataFile "kate/anonymous.katesession"  editor session: cursor lines, splitter
 #                                          sizes, a URL into ~/.cache. Pure state.
@@ -27,16 +40,128 @@
 # HOST-SPECIFIC, so they live in hosts/<name>/home.nix rather than here:
 #   kwinrc.Xwayland.Scale   1.7 suits the desktop's 4K panels, not a 1920x1200 laptop
 #   kwinrulesrc             the "Finals Force Tearing" rule is a desktop gaming rule
-{ ... }:
+{ pkgs, ... }:
+let
+  # Neither is in nixpkgs; both are plain data repacks. See ../pkgs for why each
+  # needs a derivation rather than a bare fetch.
+  sumac-theme = pkgs.callPackage ../pkgs/sumac-theme.nix { };
+  liquidglass-widgets = pkgs.callPackage ../pkgs/liquidglass-widgets.nix { };
+
+  # Desktop widgets: weather, clock, calendar, now-playing — the set 4.2 adds at
+  # install time. There is no plasma-manager option for these (programs.plasma
+  # .desktop covers only icons and mouse actions), and writing them into
+  # plasma-org.kde.plasma.desktop-appletsrc by hand does not survive either: the
+  # panel script DELETES that file before rebuilding the layout. The Plasma
+  # scripting API is the supported way in, and priorities 4/5 put these AFTER
+  # the panel script (priority 2) that does the wiping.
+  #
+  # Shared by the two passes below so they can never drift apart. See the
+  # comment on the second pass for why this has to run twice.
+  #
+  # Coordinates are absolute pixels for a 1920x1200 screen, recovered from this
+  # host's ItemGeometries-1920x1200 before the rc file was wiped: weather and
+  # calendar along the top, clock and now-playing below them.
+  #
+  # Two things bend these numbers, so they are not free choices:
+  #   * y is measured from below the panel — Plasma adds the panel strut (41px
+  #     here), so a declared 0 renders at 41.
+  #   * the desktop containment refuses to overlap two widgets and slides the
+  #     second one away instead. Music sits at 560 rather than the 336 this host
+  #     used to have because the calendar above it is 272 tall; at 336 Plasma
+  #     shunted it into the middle of the screen.
+  # Assigning w.geometry after the fact does NOT work — the containment ignores
+  # it. Placement only takes at addWidget() time, which is why correcting a
+  # position means removing the widget and adding it again.
+  #
+  # `config` carries settings that used to live only in the rc file and so died
+  # with it — the weather city being the one that actually shows.
+  widgetJs = comment: ''
+    ${comment}
+    // type -> [x, y, width, height]
+    var wanted = {
+      "com.jaxparrow07.macoswidgets.weather":      [  80,   0, 384, 272],
+      "com.jaxparrow07.macoswidgets.calendar":     [1472,   0, 384, 272],
+      "com.jaxparrow07.macoswidgets.clock-square": [  96, 336, 160, 160],
+      "com.jaxparrow07.macoswidgets.music":        [1360, 560, 480, 320]
+    };
+
+    // type -> group -> key -> value, applied after the widget is created.
+    var config = {
+      "com.jaxparrow07.macoswidgets.weather": {
+        "General": { "location": "Istanbul" }
+      }
+    };
+
+    for (var d of desktops()) {
+      for (var type in wanted) {
+        // Collect first, then remove — mutating the list while iterating it
+        // skips entries, which is how duplicates used to survive.
+        var stale = d.widgets().filter(function (w) { return w.type === type; });
+        for (var w of stale) { w.remove(); }
+      }
+
+      // Containments for screens that no longer exist stay in the rc file
+      // forever. Clearing them above is right; adding to them is not — it is
+      // what left a second, invisible copy of every widget behind.
+      if (typeof d.screen === "number" && d.screen < 0) { continue; }
+
+      for (var type in wanted) {
+        var g = wanted[type];
+        var w = d.addWidget(type, g[0], g[1], g[2], g[3]);
+
+        var groups = config[type];
+        if (!groups) { continue; }
+        for (var group in groups) {
+          w.currentConfigGroup = [group];
+          for (var key in groups[group]) {
+            w.writeConfig(key, groups[group][key]);
+          }
+        }
+      }
+    }
+  '';
+in
 {
   programs.plasma = {
     enable = true;
 
     workspace = {
+      # Sumac Night, the macOS 12 style set from ../pkgs/sumac-theme.nix.
+      #
+      # lookAndFeel (org.kde.sumac.desktop) is deliberately NOT set. Applying a
+      # global theme rewrites the panel layout, and `panels` below is the source
+      # of truth for that — the two would fight, and which one won would depend
+      # on script ordering. Setting the pieces individually looks the same and
+      # leaves the layout alone.
+      theme = "sumac-night-plasma";       # Plasma style (share/plasma/desktoptheme)
+
       # KDE apps (Dolphin) read text/view colors from kdeglobals [Colors:*], NOT
       # from the Kvantum style — so Kvantum's dark bg + KDE's default light scheme
       # = dark-on-dark. This applies a matching dark scheme so text is readable.
-      colorScheme = "CatppuccinMochaMauve";
+      # Pairs with SumacDoncsugarDark in config/Kvantum/kvantum.kvconfig.
+      colorScheme = "SummaculateNight";   # SummaculateNight.colors
+
+      # Sumac's icon pack is inheritance-only — a lone index.theme that resolves
+      # to WhiteSur-dark. whitesur-icon-theme in home.packages is what actually
+      # supplies the icons; without it everything falls back to hicolor.
+      iconTheme = "Sumac-Night";
+
+      cursor = {
+        theme = "WhiteSur-cursors";
+        size = 24;
+      };
+
+      windowDecorations = {
+        library = "org.kde.kwin.aurorae";
+        # "-small" is the macOS-sized traffic-light button; "-big" is chunkier.
+        theme = "__aurorae__svg__sumac-night-blur-small";
+      };
+
+      # The user's own picture, not Sumac's. Sumac ships a wallpaper (and
+      # ../pkgs/sumac-theme.nix still assembles it) but it was never what this
+      # machine actually had on screen — pointing this at ~/Pictures is what
+      # stops a rebuild from overwriting the real one.
+      wallpaper = "/home/umceko/Pictures/Wallpapers/anime/general/goblin_slayer_1.jpg";
     };
 
     input.keyboard.layouts = [
@@ -66,27 +191,81 @@
       };
     };
 
-    # The panel, as it exists on the desktop: floating, bottom edge, 46px.
+    # Two panels, macOS-style: a thin menu bar flush to the top edge, and a
+    # floating content-width dock centred at the bottom. This replaces the single
+    # 46px bottom panel the desktop used to carry.
     # `widgets` order IS the on-screen order (it becomes AppletOrder).
     panels = [
+      # ── Menu bar ─────────────────────────────────────────────────────────
       {
-        location = "bottom";
-        # floating + 46px thickness come from plasmashellrc [PlasmaViews][Panel 3]
-        # on the desktop. rc2nix does NOT read plasmashellrc, so these two are
-        # transcribed by hand — check them there if the panel ever looks wrong.
+        location = "top";
+        # 25px floating, which is what this machine's top panel actually was
+        # before plasma-manager first took the layout over (plasmashellrc had
+        # [PlasmaViews][Panel 184][Defaults] thickness=25, floating=1).
+        #
+        # An earlier note here claimed Plasma 6.7 clamps panel thickness to a
+        # 52px floor. That is wrong on this host — 25 is what it was running.
+        height = 25;
         floating = true;
-        height = 46;
+        lengthMode = "fill";
         widgets = [
+          # Stands in for the  menu: same corner, same "everything is in here"
+          # role. Meta / Alt+F1 already open it (see shortcuts below).
           "org.kde.plasma.kickoff"
-          "org.kde.plasma.pager"
-          "org.kde.plasma.icontasks"
-          "org.kde.plasma.marginsseparator"
+
+          # Window title + traffic-light buttons.
+          #
+          # This is the piece 4.2 credits to a Liquid Glass "Title Menu" widget.
+          # That widget does not exist in that project (rev 02b4476 ships clocks,
+          # weather, calendar, music and a timer — nothing else), so antroids'
+          # application-title-bar stands in: it is in nixpkgs and plasma-manager
+          # already has a module for it.
+          {
+            applicationTitleBar = {
+              layout = {
+                elements = [
+                  "windowCloseButton"
+                  "windowMinimizeButton"
+                  "windowMaximizeButton"
+                  "windowTitle"
+                ];
+                horizontalAlignment = "left";
+                verticalAlignment = "center";
+                # With no window focused macOS shows nothing here rather than a
+                # row of dead buttons.
+                showDisabledElements = "hide";
+                spacingBetweenElements = 6;
+              };
+              windowControlButtons = {
+                # Draw the buttons from the Aurorae decoration, so they match the
+                # titlebars Sumac paints rather than the icon theme.
+                iconSource = "aurorae";
+                auroraeTheme = "sumac-night-blur-small";
+                buttonsAspectRatio = 100;
+                buttonsMargin = 4;
+              };
+              windowTitle.maximumWidth = 320;
+            };
+          }
+
+          # The focused app's own menu bar. Apps have to export it over DBus:
+          # Qt/KDE and GTK apps do, most Electron ones do not — those just show
+          # nothing here, which is the normal limitation of a global menu on KDE.
+          "org.kde.plasma.appmenu"
+
+          # Everything after this is pushed to the right half of the bar.
+          "org.kde.plasma.panelspacer"
+
           {
             systemTray.items = {
               # `extra` = explicitly enabled in the tray. Mirrors extraItems= in
               # plasma-org.kde.plasma.desktop-appletsrc. battery/brightness are
               # harmless on the desktop (no battery -> the applet just hides) and
               # are what the laptop needs, so the list stays shared.
+              #
+              # org.kde.plasma.weather is deliberately gone: the Liquid Glass
+              # weather panel below replaces it, and running both would put two
+              # weather readouts in the same bar.
               extra = [
                 "org.kde.plasma.cameraindicator"
                 "org.kde.plasma.devicenotifier"
@@ -98,7 +277,6 @@
                 "org.kde.plasma.battery"
                 "org.kde.plasma.brightness"
                 "org.kde.kscreen"
-                "org.kde.plasma.weather"
                 "org.kde.plasma.volume"
                 "org.kde.plasma.keyboardindicator"
                 "org.kde.plasma.networkmanagement"
@@ -106,8 +284,58 @@
               ];
             };
           }
-          "org.kde.plasma.digitalclock"
-          "org.kde.plasma.showdesktop"
+
+          # macOS Weather (Panel), from ../pkgs/liquidglass-widgets.nix.
+          "com.jaxparrow07.macoswidgets.weatherpanel"
+
+          # macOS puts the date beside the time in the menu bar, no seconds.
+          {
+            digitalClock = {
+              date = {
+                enable = true;
+                format = "shortDate";
+                position = "besideTime";
+              };
+              time.showSeconds = "never";
+            };
+          }
+        ];
+      }
+
+      # ── Dock ─────────────────────────────────────────────────────────────
+      {
+        location = "bottom";
+        floating = true;
+        height = 60;
+        # "fit" shrinks the panel to its contents; combined with centre alignment
+        # that is what makes it read as a dock rather than a full-width taskbar.
+        lengthMode = "fit";
+        alignment = "center";
+        # macOS reveals the dock on approach. Plasma's closest equivalent that
+        # still leaves it visible over an empty desktop is dodging windows.
+        hiding = "dodgewindows";
+        widgets = [
+          {
+            iconTasks = {
+              # Pinned apps, matching the Meta+<key> launch bindings further down.
+              launchers = [
+                "applications:brave-browser.desktop"
+                "applications:com.mitchellh.ghostty.desktop"
+                "applications:org.gnome.Nautilus.desktop"
+                "applications:discord.desktop"
+                "applications:spotify.desktop"
+                "applications:org.kde.kcalc.desktop"
+              ];
+              iconsOnly = true;
+              appearance = {
+                showTooltips = true;
+                highlightWindows = true;
+                # Must stay false: `fill` would stretch the task manager to the
+                # full screen width and defeat lengthMode = "fit" above.
+                fill = false;
+              };
+            };
+          }
         ];
       }
     ];
@@ -117,6 +345,14 @@
     kwin.virtualDesktops = {
       number = 1;
       rows = 1;
+    };
+
+    # Traffic lights, on the left, in macOS order: close, minimize, zoom.
+    # Plasma's default puts them on the right, which no amount of theming hides
+    # — the Aurorae theme only supplies the artwork, not the placement.
+    kwin.titlebarButtons = {
+      left = [ "close" "minimize" "maximize" ];
+      right = [ ];
     };
 
     shortcuts = {
@@ -362,6 +598,46 @@
       plasmashell."switch to previous activity" = [ ];
       plasmashell."toggle do not disturb" = [ ];
     };
+    # Desktop widgets: weather, clock, calendar, now-playing — the set 4.2 adds
+    # at install time.
+    #
+    # There is no plasma-manager option for these (programs.plasma.desktop covers
+    # only icons and mouse actions), and writing them into
+    # plasma-org.kde.plasma.desktop-appletsrc by hand does not survive either:
+    # the panel script DELETES that file before rebuilding the layout. The Plasma
+    # scripting API is the supported way in, and priority 4 puts this AFTER the
+    # panel script (priority 2) that does the wiping.
+    #
+    # Coordinates are absolute pixels for a 1920x1200 screen, recovered from
+    # this host's ItemGeometries-1920x1200 before the rc file was wiped:
+    # weather and calendar along the top, clock and now-playing below them.
+    # Adjust for a 4K panel.
+    #
+    # `config` carries settings that used to live only in the rc file and so
+    # died with it — the weather city being the one that actually shows.
+    startup.desktopScript."macos_desktop_widgets" = {
+      priority = 4;
+      text = ''
+        ${widgetJs "// Pass 1: make sure all four exist. Positions cascade here."}
+      '';
+    };
+
+    # Pass 2, and it has to be a SEPARATE script, not a second loop inside the
+    # one above. Widget.remove() does not take effect until the running script
+    # returns — inside one evaluateScript the containment still sees the old
+    # widget, so the re-add cascades again and nothing is corrected. Two scripts
+    # means two D-Bus calls, and pass 1 has settled by the time this one runs,
+    # which is the whole reason the positions stick.
+    #
+    # Verified on this host: one script with a doubled loop yields the cascade
+    # (calendar y=313, music y=921); two scripts yield the intended layout.
+    startup.desktopScript."macos_desktop_widget_positions" = {
+      priority = 5;
+      text = ''
+        ${widgetJs "// Pass 2: re-place each one into the now-settled layout."}
+      '';
+    };
+
     configFile = {
       dolphinrc.IconsMode.PreviewSize = 48;
       dolphinrc.MainWindow.MenuBar = "Disabled";   # menubar hidden on the desktop
@@ -481,4 +757,19 @@
     NoDisplay=true
     StartupNotify=false
   '';
+
+  # The macOS look's assets. home-manager puts ~/.nix-profile/share on
+  # XDG_DATA_DIRS, which is how Plasma finds the styles, plasmoids, icons and
+  # cursors below — no kpackagetool6 install step is involved.
+  home.packages = [
+    sumac-theme
+    liquidglass-widgets
+
+    # NOT optional: Sumac-Night/index.theme is `Inherits=WhiteSur-dark` and
+    # carries no icons of its own. Drop this and every icon falls back to hicolor.
+    pkgs.whitesur-icon-theme
+
+    pkgs.whitesur-cursors        # workspace.cursor.theme
+    pkgs.application-title-bar   # the top panel's window-title widget
+  ];
 }
