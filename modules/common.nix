@@ -27,6 +27,51 @@ in
   nix.settings.max-substitution-jobs = 32;  # default 16 — packages fetched at once
   nix.settings.connect-timeout = 5;         # fail fast on a dead mirror connection
 
+  # http2 OFF, deliberately, despite the upstream default being on.
+  #
+  # Measured 2026-08-26, `nix copy` of a fixed 400-path / 1.5 GB closure from
+  # cache.nixos.org into a scratch store, throughput sampled off eno1:
+  #
+  #     http2=true   ->  7.99 MB/s  ( 67 Mbit/s)   <- was stuck here
+  #     http2=false  -> 19.38 MB/s  (163 Mbit/s)
+  #
+  # Under HTTP/2 curl multiplexes every request onto ONE connection per host,
+  # so http-connections and max-substitution-jobs above collapse onto a single
+  # socket and the whole switch runs at exactly single-stream speed (a lone
+  # curl stream to the Vienna POP measures 7.8 MB/s -- same number). Forcing
+  # HTTP/1.1 makes each substitution job open its own socket.
+  #
+  # NOT a mirror problem. Substituters were benchmarked cold-vs-cold on six
+  # identical NARs before ruling them out; cache.nixos.org won 4 of 6 outright
+  # and USTC 404'd on the other two:
+  #
+  #     cache.nixos.org  3.40 - 7.96 MB/s cold  (36 MB/s once hot)
+  #     USTC (CN)        2.48 - 4.61 MB/s, 2 of 6 MISSING
+  #     SJTU (CN)        5.27 MB/s        TUNA / NJU: 404 on everything
+  #     nix-cache.s3.amazonaws.com: 403
+  #
+  # No usable mirror exists from TR, and an incomplete one is worse than none:
+  # every extra substituter costs a narinfo round-trip PER PATH at ~60ms RTT
+  # before Nix falls back. Fastly itself already serves 565 Mbit/s here at 32
+  # real sockets, so the bytes were never the constraint.
+  #
+  # That 3.40 -> 36 MB/s spread on ONE host is Fastly cold-miss vs hot-hit: a
+  # cold object makes the Vienna edge pull from the IAD shield. After a nixpkgs
+  # bump nearly every path is cold, which is why parallel sockets matter so
+  # much here -- they overlap that latency instead of stacking it.
+  #
+  # Ceiling after this is ~20 MB/s, below the 67 MB/s raw curl reaches. The
+  # rest is Nix's own pipeline (closure dependency ordering, narinfo
+  # round-trips, store writes), not bandwidth. Raising max-substitution-jobs
+  # does NOT help: 16 -> 20.06, 32 -> 19.38, 64 -> 19.17 MB/s, all noise.
+  nix.settings.http2 = false;
+
+  # download-buffer-size is deliberately NOT set. The obvious suspect, and it
+  # measured neutral: at the default 1 MiB the same copy ran 18.63 MB/s vs
+  # 19.38 at 512 MiB, with zero "download buffer is full" warnings in any run.
+  # Decompression is not the constraint either -- xz -d benchmarks at 216 MB/s
+  # here and the cache is ~90% zstd. Don't reach for these two; it's http2.
+
   # NOTE: automatic GC is deliberately NOT set here. It is enabled on the
   # laptop (512 GB) only — turning it on for the desktop would be a behaviour
   # change smuggled in with a refactor. Enable it there when you want it.
