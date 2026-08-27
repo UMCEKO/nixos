@@ -141,10 +141,30 @@
   # Firmware updates. HP business laptops are well covered by LVFS.
   services.fwupd.enable = true;
 
-  # Fingerprint reader is deliberately NOT configured. HP EliteBooks commonly
-  # ship Synaptics or Goodix parts that libfprint does not support, and a
-  # half-working PAM fingerprint stack locks you out of your own machine.
-  # Check `lsusb` first, then enable services.fprintd if the part is supported.
+  # No fingerprint reader on this unit. This is settled — do not re-investigate:
+  #   - nothing on USB, and no SPI bus exists at all (/sys/class/spi_master
+  #     is empty), so there is no bus for one to hide on
+  #   - no biometric ACPI node. The only Synaptics part is SYNA3143 at
+  #     \_SB_.I2CA.TPAD — that is the touchpad (06CB:D004 via i2c_hid_acpi)
+  #   - hp_bioscfg exposes 268 BIOS attributes, with per-device toggles for
+  #     camera / microphone / Bluetooth / WLAN / storage, and NO fingerprint
+  #     entry among them. HP does not ship a toggle for hardware that is absent.
+  # On this generation the reader lives in the POWER BUTTON, not the palm rest,
+  # and it is configure-to-order. SKU D36SZET#AB8 was ordered without it.
+  #
+  # The small square with the wave emblem on the palm rest is the NFC
+  # touchpoint, not a sensor: NXP8013 at \_SB_.I2CB.NPC2, from HP's AMDNFCI2
+  # SSDT. Unusable here in any case — its _STA reads 0 (not fitted, the same
+  # marker the absent ELAN2513 touchscreen carries, while the fitted touchpad
+  # reads 15), and the in-tree nxp-nci_i2c driver only matches NXP1001 /
+  # NXP1002 / NXP7471 anyway.
+  #
+  # 'Enhanced Sign-In Security' in hp_bioscfg is a red herring: it is present
+  # on every HP business SKU, is not in this machine's F10 menu, and the
+  # firmware rejects WMI writes to it (hp_bioscfg: error 0x4, "Invalid command
+  # type"). It is not hiding a sensor.
+  #
+  # What this machine does have is an IR camera — see face-unlock.nix.
 
   # Bluetooth — the desktop gets this from peripherals.nix, which is
   # desktop-only (it also carries Wooting/Razer/OpenRGB).

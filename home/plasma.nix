@@ -340,10 +340,12 @@ in
       }
     ];
 
-    # One virtual desktop, one row (kwinrc [Desktops] Number/Rows). The Id_1
-    # UUID that rc2nix also emits is intentionally omitted — see header.
+    # Four virtual desktops on one row (kwinrc [Desktops] Number/Rows), reached
+    # with Meta+1..4 — see "Switch to Desktop N" below, which needs these to
+    # exist to have anywhere to switch to. The Id_1 UUID that rc2nix also emits
+    # is intentionally omitted — see header.
     kwin.virtualDesktops = {
-      number = 1;
+      number = 4;
       rows = 1;
     };
 
@@ -406,7 +408,7 @@ in
       kwin."Switch Window Left" = "Meta+Left";
       kwin."Switch Window Right" = "Meta+Right";
       kwin."Switch Window Up" = "Meta+Up";
-      kwin."Switch to Desktop 1" = ["Ctrl+F1" "Meta+F1"];
+      kwin."Switch to Desktop 1" = ["Meta+1" "Ctrl+F1" "Meta+F1"];
       kwin."Switch to Desktop 10" = [ ];
       kwin."Switch to Desktop 11" = [ ];
       kwin."Switch to Desktop 12" = [ ];
@@ -417,15 +419,15 @@ in
       kwin."Switch to Desktop 17" = [ ];
       kwin."Switch to Desktop 18" = [ ];
       kwin."Switch to Desktop 19" = [ ];
-      kwin."Switch to Desktop 2" = ["Ctrl+F2" "Meta+F2"];
+      kwin."Switch to Desktop 2" = ["Meta+2" "Ctrl+F2" "Meta+F2"];
       kwin."Switch to Desktop 20" = [ ];
       kwin."Switch to Desktop 21" = [ ];
       kwin."Switch to Desktop 22" = [ ];
       kwin."Switch to Desktop 23" = [ ];
       kwin."Switch to Desktop 24" = [ ];
       kwin."Switch to Desktop 25" = [ ];
-      kwin."Switch to Desktop 3" = ["Ctrl+F3" "Meta+F3"];
-      kwin."Switch to Desktop 4" = ["Ctrl+F4" "Meta+F4"];
+      kwin."Switch to Desktop 3" = ["Meta+3" "Ctrl+F3" "Meta+F3"];
+      kwin."Switch to Desktop 4" = ["Meta+4" "Ctrl+F4" "Meta+F4"];
       kwin."Switch to Desktop 5" = [ ];
       kwin."Switch to Desktop 6" = [ ];
       kwin."Switch to Desktop 7" = [ ];
@@ -570,11 +572,11 @@ in
       org_kde_powerdevil.powerProfile = ["Battery" "Meta+B"];
       plasmashell."Slideshow Wallpaper Next Image" = [ ];
       plasmashell."activate application launcher" = ["Meta" "Alt+F1"];
-      plasmashell."activate task manager entry 1" = "Meta+1";
+      plasmashell."activate task manager entry 1" = [ ];   # freed for "Switch to Desktop 1"
       plasmashell."activate task manager entry 10" = [ ];
-      plasmashell."activate task manager entry 2" = "Meta+2";
-      plasmashell."activate task manager entry 3" = "Meta+3";
-      plasmashell."activate task manager entry 4" = "Meta+4";
+      plasmashell."activate task manager entry 2" = [ ];   # freed for "Switch to Desktop 2"
+      plasmashell."activate task manager entry 3" = [ ];   # freed for "Switch to Desktop 3"
+      plasmashell."activate task manager entry 4" = [ ];   # freed for "Switch to Desktop 4"
       plasmashell."activate task manager entry 5" = "Meta+5";
       plasmashell."activate task manager entry 6" = "Meta+6";
       plasmashell."activate task manager entry 7" = "Meta+7";

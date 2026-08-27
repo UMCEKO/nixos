@@ -16,6 +16,7 @@
   imports = [
     ./hardware-configuration.nix
     ./hardware.nix
+    ./face-unlock.nix
   ];
 
   networking.hostName = "elitebook";
