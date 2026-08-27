@@ -258,11 +258,7 @@
   "fadeToDpmsGracePeriod": 5,
   "launchPrefix": "",
   "brightnessDevicePins": {},
-  "wifiNetworkPins": {
-    "preferredWifi": [
-      "Umut Mobil"
-    ]
-  },
+  "wifiNetworkPins": {},
   "bluetoothDevicePins": {},
   "audioInputDevicePins": {
     "preferredInput": [
