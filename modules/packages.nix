@@ -23,7 +23,7 @@
     # ── Development ────────────────────────────────────────────────
     git neovim vim comma opencode 
     rustup zig nasm mono uv pyenv
-    nodejs python3 go
+    nodejs python3 go netbird
     gh github-desktop meld
     kubectl kubernetes-helm k9s argocd pulumi
     awscli2 google-cloud-sdk stripe-cli mongosh

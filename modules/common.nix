@@ -174,7 +174,7 @@ in
   # the desktop is an exit node, and a laptop advertising one from a hotel
   # network is actively wrong.
   services.tailscale.enable = true;
-
+  services.netbird.enable = true;
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
   home-manager.extraSpecialArgs = { inherit inputs; };
