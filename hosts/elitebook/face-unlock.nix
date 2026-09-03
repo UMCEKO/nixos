@@ -13,32 +13,39 @@
 # defaults per block, so setting one key keeps the rest. Verified — the
 # generated config.ini still carries all 30 keys across all five sections.
 #
-# ── Scope: the greeter, the lock screen, sudo and polkit ────────────────────
+# ── Scope: the lock screen, sudo and polkit. NOT the SDDM greeter. ──────────
 #
-# This covers every interactive authentication on the machine. `login` is the
-# one to note: /etc/pam.d/sddm is nothing but `auth substack login`, so putting
-# Howdy in the login stack is what puts it in the SDDM greeter — and in TTY
-# logins as a side effect. Log in by pressing Enter on an empty password field;
-# pam_howdy runs ahead of pam_unix and `sufficient` short-circuits the rest.
+# Howdy is deliberately absent from the `login` stack, and that is what keeps it
+# out of the SDDM greeter: /etc/pam.d/sddm is nothing but `auth substack login`,
+# so anything in login's auth chain lands in the greeter (and in TTY logins).
 #
-# TWO CONSEQUENCES, both accepted deliberately:
+# DO NOT re-add `login.howdy.enable = true`. It was tried here and it breaks
+# gnome-keyring:
 #
-#   1. gnome-keyring does NOT prompt, and must not start. The theory said it
-#      would: pam_gnome_keyring unlocks the keyring from the password PAM
-#      captured into PAM_AUTHTOK, a face match supplies none, and `sufficient`
-#      short-circuits the auth stack before that module is reached anyway.
-#      Verified in practice on this machine — face login at the SDDM greeter
-#      produces no keyring prompt at all. That is the required behaviour, not a
-#      lucky accident to be tolerated: if a keyring prompt ever starts appearing
-#      after a face login, treat it as a regression. `login.howdy.enable` below
-#      is the line to remove if it comes to that.
+#   modules/keyring.nix unlocks the login keyring via pam_gnome_keyring, which
+#   needs the password PAM captured into PAM_AUTHTOK. A face match supplies
+#   none, and `sufficient` short-circuits the auth stack before that module is
+#   even reached. The keyring then stays locked and you get an "Authentication
+#   required / The login keyring did not get unlocked when you logged into your
+#   computer" dialog.
 #
-#   2. Cold boot is no longer something you know. Face unlock is now the first
-#      and only gate after the LUKS passphrase, and Howdy's own manual says a
-#      well-printed photo defeats it. This host carries the vCD token, the
-#      kubeconfig and Terraform state and leaves the building (see the LUKS
-#      assertion in default.nix). The LUKS passphrase is still the thing
-#      protecting the disk at rest; this only affects a running, locked machine.
+#   The trap is that the dialog is DEFERRED — it does not appear at login, but
+#   on the first secret access afterwards. A face login therefore looks clean
+#   for a while before the prompt shows up, so "I logged in and nothing popped
+#   up" is not evidence that this is safe. It was recorded as verified-safe here
+#   on exactly that mistake.
+#
+# A silent keyring is a hard requirement on this machine. Password login at the
+# greeter is what satisfies it.
+#
+# The remaining consequence of face unlock, unchanged:
+#
+#   Howdy has no liveness or depth check — it is dlib's 2D embedding compared
+#   against `certainty`, and this sensor offers one flood-lit greyscale stream
+#   with no stereo pair or dot projector, so depth is not available to add.
+#   IR does defeat the easy spoof (screens emit no near-IR and read as black),
+#   but a carbon-ink print can present a valid IR face. Scoped as it is now,
+#   that only reaches a session a password already opened.
 #
 # nixpkgs defaults EVERY pam service's howdy.enable to security.pam.howdy.enable,
 # which in turn defaults to services.howdy.enable. Setting the global to false
@@ -94,7 +101,6 @@
   security.pam.services = {
     sudo.howdy.enable = true;
     kde.howdy.enable = true; # kscreenlocker, i.e. the Plasma lock screen
-    login.howdy.enable = true; # SDDM greeter (substacks login) and TTY logins
     polkit-1.howdy.enable = true; # Plasma's authentication dialogs
   };
 
