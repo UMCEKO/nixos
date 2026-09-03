@@ -65,10 +65,7 @@
   networking.firewall.allowedUDPPorts = [ 4698 ];  # Iriun phone discovery/stream
   networking.firewall.allowedTCPPorts = [ 25565 ]; # Minecraft server
   virtualisation.libvirtd.enable = true;   # VMs via virt-manager
-  services.ollama = {
-    enable = true;                         # local LLM daemon
-    package = pkgs.ollama-cuda;            # the module's default pkgs.ollama has no GPU backend at all
-  };
+  # ollama is installed imperatively, not here: ollama-cuda is in no binary cache and rebuilt on every nixpkgs bump.
   services.openssh.enable = true;          # sshd (auto-opens firewall port 22)
   services.ananicy = {                     # CachyOS auto-nice daemon
     enable = true;

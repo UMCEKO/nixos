@@ -27,7 +27,7 @@
     gh github-desktop meld
     kubectl kubernetes-helm k9s argocd pulumi
     awscli2 google-cloud-sdk stripe-cli mongosh
-    ollama-cuda claude-code codex
+    claude-code codex
     android-tools apktool jadx
     dioxus-cli
     temurin-bin flutter tree-sitter imagemagick
