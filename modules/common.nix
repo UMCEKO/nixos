@@ -170,16 +170,21 @@ in
 
   virtualisation.docker.enable = true;
 
+  # Docker's default pool is 172.16/12, which collided with the netbird nameserver's address; 10.210/16 is clear here.
+  virtualisation.docker.daemon.settings.default-address-pools = [
+    { base = "10.210.0.0/16"; size = 24; }
+  ];
+
   # Tailscale. Routing features / exit-node advertisement are per-host: only
   # the desktop is an exit node, and a laptop advertising one from a hotel
   # network is actively wrong.
   services.tailscale.enable = true;
 
-  # NetBird cannot pick its own range (netbird.bixcod.dev assigns it), so it is kept out of DNS and routing instead.
+  # Set explicitly, never omitted: the module only writes keys into config.json and never unsets them again.
   services.netbird.enable = true;
   services.netbird.clients.default.config = {
-    DisableDNS = true;
-    DisableClientRoutes = true;
+    DisableDNS = false;
+    DisableClientRoutes = false;
   };
 
   home-manager.useGlobalPkgs = true;
