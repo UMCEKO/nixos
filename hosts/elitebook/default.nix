@@ -56,6 +56,29 @@
     enableUserSlices = true;
   };
 
+  # sshd. Key-only, on purpose: this host leaves the building (see the LUKS
+  # assertion below) and would otherwise expose a password prompt to whatever
+  # hotel/conference network it lands on. The desktop's openssh block in
+  # hosts/desktop/system-tweaks.nix is left on the stock defaults — it never
+  # moves off the home LAN.
+  #
+  # openFirewall defaults to true, so port 22 opens with the service.
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      KbdInteractiveAuthentication = false;  # else PAM still offers a password
+      PermitRootLogin = "no";
+    };
+  };
+
+  # Was hand-placed in ~/.ssh/authorized_keys on 2026-09-03; declared here so
+  # it survives a reinstall. The key carries no comment field — it is the one
+  # you pasted in from the machine you ssh in from.
+  users.users.umceko.openssh.authorizedKeys.keys = [
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOLtEByLC6U6a8/ADf6jXorM8+U2y1UXwGpWI7gm+o5I"
+  ];
+
   # This machine carries the vCD API token, the kubeconfig, the ArgoCD deploy
   # key and Terraform state for Trendruum. It leaves the building. Full-disk
   # encryption is set up by the installer (see README.md); this only asserts
