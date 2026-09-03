@@ -174,7 +174,14 @@ in
   # the desktop is an exit node, and a laptop advertising one from a hotel
   # network is actively wrong.
   services.tailscale.enable = true;
+
+  # NetBird cannot pick its own range (netbird.bixcod.dev assigns it), so it is kept out of DNS and routing instead.
   services.netbird.enable = true;
+  services.netbird.clients.default.config = {
+    DisableDNS = true;
+    DisableClientRoutes = true;
+  };
+
   home-manager.useGlobalPkgs = true;
   home-manager.useUserPackages = true;
   home-manager.extraSpecialArgs = { inherit inputs; };
