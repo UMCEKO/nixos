@@ -1,13 +1,14 @@
 # Non-default system tweaks recovered from the old CachyOS /etc + /boot.
 # (hostname left as-is; DNS/firewall/nginx/user-units are decisions — see MORNING-README.)
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 {
 
   boot.kernelParams = [
     "zswap.enabled=0"     # off — using zram
     "loglevel=3"
     "vsyscall=emulate"    # compat for older/anticheat binaries
-    "pcie_aspm=off"       # fixes igc/eno1 NIC dropping after resume
+    "pcie_aspm.policy=performance"  # replaces pcie_aspm=off, which skipped _OSC and LEFT BIOS ASPM on
+    "pcie_ports=native"             # take AER/PME/hotplug; BIOS _OSC declines it otherwise
     "mitigations=off"     # CachyOS-style: reclaim CPU, drops Spectre-class mitigations
     "ignore_loglevel"     # DEBUG(2026-08-03): every printk to console → netconsole
                           # sees it. Drop this once the lockups are solved.
@@ -64,7 +65,10 @@
   networking.firewall.allowedUDPPorts = [ 4698 ];  # Iriun phone discovery/stream
   networking.firewall.allowedTCPPorts = [ 25565 ]; # Minecraft server
   virtualisation.libvirtd.enable = true;   # VMs via virt-manager
-  services.ollama.enable = true;           # local LLM daemon
+  services.ollama = {
+    enable = true;                         # local LLM daemon
+    package = pkgs.ollama-cuda;            # the module's default pkgs.ollama has no GPU backend at all
+  };
   services.openssh.enable = true;          # sshd (auto-opens firewall port 22)
   services.ananicy = {                     # CachyOS auto-nice daemon
     enable = true;
@@ -117,7 +121,17 @@
     size = 32 * 1024;   # MB
     priority = 1;       # < zramSwap's default priority of 5
   }];
-  services.scx = { enable = true; scheduler = "scx_lavd"; };  # sched-ext gaming scheduler (exonerated in the lockup hunt)
+  # sched-ext gaming scheduler, PINNED TO 1.1.2 on 2026-08-28.
+  # 1.1.3 arrived with gen 137 (nixpkgs 20260819→20260823) and stalls runnable
+  # tasks 32-45s on kernel 7.2. That is longer than softlockup_panic's ~26s
+  # threshold and the 30s watchdog below, so every bad stall became a silent
+  # hard reboot (4 in 90 min on 2026-08-28). 1.1.2 held multi-day uptimes.
+  # Upstream sched-ext/scx#3750 is open; unpin once 1.1.4 ships.
+  services.scx = {
+    enable = true;
+    scheduler = "scx_lavd";
+    package = inputs.nixpkgs-scx.legacyPackages.${pkgs.stdenv.hostPlatform.system}.scx.full;
+  };
   boot.kernel.sysctl = {
     "vm.max_map_count" = 2147483642;    # big / Proton / anticheat games
     "vm.swappiness" = 100;              # zram is fast, favor it
@@ -143,7 +157,7 @@
 
   # SP5100 TCO hardware watchdog: PID1 pets /dev/watchdog0; on a total wedge
   # where even the panic path is dead, the board resets itself within 30s.
-  systemd.watchdog.runtimeTime = "30s";
+  systemd.settings.Manager.RuntimeWatchdogSec = "30s";
 
   # Hardware workaround: your Intel 2.5GbE (igc) NIC drops after suspend — reload on resume.
   systemd.services.igc-resume = {

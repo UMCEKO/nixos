@@ -4,6 +4,14 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+    # Pinned ONLY for services.scx.package (hosts/desktop/system-tweaks.nix).
+    # This is the last rev carrying scx_full 1.1.2; the 20260823 bump moved it
+    # to 1.1.3, which stalls runnable tasks 32-45s on kernel 7.2 and reboots the
+    # box via softlockup_panic. Upstream sched-ext/scx#3750 is still open — drop
+    # this input and go back to plain pkgs.scx.full once 1.1.4 lands.
+    # No `follows`: the whole point is the older nixpkgs.
+    nixpkgs-scx.url = "github:NixOS/nixpkgs/ffb3c9b700e759be2ef13237c9d8f953b32a1e46";
+
     # home-manager as a proper flake input, replacing the fetchTarball.
     # `follows` makes it use the SAME nixpkgs as above (no second copy).
     home-manager = {
