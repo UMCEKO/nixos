@@ -156,8 +156,13 @@ in
     ''; # colors: matugen writes at runtime; cursor_trail: animated cursor from your cachy setup
   };
 
-  programs.fastfetch.settings =
-    builtins.fromJSON (builtins.readFile ../config/fastfetch/config.json);
+  # enable = true is required: the home-manager module only writes
+  # ~/.config/fastfetch/config.jsonc when it's on — `settings` alone is inert,
+  # which is why the custom layout never showed up and the default one did.
+  programs.fastfetch = {
+    enable = true;
+    settings = builtins.fromJSON (builtins.readFile ../config/fastfetch/config.json);
+  };
 
   # NOTE: swaync is NOT a systemd module — that would run it in the KDE session
   # too (conflicting with KDE notifications). It's a writable-symlink config

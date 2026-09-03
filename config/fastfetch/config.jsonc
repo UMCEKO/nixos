@@ -70,10 +70,9 @@
         {
             "key": "│ {#35}󰂄 battery {#keys}│",
             "type": "command",
-            "shell": "/usr/bin/bash",
-            "text": "B=$(ls -d /sys/class/power_supply/BAT* 2>/dev/null|head -n1); cur=$(cat \"$B/current_now\" 2>/dev/null); vol=$(cat \"$B/voltage_now\" 2>/dev/null); w=$(printf '%s %s' \"$cur\" \"$vol\" | awk '{c=$1; v=$2; if(c<0)c=-c; printf \"%.1f\", (c/1000000)*(v/1000000)}'); if [ \"$w\" = \"0.0\" ] || [ -z \"$w\" ]; then d=$(upower -e | grep BAT 2>/dev/null); r=$(upower -i \"$d\" 2>/dev/null); w=$(awk -F: \"/energy rate/{gsub(/^[ ]+| W$/,\"\",$2);print $2}\" <<<\"$r\"); fi; p=$(cat \"$B/capacity\" 2>/dev/null); s=$(cat \"$B/status\" 2>/dev/null); printf \"%s W | %s%% | %s\" \"$w\" \"${p:-?}\" \"${s:-Unknown}\"",
+            "shell": "/bin/sh",
+            "text": "B=$(ls -d /sys/class/power_supply/BAT* 2>/dev/null|head -n1); [ -n \"$B\" ] || { printf 'No battery'; exit; }; s=$(cat \"$B/status\" 2>/dev/null); p=$(cat \"$B/capacity\" 2>/dev/null); if [ -r \"$B/power_now\" ]; then uw=$(cat \"$B/power_now\"); else uw=$(awk -v c=\"$(cat \"$B/current_now\" 2>/dev/null)\" -v v=\"$(cat \"$B/voltage_now\" 2>/dev/null)\" 'BEGIN{printf \"%.0f\", c*v/1000000}'); fi; case \"$s\" in Charging) sign=\"+\";; Discharging) sign=\"-\";; *) sign=\"\";; esac; w=$(awk -v u=\"$uw\" -v g=\"$sign\" 'BEGIN{if(u<0)u=-u; if(u==0)g=\"\"; printf \"%s%.1f\", g, u/1000000}'); printf '%s W | %s%% | %s' \"$w\" \"${p:-?}\" \"${s:-Unknown}\"",
             "format": "{1}"
-  
         },
         {
             "key": "├───────────┤",
