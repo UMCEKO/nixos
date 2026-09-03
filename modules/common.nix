@@ -27,6 +27,10 @@ in
   nix.settings.max-substitution-jobs = 32;  # default 16 — packages fetched at once
   nix.settings.connect-timeout = 5;         # fail fast on a dead mirror connection
 
+  # CUDA pkgs are unfree, so Hydra never builds them and cache.nixos.org has nothing to serve.
+  nix.settings.substituters = [ "https://cuda-maintainers.cachix.org" ];
+  nix.settings.trusted-public-keys = [ "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E=" ];
+
   # http2 OFF, deliberately, despite the upstream default being on.
   #
   # Measured 2026-08-26, `nix copy` of a fixed 400-path / 1.5 GB closure from
@@ -133,12 +137,12 @@ in
     extraRules = [];
   };
 
-  networking.nameservers = [ "9.9.9.9" ];
+  # Strict DoT/DNSSEC fails shut on any link whose DNS server only speaks plain 53.
   services.resolved = {
     enable = true;
     settings.Resolve = {
-      DNSSEC = "true";
-      DNSOverTLS = "true";
+      DNSSEC = "allow-downgrade";
+      DNSOverTLS = "opportunistic";
       FallbackDNS = [ "9.9.9.9" ];
     };
   };
