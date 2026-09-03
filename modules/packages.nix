@@ -21,7 +21,7 @@
     nmap tcpdump mtr traceroute whois ethtool usbutils pciutils dmidecode dnsutils
 
     # ── Development ────────────────────────────────────────────────
-    git neovim vim comma
+    git neovim vim comma opencode 
     rustup zig nasm mono uv pyenv
     nodejs python3 go
     gh github-desktop meld
