@@ -9,8 +9,14 @@
 #   drives.nix            those UUIDs do not exist here
 #   peripherals.nix       Wooting / Razer / OpenRGB / SteelSeries
 #   system-tweaks.nix     7900X wake-fault mitigations, igc NIC reload,
-#                         v4l2loopback, nvidia Wayland env, the hardware
-#                         watchdog, scx_lavd, performance governor
+#                         v4l2loopback, nvidia Wayland env, scx_lavd,
+#                         performance governor.
+#                         Its crash-forensics sysctls and hardware watchdog
+#                         are the exception: after two silent wedges on
+#                         2026-09-04 those ARE wanted here, so they were
+#                         copied into hardware.nix rather than imported —
+#                         the watchdog needs a sleep guard on this host that
+#                         the desktop has no use for.
 { config, pkgs, ... }:
 {
   imports = [

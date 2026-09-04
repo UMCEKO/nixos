@@ -118,6 +118,97 @@
     HandleLidSwitchDocked = "ignore";
   };
 
+  # ── Crash forensics (2026-09-04) ──────────────────────────────────────
+  # Two unclean shutdowns in one night, neither of which left any evidence.
+  #
+  #   Sep 3 23:14:39  hung INSIDE suspend. The last line of that boot is
+  #                   `PM: suspend entry (s2idle)`; the `Freezing user space
+  #                   processes` that normally follows ~30 ms later never
+  #                   arrived. Hard-reset at 23:50. Ninety minutes earlier it
+  #                   had entered and exited s2idle five times in 60 seconds,
+  #                   waking spontaneously after ~11 s each time.
+  #   Sep 4 02:58:08  hard freeze while idle on AC. The journal stops
+  #                   mid-stream. No suspend was scheduled (AutoSuspendAction=0
+  #                   on AC, screen locker off) and none was logged. Sat dead
+  #                   until morning.
+  #
+  # Ruled out at the time: power (battery 100%, fully-charged, AC online), OOM
+  # (zram untouched, no kills in any boot), thermal (zones 25-49 °C, no
+  # throttle events), and the nixos-rebuild 50 min before the freeze — same
+  # kernel 7.2.0 either side of it.
+  #
+  # The reason there is nothing to point at is that nothing was allowed to
+  # panic: pstore was empty and the kernel was untainted, so both wedges were
+  # silent. That is what these lines fix, not the hang itself. Same treatment
+  # and same reasoning as hosts/desktop/system-tweaks.nix — on the next one the
+  # box panics, the backtrace goes to EFI pstore (efi_pstore is registered
+  # here; systemd-pstore copies it to /var/lib/systemd/pstore on the next
+  # boot), and it reboots itself instead of sitting dead until you find it.
+  #
+  # Prime suspect if it recurs is the s2idle path — this is Krackan Point on a
+  # BIOS from 2025-08-26, and /sys/power/mem_sleep offers s2idle only, so there
+  # is no S3 to fall back to. Check `fwupdmgr get-updates` before debugging the
+  # kernel.
+  boot.kernel.sysctl = {
+    "kernel.sysrq" = 1;               # full SysRq: REISUB works on a half-dead box
+    "kernel.softlockup_panic" = 1;    # CPU stuck in kernel >26s → panic, not WARN
+    "kernel.hardlockup_panic" = 1;    # NMI watchdog trip → panic
+    "kernel.hung_task_panic" = 1;     # task in D-state >120s → panic
+    "kernel.panic_on_oops" = 1;       # oops → panic instead of limping on wedged
+    "kernel.panic" = 20;              # reboot 20s after panic
+  };
+
+  # SP5100 TCO hardware watchdog, disarmed across sleep.
+  #
+  # The sysctls above only help if the kernel is still well enough to reach its
+  # panic path. The 02:58 freeze was not: the journal stops mid-stream and
+  # pstore stayed empty, which is the signature of a wedge that never ran any
+  # of that code. Only the watchdog catches that class — PID1 pets
+  # /dev/watchdog0 at half the timeout and the board resets itself if that
+  # stops. Same part as the desktop (`cat /sys/class/watchdog/watchdog0/identity`).
+  #
+  # The reason this needs a sleep hook and the desktop's copy does not is that
+  # this machine sleeps. Verified here on 2026-09-04 rather than assumed:
+  #   - sp5100_tco exports no suspend/resume PM handlers, so the driver does
+  #     not stop the timer on its own
+  #   - systemd-sleep contains no watchdog references at all, so nothing in the
+  #     sleep path stops it either
+  #   - the FCH counter stays powered through s2idle
+  # Left armed, the first sleep longer than the timeout would reset the machine.
+  #
+  # So: disarm before sleep, re-arm on resume. Both directions were tested live
+  # before this was committed. Setting the property to 0 takes
+  # /sys/class/watchdog/watchdog0/state to `inactive` with timeleft frozen —
+  # sp5100_tco is nowayout=0, so systemd's magic close genuinely stops it — and
+  # setting it back takes it to `active` with timeleft counting down again.
+  #
+  # This mirrors the stock `sleep-actions` unit instead of using
+  # powerManagement.powerDownCommands, because that option ALSO fires from
+  # post-boot's preStop at shutdown, which would quietly leave the watchdog
+  # down for the entire shutdown sequence. sleep.target is the exact scope.
+  #
+  # KNOWN GAP: this leaves the 23:14-style hang — the one INSIDE the suspend
+  # transition — uncovered, because the watchdog is down for precisely that
+  # window. There is no way around that; a watchdog nobody pets during sleep
+  # resets on every sleep. If in-suspend hangs become the recurring mode, that
+  # is a firmware/s2idle problem to fix at the source, not here.
+  systemd.settings.Manager.RuntimeWatchdogSec = "30s";
+
+  systemd.services.watchdog-sleep-guard = {
+    description = "Disarm the hardware watchdog across suspend";
+    wantedBy = [ "sleep.target" ];
+    before = [ "sleep.target" ];
+    unitConfig.StopWhenUnneeded = true;   # stopped on resume -> ExecStop re-arms
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      # t 0 disarms; t 30000000 is the 30s above, in microseconds. Keep the two
+      # in step if you retune the timeout.
+      ExecStart = "${pkgs.systemd}/bin/busctl set-property org.freedesktop.systemd1 /org/freedesktop/systemd1 org.freedesktop.systemd1.Manager RuntimeWatchdogUSec t 0";
+      ExecStop = "${pkgs.systemd}/bin/busctl set-property org.freedesktop.systemd1 /org/freedesktop/systemd1 org.freedesktop.systemd1.Manager RuntimeWatchdogUSec t 30000000";
+    };
+  };
+
   # Backlight: brightnessctl (already in modules/packages.nix) ships udev rules
   # granting the `video` group write access to the backlight sysfs, and umceko
   # is in `video` via modules/common.nix — so no extra module is needed.
