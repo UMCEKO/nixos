@@ -15,6 +15,7 @@
     ./system-tweaks.nix
     ./nginx.nix
     ./zapret.nix
+    ./dns.nix
   ];
 
   networking.hostName = "nixos";

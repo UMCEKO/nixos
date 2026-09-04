@@ -4,7 +4,7 @@
 # on the desktop, it belongs here. Anything tied to specific silicon (nvidia,
 # the 7900X wake-fault mitigations, the igc NIC), to a specific role (exit
 # node, nginx vhosts) or to specific peripherals lives under hosts/<name>/.
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 let
   # Default SDDM session: "hyprland" | "hyprland-uwsm" | "plasma". KDE stays
@@ -138,12 +138,14 @@ in
   };
 
   # Router SERVFAILs DS/DNSKEY over UDP instead of setting TC, so allow-downgrade still fails shut.
+  # Baseline only: hosts/desktop/dns.nix raises this to strict DoT on the fixed line.
   services.resolved = {
     enable = true;
     settings.Resolve = {
-      DNSSEC = "false";
-      DNSOverTLS = "opportunistic";
-      FallbackDNS = [ "9.9.9.9" ];
+      DNSSEC = lib.mkDefault "false";
+      # Roaming hosts keep opportunistic: a captive portal must be able to answer before login.
+      DNSOverTLS = lib.mkDefault "opportunistic";
+      FallbackDNS = lib.mkDefault [ "9.9.9.9" ];
     };
   };
 
@@ -183,7 +185,8 @@ in
   # Set explicitly, never omitted: the module only writes keys into config.json and never unsets them again.
   services.netbird.enable = true;
   services.netbird.clients.default.config = {
-    DisableDNS = false;
+    # wt0 registers `~.` + default-route=yes, capturing ALL DNS into a proxy that serves nothing while management is down.
+    DisableDNS = true;
     DisableClientRoutes = false;
   };
 
