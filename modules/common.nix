@@ -137,11 +137,11 @@ in
     extraRules = [];
   };
 
-  # Strict DoT/DNSSEC fails shut on any link whose DNS server only speaks plain 53.
+  # Router SERVFAILs DS/DNSKEY over UDP instead of setting TC, so allow-downgrade still fails shut.
   services.resolved = {
     enable = true;
     settings.Resolve = {
-      DNSSEC = "allow-downgrade";
+      DNSSEC = "false";
       DNSOverTLS = "opportunistic";
       FallbackDNS = [ "9.9.9.9" ];
     };
