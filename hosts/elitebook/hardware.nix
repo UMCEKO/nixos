@@ -108,14 +108,141 @@
     };
   };
 
-  # Lid/suspend. AMD laptops of this generation are s2idle-only (no S3), which
-  # is also why suspend battery drain is the recurring complaint on them.
-  # Verify what the firmware actually offers before debugging any of it:
-  #   cat /sys/power/mem_sleep
+  # ── Sleep disabled wholesale (2026-09-15) ─────────────────────────────
+  # THIRD hang inside the suspend transition, identical to the 2026-09-03
+  # 23:14 one recorded in the crash-forensics block below:
+  #
+  #   09:07:53  systemd-logind: Suspending...
+  #   09:07:53  systemd-sleep:  Successfully froze unit 'user.slice'
+  #   09:07:53  systemd-sleep:  Performing sleep operation 'suspend'...
+  #             <journal ends mid-transition; hard reset at 09:09:26>
+  #
+  # The two differ by one line only in what reached the disk before journald
+  # froze — Sep 3 persisted `PM: suspend entry (s2idle)`, Sep 15 did not.
+  # Same wedge, same silence: pstore empty and tainted=0 both times, and
+  # watchdog-sleep-guard had correctly disarmed watchdog0 ~200 ms earlier, so
+  # nothing was armed to catch it. That is the KNOWN GAP called out below,
+  # and it is not closable — max_timeout is 65535 s, so any watchdog short
+  # enough to catch an in-suspend hang also resets the machine on a normal
+  # overnight sleep.
+  #
+  # The prime suspect named below is now RULED OUT. `fwupdmgr get-updates` on
+  # 2026-09-15 offers UEFI dbx revocations and nothing else; System Firmware
+  # is still 0x01020100 (X76 01.02.01, 2025-08-26) and HP has published no
+  # successor to LVFS. There is no firmware fix in flight to wait for, and
+  # with mem_sleep offering s2idle only there is no S3 to fall back to.
+  #
+  # So sleep is switched off at the target level until the s2idle path is
+  # actually debugged. Masking is deliberately the big hammer rather than
+  # per-daemon config, because this host has FIVE independent ways to ask for
+  # it — logind's lid handler, PowerDevil's power button, PowerDevil's
+  # battery idle timeout, UPower's critical-battery action, and any bare
+  # `systemctl suspend` — and the Sep 15 hang came in through a RACE that
+  # none of those settings can close: logind acted on the already-closed lid
+  # in the window after session 2 appeared but BEFORE PowerDevil registered
+  # its handle-lid-switch block inhibitor. sleep.target is the one chokepoint
+  # downstream of all five. `enable = false` symlinks the unit to /dev/null,
+  # so every requester now fails loudly instead of wedging the box.
+  #
+  # COST, and it is real: on battery this machine runs until it dies. There
+  # is no hibernation to fall back on (no swap — see default.nix), so a
+  # closed lid on battery is a flat battery, not a saved session. The
+  # UPower/PowerDevil settings below turn that into a clean shutdown at 5%
+  # rather than a hard cut, which is the best available without swap.
+  #
+  # SIDE EFFECT, and a welcome one: watchdog-sleep-guard is now inert (it is
+  # wantedBy sleep.target, which no longer starts), so the 30 s hardware
+  # watchdog stays armed permanently. The 2026-09-04 02:58 idle freeze —
+  # the other wedge in the forensics block, the one that was NOT a suspend —
+  # would now be caught and reset instead of sitting dead until morning.
+  # The unit is left in place, not deleted: it is needed again the day sleep
+  # comes back.
+  #
+  # TO UNDO once s2idle works: delete this targets block, put HandleLidSwitch
+  # back to "suspend", restore upower's HybridSleep, and drop the powerdevil
+  # override block below. Verify the firmware first — `cat /sys/power/mem_sleep`
+  # and `fwupdmgr get-updates`.
+  systemd.targets = {
+    sleep.enable = false;
+    suspend.enable = false;
+    hibernate.enable = false;
+    "hybrid-sleep".enable = false;
+    "suspend-then-hibernate".enable = false;
+  };
+
+  # logind must not ASK either. Masking the target means a request fails
+  # safely, but a failed request still logs an error every lid close, and the
+  # lid is closed most of the time on this machine — it drives an external
+  # monitor. "ignore" on all three keeps the laptop awake with the lid shut,
+  # which is the working configuration here anyway.
   services.logind.settings.Login = {
-    HandleLidSwitch = "suspend";
-    HandleLidSwitchExternalPower = "suspend";
+    HandleLidSwitch = "ignore";
+    HandleLidSwitchExternalPower = "ignore";
     HandleLidSwitchDocked = "ignore";
+    HandleSuspendKey = "ignore";
+    HandleHibernateKey = "ignore";
+  };
+
+  # Critical-battery backstop at the SYSTEM level, so it holds even when no
+  # Plasma session is running to act on it (the SDDM greeter, or a session
+  # that has crashed). Stock is HybridSleep, which would now fail into the
+  # masked target and leave the machine running flat instead of parking it.
+  # UPower wants percentageLow > percentageCritical > percentageAction, so the
+  # triplet is set together rather than nudging one of them. Stock is
+  # 10/5/2 — acting at 2% is fine when the fallback is a suspend that takes
+  # a second, and much less fine when it is a full shutdown with no swap.
+  services.upower = {
+    enable = true;
+    criticalPowerAction = "PowerOff";
+    percentageLow = 15;
+    percentageCritical = 8;
+    percentageAction = 5;
+  };
+
+  # PowerDevil, laptop-only. home/plasma.nix is SHARED with the desktop and
+  # was transcribed from the desktop's powerdevilrc, which is why it sets the
+  # AC profile only and notes that "battery/lowBattery are left unset so
+  # Plasma's defaults apply on the laptop". Those Plasma defaults are
+  # sleep-on-idle and sleep-on-lid-close — precisely what must not happen
+  # here — so they are pinned per-host instead of in the shared file, which
+  # would change the desktop's behaviour for no reason.
+  #
+  # Belt and braces with the masked targets above: the mask makes a sleep
+  # request FAIL, this makes PowerDevil stop issuing one. Without it every
+  # idle timeout and lid close writes an error to the journal.
+  home-manager.users.umceko.programs.plasma.powerdevil = {
+    # plasma.nix already defines the AC value ("sleep", from the desktop), so
+    # this has to be mkForce rather than a second definition.
+    AC.powerButtonAction = lib.mkForce "showLogoutScreen";
+    battery.powerButtonAction = "showLogoutScreen";
+    lowBattery.powerButtonAction = "showLogoutScreen";
+
+    # Idle must not suspend on any profile. AC is already "nothing" in
+    # plasma.nix; battery/lowBattery were on Plasma's defaults until now.
+    # Do NOT pair these with an idleTimeout — plasma-manager asserts against
+    # setting a timeout for action "nothing" (same trap noted in plasma.nix).
+    battery.autoSuspend.action = "nothing";
+    lowBattery.autoSuspend.action = "nothing";
+
+    # Lid. On AC the lid is shut most of the time because the machine drives
+    # an external monitor, so doNothing. On battery a shut lid usually does
+    # mean "walking away", so lock it — but inhibit that whenever an external
+    # monitor is attached, or it locks the session out from under you at the
+    # desk. Screen blanking and dimming are untouched and still work; they
+    # are DPMS, not sleep.
+    AC.whenLaptopLidClosed = "doNothing";
+    battery.whenLaptopLidClosed = "lockScreen";
+    lowBattery.whenLaptopLidClosed = "lockScreen";
+    AC.inhibitLidActionWhenExternalMonitorConnected = true;
+    battery.inhibitLidActionWhenExternalMonitorConnected = true;
+    lowBattery.inhibitLidActionWhenExternalMonitorConnected = true;
+
+    # In-session copy of the upower backstop above. Plasma's stock critical
+    # action is sleep/hibernate, neither of which exists on this host now.
+    batteryLevels = {
+      criticalLevel = 5;
+      criticalAction = "shutDown";
+    };
   };
 
   # ── Crash forensics (2026-09-04) ──────────────────────────────────────
@@ -192,6 +319,12 @@
   # window. There is no way around that; a watchdog nobody pets during sleep
   # resets on every sleep. If in-suspend hangs become the recurring mode, that
   # is a firmware/s2idle problem to fix at the source, not here.
+  #
+  # UPDATE 2026-09-15: they did become the recurring mode (third one that
+  # morning), and the firmware fix does not exist — see the sleep-disabled
+  # block at the top of this file. sleep.target is masked, so this unit is
+  # now INERT and the watchdog stays armed around the clock. Left in place
+  # because it is needed again the day sleep is re-enabled.
   systemd.settings.Manager.RuntimeWatchdogSec = "30s";
 
   systemd.services.watchdog-sleep-guard = {
