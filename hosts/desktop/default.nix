@@ -16,6 +16,7 @@
     ./nginx.nix
     ./zapret.nix
     ./dns.nix
+    ./forge-tcmalloc.nix
   ];
 
   networking.hostName = "nixos";

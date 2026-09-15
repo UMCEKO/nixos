@@ -52,7 +52,7 @@
 
     # ── GUI apps ───────────────────────────────────────────────────
     brave google-chrome tor-browser            # firefox via programs.firefox
-    discord vesktop element-desktop slack
+    discord vesktop element-desktop slack telegram-desktop
     spotify obsidian gparted thunderbird
     bitwarden-desktop keepassxc anydesk rustdesk-flutter
     onlyoffice-desktopeditors figma-linux
