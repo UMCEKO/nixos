@@ -26,10 +26,10 @@
 
     enableDynamicTheming = true;   # matugen
     enableCalendarEvents = true;   # khal
-    enableSystemMonitoring = true; # dgop
     enableAudioWavelength = true;  # cava
-    enableClipboardPaste = true;   # wtype
     enableVPN = false;
+    # No enableSystemMonitoring/enableClipboardPaste (dgop, wtype): both are
+    # built into the dms-shell package now, and the options were removed.
   };
   programs.dsearch.enable = true;
 

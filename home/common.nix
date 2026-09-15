@@ -109,12 +109,21 @@ in
   # Live symlinks to ~/nixos/config (writable — required for matugen + app state).
   xdg.configFile = lib.genAttrs writableConfigs (name: {
     source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nixos/config/${name}";
-  });
+  }) // {
+    # See xdg.mimeApps below: apps overwrite this symlink with a plain file.
+    "mimeapps.list".force = true;
+  };
 
   # Default browser = Brave. This writes ~/.config/mimeapps.list, which is the
   # real "default browser" for the desktop: http/https links, .html files, and
   # apps that call xdg-open all resolve here. (The BROWSER=brave env var in
   # configuration.nix only covers terminal programs — separate mechanism.)
+  #
+  # Some apps register their own URL scheme with `xdg-mime default`, which
+  # replaces the home-manager symlink with a plain file. Declaring those
+  # handlers here keeps them across rebuilds, and `force` (set above) lets the next
+  # rebuild overwrite the app-written file instead of failing because a
+  # mimeapps.list.hm-bak from the previous clobber already exists.
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
@@ -123,6 +132,9 @@ in
       "text/html"              = "brave-browser.desktop";
       "application/xhtml+xml"  = "brave-browser.desktop";
       "inode/directory"        = "org.gnome.Nautilus.desktop";  # not Dolphin
+      "x-scheme-handler/bitwarden"  = "bitwarden.desktop";
+      # Written by Claude Code to ~/.local/share/applications on first login.
+      "x-scheme-handler/claude-cli" = "claude-code-url-handler.desktop";
     };
   };
 
