@@ -93,6 +93,22 @@ let
     exec ${pkgs.jq}/bin/jq --argjson k "$keys" 'delpaths([$k[] | [.]])'
   '';
 
+  # dms-shell >=1.6 embeds the QML in the binary; rebuild the old assets/ layout from src (fonts live in the dank-qml-common submodule).
+  dmsAssets = pkgs.runCommand "dms-shell-assets-${pkgs.dms-shell.version}" { } ''
+    cp -r --no-preserve=mode ${pkgs.dms-shell.src}/quickshell/assets $out
+    ln -s ${pkgs.dms-shell.src}/dank-qml-common/DankCommon/assets/fonts $out/fonts
+    substituteInPlace $out/pam/fprint \
+      --replace-fail pam_fprintd.so ${pkgs.fprintd}/lib/security/pam_fprintd.so \
+      --replace-fail pam_deny.so ${pkgs.pam}/lib/security/pam_deny.so \
+      --replace-fail pam_permit.so ${pkgs.pam}/lib/security/pam_permit.so
+    substituteInPlace $out/pam/u2f \
+      --replace-fail pam_u2f.so ${pkgs.pam_u2f}/lib/security/pam_u2f.so \
+      --replace-fail pam_deny.so ${pkgs.pam}/lib/security/pam_deny.so \
+      --replace-fail pam_permit.so ${pkgs.pam}/lib/security/pam_permit.so
+    substituteInPlace $out/pam/other \
+      --replace-fail pam_deny.so ${pkgs.pam}/lib/security/pam_deny.so
+  '';
+
 in
 {
   home.stateVersion = "26.05";
@@ -348,8 +364,8 @@ in
             run ln -s "$1" "$2"
           fi
         }
-        relink ${pkgs.dms-shell}/share/quickshell/dms/assets       "$clone/assets"
-        relink ${pkgs.dms-shell}/share/quickshell/dms/translations "$clone/translations"
+        relink ${dmsAssets}                                   "$clone/assets"
+        relink ${pkgs.dms-shell.src}/quickshell/translations "$clone/translations"
       fi
     '';
 
