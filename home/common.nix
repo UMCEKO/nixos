@@ -122,6 +122,10 @@ in
   home.file.".local/share/color-schemes/CatppuccinMochaMauve.colors".source =
     ../config/color-schemes/CatppuccinMochaMauve.colors;
 
+  # Lives in the Syncthing folder, not this repo, so an edit reaches the other machine without a rebuild.
+  home.file.".claude/CLAUDE.md".source =
+    config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.claude-shared/CLAUDE.md";
+
   # Live symlinks to ~/nixos/config (writable — required for matugen + app state).
   xdg.configFile = lib.genAttrs writableConfigs (name: {
     source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/nixos/config/${name}";
