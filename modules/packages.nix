@@ -71,6 +71,7 @@
     audacity
     qpwgraph carla          # PipeWire patchbay + LV2/VST host
     openvpn
+    cemu
 
 
     # ── Wayland / Hyprland desktop stack ───────────────────────────

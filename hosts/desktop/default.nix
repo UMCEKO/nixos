@@ -43,6 +43,16 @@
   # strict rpfilter drops every reply arriving on eno1 in mangle PREROUTING.
   networking.firewall.checkReversePath = "loose";
 
+  # ~ is 0700, so the syncthing system user cannot traverse it; run as umceko.
+  services.syncthing = {
+      enable = true;
+      openDefaultPorts = true;
+      user = "umceko";
+      group = "users";
+      dataDir = "/home/umceko";
+      configDir = "/home/umceko/.config/syncthing";
+  };
+
   # NVIDIA. The matching Wayland environment (GBM_BACKEND / __GLX_VENDOR_LIBRARY_NAME
   # / LIBVA_DRIVER_NAME) is in system-tweaks.nix — both are desktop-only, and
   # setting those vars on an AMD machine breaks the session with no useful error.
