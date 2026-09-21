@@ -27,6 +27,11 @@ let
   '';
 in
 {
+  imports = [ ../../modules/vice.nix ];
+
+  # Instant-replay clipper (F9). Daemon runs for the whole graphical session.
+  services.vice.enable = true;
+
   programs.steam = {
     enable = true;                       # unfree — allowed via nixpkgs.config.allowUnfree
     gamescopeSession.enable = true;      # "Steam (gamescope)" session in SDDM
