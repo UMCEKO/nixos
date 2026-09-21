@@ -65,6 +65,7 @@
       # Modules every host gets. Per-host module lists live in hosts/<name>.
       baseModules = [
         ./modules/common.nix
+        ./modules/syncthing.nix
         home-manager.nixosModules.home-manager
         inputs.lanzaboote.nixosModules.lanzaboote
       ];
