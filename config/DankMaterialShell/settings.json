@@ -188,7 +188,7 @@
   "appLauncherGridColumns": 5,
   "spotlightCloseNiriOverview": true,
   "spotlightSectionViewModes": {
-    "apps": "grid"
+    "apps": "list"
   },
   "appDrawerSectionViewModes": {},
   "niriOverviewOverlayEnabled": true,
