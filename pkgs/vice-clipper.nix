@@ -46,6 +46,9 @@ python3Packages.buildPythonApplication rec {
     hash = "sha256-hmVE1zV3f663HWjBkQ6D7mhn9dKsA1ypAHGHAnLEJy0=";
   };
 
+  # "The clipboard was not available": wl-copy's forked child held the stderr pipe open until the 2s timeout.
+  patches = [ ./vice-clipboard-hang.patch ];
+
   build-system = with python3Packages; [ setuptools wheel ];
 
   nativeBuildInputs = [ makeWrapper ] ++ lib.optional withQtWebEngine qt6.wrapQtAppsHook;

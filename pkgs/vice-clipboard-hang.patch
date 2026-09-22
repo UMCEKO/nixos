@@ -1,0 +1,38 @@
+From 292a6ebf84a02b5a905dfdd9b9535e0afb928b2f Mon Sep 17 00:00:00 2001
+From: umceko <umutcevdetkocak@gmail.com>
+Date: Tue, 22 Sep 2026 23:56:35 +0300
+Subject: [PATCH] fix(app): stop copy_to_clipboard timing out on wl-copy and
+ xclip
+
+Both tools fork a child that keeps serving the selection, and that child
+inherits stderr. With stderr piped, communicate() waits for an EOF that
+never comes, so every backend hit the 2s timeout, got killed and the UI
+fell back to the "clipboard was not available" dialog.
+---
+ vice/app.py | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+diff --git a/vice/app.py b/vice/app.py
+index 8b302d1..e88ea35 100644
+--- a/vice/app.py
++++ b/vice/app.py
+@@ -971,12 +971,11 @@ def _run_webview(url: str) -> None:
+             for cmd in attempts:
+                 p = None
+                 try:
++                    # The forked child that keeps serving the selection inherits stderr, so a pipe here never reaches EOF.
+                     p = _sp.Popen(cmd, stdin=_sp.PIPE,
+-                                  stdout=_sp.DEVNULL, stderr=_sp.PIPE)
+-                    _, stderr = p.communicate(input=payload, timeout=2.0)
+-                    log.debug("copy_to_clipboard: %s rc=%s stderr=%r",
+-                              cmd[0], p.returncode,
+-                              (stderr or b"").decode(errors="replace")[:200])
++                                  stdout=_sp.DEVNULL, stderr=_sp.DEVNULL)
++                    p.communicate(input=payload, timeout=2.0)
++                    log.debug("copy_to_clipboard: %s rc=%s", cmd[0], p.returncode)
+                     if p.returncode == 0:
+                         return True
+                 except FileNotFoundError:
+-- 
+2.55.0
+
