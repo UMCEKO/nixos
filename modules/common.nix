@@ -206,7 +206,7 @@ in
 
   environment.systemPackages = with pkgs; [
     neovim
-    claude-code
+    inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.claude-code
     brave
     discord
     zapret

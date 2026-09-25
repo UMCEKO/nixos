@@ -27,7 +27,7 @@
     gh github-desktop meld
     kubectl kubernetes-helm k9s argocd pulumi
     awscli2 google-cloud-sdk stripe-cli mongosh
-    claude-code codex
+    codex
     android-tools apktool jadx
     dioxus-cli
     temurin-bin flutter tree-sitter imagemagick
@@ -72,7 +72,6 @@
     qpwgraph carla          # PipeWire patchbay + LV2/VST host
     openvpn
     cemu
-
 
     # ── Wayland / Hyprland desktop stack ───────────────────────────
     # Bar/popups/notifications/wallpaper/idle all retired → DankMaterialShell:
