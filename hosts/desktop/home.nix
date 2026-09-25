@@ -31,9 +31,9 @@ in
   services.hush.enable = true;
 
   # Stable path to proton-cachyos for umu-launcher (PROTONPATH) — survives
-  # updates, unlike a raw /nix/store path. /bin is the compat-tool root.
+  # updates, unlike a raw /nix/store path. The package root is the compat-tool root.
   home.file.".local/share/proton-cachyos".source =
-    "${inputs.chaotic.legacyPackages.${pkgs.system}.proton-cachyos_x86_64_v3}/bin";
+    "${inputs.chaotic.legacyPackages.${pkgs.system}.proton-cachyos_x86_64_v3}";
 
   # Register proton-cachyos as a Steam compatibility tool. It must be a REAL,
   # writable directory, NOT a store symlink: Steam/Proton/BSManager write a lock
@@ -42,7 +42,7 @@ in
   # perms each activation. Restart Steam after a rebuild to pick it up.
   home.activation.protonCachyosCompatTool =
     lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      src="${inputs.chaotic.legacyPackages.${pkgs.system}.proton-cachyos_x86_64_v3}/bin"
+      src="${inputs.chaotic.legacyPackages.${pkgs.system}.proton-cachyos_x86_64_v3}"
       dst="$HOME/.local/share/Steam/compatibilitytools.d/proton-cachyos"
       rm -rf "$dst"
       mkdir -p "$dst"
