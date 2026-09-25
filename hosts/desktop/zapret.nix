@@ -23,17 +23,10 @@
   services.zapret = {
     enable = true;
 
-    # Same strategy proven on this line from the router, with the TTL bumped by
-    # exactly one. The router sat one hop closer to TT, so its ttl=4 and our
-    # ttl=5 land the fake packet in the same place: past TT's DPI, dead before
-    # it reaches the real server. (From here hop1 is the router and hop2 the
-    # BNG; from the router, hop1 WAS the BNG.)
-    #
-    # Retune with: nix-shell -p iptables zapret --command blockcheck
+    # No fake/disorder2: api.pttavm.com's origin RSTs any ClientHello that uses them.
     params = [
-      "--dpi-desync=fake,disorder2"
-      "--dpi-desync-fooling=md5sig"
-      "--dpi-desync-ttl=5"
+      "--dpi-desync=multidisorder"
+      "--dpi-desync-split-pos=1,midsld"
     ];
 
     # QUIC (UDP 443) is deliberately NOT handled here, unlike the router config.
