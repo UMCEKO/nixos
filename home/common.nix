@@ -321,6 +321,22 @@ in
     # deliberately no Install.WantedBy — started from Hyprland autostart only.
   };
 
+  # Go only trims cache entries unused for 5 days, so parallel worktree builds grew it to 40 GB; clear it weekly.
+  systemd.user.services.cache-trim = {
+    Unit.Description = "Weekly Go build cache clear and uv cache prune";
+    Service = {
+      Type = "oneshot";
+      ExecStart = [ "${pkgs.go}/bin/go clean -cache" "${pkgs.uv}/bin/uv cache prune" ];
+    };
+  };
+  systemd.user.timers.cache-trim = {
+    Timer = {
+      OnCalendar = "weekly";
+      Persistent = true;
+    };
+    Install.WantedBy = [ "timers.target" ];
+  };
+
   # DMS editable clone: relink the heavy read-only assets from the packaged
   # dms-shell on every activation.
   #

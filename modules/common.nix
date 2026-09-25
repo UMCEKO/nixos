@@ -177,6 +177,18 @@ in
     { base = "10.210.0.0/16"; size = 24; }
   ];
 
+  # BuildKit trims its own cache past 20 GB; it had reached 53 GB unattended.
+  virtualisation.docker.daemon.settings.builder.gc = {
+    enabled = true;
+    defaultKeepStorage = "20GB";
+  };
+  # Weekly `docker system prune`: dangling images, week-old stopped containers, unused networks; never volumes.
+  virtualisation.docker.autoPrune = {
+    enable = true;
+    dates = "weekly";
+    flags = [ "--filter=until=168h" ];
+  };
+
   # Tailscale. Routing features / exit-node advertisement are per-host: only
   # the desktop is an exit node, and a laptop advertising one from a hotel
   # network is actively wrong.

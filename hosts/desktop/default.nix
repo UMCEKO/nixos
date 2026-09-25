@@ -39,6 +39,17 @@
   nix.settings.max-jobs = 8;
   nix.settings.cores = 3;
 
+  # Root hit 95% on 2026-09-23; the store now cleans itself instead of waiting for a manual GC.
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
+  };
+  nix.optimise.automatic = true;
+  # A build that finds under 50 GiB free collects garbage until 150 GiB are free.
+  nix.settings.min-free = 50 * 1024 * 1024 * 1024;
+  nix.settings.max-free = 150 * 1024 * 1024 * 1024;
+
   # eno1 and wlp8s0 are both on 192.168.0.0/24; wifi wins the route lookup, so
   # strict rpfilter drops every reply arriving on eno1 in mangle PREROUTING.
   networking.firewall.checkReversePath = "loose";
