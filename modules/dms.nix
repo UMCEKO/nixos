@@ -23,11 +23,6 @@
     # which KDE starts too → DMS would leak into Plasma. Off; launched from
     # hypr/lua/autostart.lua so it only runs under Hyprland.
     systemd.enable = false;
-
-    enableDynamicTheming = true;   # matugen
-    enableCalendarEvents = true;   # khal
-    enableAudioWavelength = true;  # cava
-    enableVPN = false;
     # No enableSystemMonitoring/enableClipboardPaste (dgop, wtype): both are
     # built into the dms-shell package now, and the options were removed.
   };
