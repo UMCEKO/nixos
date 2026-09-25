@@ -47,6 +47,12 @@
     # (that's what broke gnugrep when we tried the CachyOS kernel).
     chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
 
+    # Only for claude-code: its bot bumps it within hours of release, nixos-unstable lags days.
+    nix-ai-tools = {
+      url = "github:numtide/nix-ai-tools";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Your SteelSeries ChatMix daemon.
     chatmixd.url = "github:UMCEKO/chatmixd";
 
