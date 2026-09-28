@@ -16,7 +16,7 @@
     ripgrep fd eza bat zoxide fzf jq yq-go just
     btop htop fastfetch starship nushell rclone
     yt-dlp ncdu duf tokei trash-cli pandoc tesseract
-    unzip p7zip unrar sshpass parted net-tools
+    unzip p7zip unrar sshpass parted net-tools wtype
     # network / diagnostics
     nmap tcpdump mtr traceroute whois ethtool usbutils pciutils dmidecode dnsutils
 
@@ -82,6 +82,7 @@
     nwg-displays nwg-look
     hyprlock hyprpicker hyprshade hyprsunset
     hyprpolkitagent
+    xwayland-satellite      # niri spawns it on demand for X11 clients
     grim slurp satty grimblast wf-recorder wl-clipboard cliphist
     nsxiv gromit-mpx kdotool matugen cava waypipe
     kitty ghostty reqable
@@ -95,7 +96,8 @@
     vulkan-tools
     iw                # wifi link/regdomain inspection: iw dev <if> link, iw reg get
 
-    prismlauncher     # Minecraft launcher
+    # libxkbcommon: LWJGL's bundled SDL3 dlopens it for Wayland; without it SDL3 games from Prism can never run as native Wayland clients.
+    (prismlauncher.override { additionalLibs = [ libxkbcommon ]; })
     osu-lazer-bin     # official release repack (tracks ppy servers; source build = osu-lazer). Settings live in ~/.local/share/osu/client.realm, not declarative
   ];
 }

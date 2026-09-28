@@ -7,7 +7,7 @@
 { config, pkgs, lib, inputs, ... }:
 
 let
-  # Default SDDM session: "hyprland" | "hyprland-uwsm" | "plasma". KDE stays
+  # Default SDDM session: "hyprland" | "hyprland-uwsm" | "niri" | "plasma". KDE stays
   # installed either way.
   autoSession = "hyprland-uwsm";
 in

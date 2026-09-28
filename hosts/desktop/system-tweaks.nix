@@ -54,6 +54,12 @@
     LIBVA_DRIVER_NAME = "nvidia";
   };
 
+  # The driver's built-in "No VidMem Reuse" profile lists Hyprland but not niri, whose VRAM use then balloons (niri wiki: Nvidia).
+  environment.etc."nvidia/nvidia-application-profiles-rc.d/50-niri.json".text = builtins.toJSON {
+    rules = [ { pattern = { feature = "procname"; matches = "niri"; }; profile = "Limit Free Buffer Pool On Wayland Compositors"; } ];
+    profiles = [ { name = "Limit Free Buffer Pool On Wayland Compositors"; settings = [ { key = "GLVidHeapReuseRatio"; value = 0; } ]; } ];
+  };
+
   # (crash-lab / igpu-only debug boot entries removed 2026-08-03 post-BIOS-3881
   # — base entry is stock now, so the reproducer runs anywhere.)
 

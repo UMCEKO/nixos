@@ -21,7 +21,7 @@
     enable = true;
     # KDE-gating: the module's dms.service is wantedBy=graphical-session.target,
     # which KDE starts too → DMS would leak into Plasma. Off; launched from
-    # hypr/lua/autostart.lua so it only runs under Hyprland.
+    # hypr/lua/autostart.lua or niri/config.kdl so it only runs under Hyprland or niri.
     systemd.enable = false;
     # No enableSystemMonitoring/enableClipboardPaste (dgop, wtype): both are
     # built into the dms-shell package now, and the options were removed.

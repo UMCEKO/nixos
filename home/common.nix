@@ -19,7 +19,7 @@ let
   # (kitty/fastfetch/swaync are native modules below — matugen still works there
   # because modules write per-file into a real dir, so its color file sits alongside.)
   writableConfigs = [
-    "hypr" "rofi" "wlogout"
+    "hypr" "niri" "rofi" "wlogout"
     "matugen" "sidepad" "Iriun" "Kvantum" "vim" "ohmyposh" "nvim" "fish"
     # NOTE: "zshrc" removed — zsh is now a native programs.zsh module (below),
     # so home-manager writes ~/.zshrc directly. The old ~/.config/zshrc/*
@@ -295,11 +295,11 @@ in
     };
   };
 
-  # DMS unit with no WantedBy — autostart.lua starts it, so it only runs under
-  # Hyprland, never KDE (see dms.nix). Restart=on-failure adds crash recovery.
+  # DMS unit with no WantedBy — autostart.lua / niri's spawn-at-startup start it, so it
+  # only runs under Hyprland or niri, never KDE (see dms.nix). Restart=on-failure adds crash recovery.
   systemd.user.services.dms-shell = {
     Unit = {
-      Description = "DankMaterialShell (Hyprland session)";
+      Description = "DankMaterialShell (Hyprland/niri session)";
       After = [ "graphical-session.target" ];
       PartOf = [ "graphical-session.target" ];
     };
@@ -317,8 +317,10 @@ in
       Restart = "on-failure";
       RestartSec = 2;
       Slice = "session.slice";
+      # Inherited by apps launched from DMS; SDL3 otherwise picks X11 on niri (no fifo-v1) and games crawl through xwayland-satellite.
+      Environment = [ "SDL_VIDEODRIVER=wayland" ];
     };
-    # deliberately no Install.WantedBy — started from Hyprland autostart only.
+    # deliberately no Install.WantedBy — started from Hyprland/niri autostart only.
   };
 
   # Go only trims cache entries unused for 5 days, so parallel worktree builds grew it to 40 GB; clear it weekly.
@@ -387,6 +389,12 @@ in
         relink ${dmsAssets}                                   "$clone/assets"
         relink ${pkgs.dms-shell.src}/quickshell/translations "$clone/translations"
       fi
+    '';
+
+  # niri config has no conditionals; config.kdl includes host.kdl, a gitignored link to hosts/<hostname>.kdl.
+  home.activation.niriHostConfig =
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      run ln -sfn "hosts/$(cat /etc/hostname).kdl" "$HOME/nixos/config/niri/host.kdl"
     '';
 
   # Same stamp on activation, so `nrs` fixes up a freshly-pulled settings.json

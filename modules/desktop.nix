@@ -9,6 +9,12 @@
     withUWSM = true;   # session manager; clean env for Wayland
   };
 
+  # niri as a second session; its config lives in config/niri. useNautilus=false keeps FileChooser on gtk, as below.
+  programs.niri = {
+    enable = true;
+    useNautilus = false;
+  };
+
   # NOTE: hyprlandPlugins.hyprsplit (per-monitor workspaces) doesn't compile
   # against hyprland 0.55 in nixpkgs 26.05 yet — revisit after channel bump.
   # Until then switch-workspace.sh derives mapping from live hyprctl state.

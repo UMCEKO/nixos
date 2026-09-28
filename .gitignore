@@ -15,6 +15,9 @@ config/quickshell/dms/*.pre-symlink
 # DMS writes a timestamped snapshot of config/hypr/dms on every theme change
 config/hypr/.dms-backups/
 
+# Per-host link made by home.activation.niriHostConfig (home/common.nix).
+config/niri/host.kdl
+
 # Written by the standalone uv installer; sources ~/.local/bin/env.fish, which
 # lives outside this repo. uv itself is declarative (packages.nix).
 config/fish/conf.d/uv.env.fish
