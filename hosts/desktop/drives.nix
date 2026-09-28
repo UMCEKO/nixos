@@ -29,6 +29,10 @@
     SCCACHE_CACHE_SIZE = "100G";
   };
 
+  # Docker's fsync-heavy DB containers queue on this disk's journal, not root's; the mount dependency stops a nofail miss from filling root.
+  virtualisation.docker.daemon.settings.data-root = "/mnt/secondary/docker";
+  systemd.services.docker.unitConfig.RequiresMountsFor = [ "/mnt/secondary/docker" ];
+
   # sda1 — CachyOS auto-mounted this via udisks, so it wasn't in the old fstab.
   fileSystems."/mnt/mass-storage" = {
     device = "/dev/disk/by-uuid/d16defd8-27c2-491a-873c-987dde892838";
