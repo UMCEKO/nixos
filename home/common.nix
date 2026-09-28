@@ -295,8 +295,6 @@ in
     };
   };
 
-  # DMS unit with no WantedBy — autostart.lua / niri's spawn-at-startup start it, so it
-  # only runs under Hyprland or niri, never KDE (see dms.nix). Restart=on-failure adds crash recovery.
   systemd.user.services.dms-shell = {
     Unit = {
       Description = "DankMaterialShell (Hyprland/niri session)";
@@ -320,7 +318,7 @@ in
       # Inherited by apps launched from DMS; SDL3 otherwise picks X11 on niri (no fifo-v1) and games crawl through xwayland-satellite.
       Environment = [ "SDL_VIDEODRIVER=wayland" ];
     };
-    # deliberately no Install.WantedBy — started from Hyprland/niri autostart only.
+    # deliberately no Install.WantedBy — only Hyprland/niri autostart starts it, keeping DMS out of KDE (see dms.nix).
   };
 
   # Go only trims cache entries unused for 5 days, so parallel worktree builds grew it to 40 GB; clear it weekly.
