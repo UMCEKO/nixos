@@ -1,0 +1,338 @@
+// niri port of config/hypr/lua. Per-host outputs, workspaces and autostart live in hosts/<hostname>.kdl.
+
+include "host.kdl"
+
+// DMS-generated files first so the settings below override them; the Lua config ignored DMS's copies outright.
+include optional=true "dms/colors.kdl"
+include optional=true "dms/layout.kdl"
+include optional=true "dms/alttab.kdl"
+include optional=true "dms/binds.kdl"
+include optional=true "dms/outputs.kdl"
+include optional=true "dms/cursor.kdl"
+include optional=true "dms/windowrules.kdl"
+include optional=true "dms/wpblur.kdl"
+
+environment {
+    XDG_SESSION_DESKTOP "niri"
+    QT_QPA_PLATFORM "wayland;xcb"
+    QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
+    QT_AUTO_SCREEN_SCALE_FACTOR "1"
+    GDK_SCALE "1"
+    GDK_BACKEND "wayland,x11,*"
+    CLUTTER_BACKEND "wayland"
+    MOZ_ENABLE_WAYLAND "1"
+    OZONE_PLATFORM "wayland"
+    ELECTRON_OZONE_PLATFORM_HINT "wayland"
+    SDL_VIDEODRIVER "wayland"
+    XDG_DATA_DIRS "/home/umceko/.local/share/flatpak/exports/share:/var/lib/flatpak/exports/share:/home/umceko/.local/share:/home/umceko/.nix-profile/share:/etc/profiles/per-user/umceko/share:/run/current-system/sw/share"
+    // Without it kbuildsycoca6 indexes 0 apps and Dolphin's "Open With" is empty.
+    XDG_MENU_PREFIX "plasma-"
+}
+
+spawn-at-startup "~/.config/niri/scripts/gtk.sh"
+spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
+spawn-at-startup "systemctl" "--user" "start" "dms-shell.service"
+spawn-at-startup "brave"
+spawn-at-startup "hearth"
+
+input {
+    keyboard {
+        xkb {
+            layout "us,tr"
+        }
+        numlock
+    }
+
+    // Razer DeathAdder on both hosts; niri scopes this to mice, so the touchpad keeps its own accel.
+    mouse {
+        accel-speed -0.2
+        accel-profile "flat"
+    }
+
+    focus-follows-mouse
+}
+
+cursor {
+    xcursor-theme "breeze_cursors"
+    xcursor-size 24
+}
+
+prefer-no-csd
+screenshot-path "~/Pictures/screenshot_%d%m%Y_%H%M%S.png"
+
+hotkey-overlay {
+    skip-at-startup
+}
+
+gestures {
+    hot-corners {
+        off
+    }
+}
+
+layout {
+    gaps 20
+
+    focus-ring {
+        off
+    }
+
+    border {
+        on
+        width 3
+        active-color "#ede0d4"
+        inactive-color "#f5bc6f"
+    }
+
+    shadow {
+        on
+        softness 10
+        spread 0
+        offset x=0 y=0
+        color "#00000033"
+    }
+}
+
+blur {
+    passes 2
+    offset 6.0
+}
+
+animations {
+    window-open {
+        duration-ms 300
+        curve "cubic-bezier" 0.05 0.7 0.1 1
+    }
+    window-close {
+        duration-ms 300
+        curve "cubic-bezier" 0.3 0 0.8 0.15
+    }
+    window-movement {
+        duration-ms 300
+        curve "cubic-bezier" 0.05 0.7 0.1 1
+    }
+    window-resize {
+        duration-ms 300
+        curve "cubic-bezier" 0.05 0.7 0.1 1
+    }
+    workspace-switch {
+        duration-ms 700
+        curve "cubic-bezier" 0.1 1 0 1
+    }
+}
+
+// Puts the DMS wallpaper behind the workspaces in the overview.
+layer-rule {
+    match namespace="^quickshell$"
+    place-within-backdrop true
+}
+
+// Lets DMS notification clicks and launcher activations focus the target window.
+debug {
+    honor-xdg-activation-with-invalid-serial
+}
+
+window-rule {
+    geometry-corner-radius 10
+    clip-to-geometry true
+    draw-border-with-background false
+    background-effect {
+        blur true
+    }
+}
+
+window-rule {
+    match is-active=false
+    opacity 0.9
+}
+
+window-rule {
+    match app-id=r#"org\.pulseaudio\.pavucontrol"#
+    match app-id=r#"^org\.gnome\.Calculator$"#
+    match app-id="^nwg-look$"
+    open-floating true
+    default-column-width { fixed 700; }
+    default-window-height { fixed 600; }
+}
+
+window-rule {
+    match app-id="^blueman-manager$"
+    open-floating true
+    default-column-width { fixed 800; }
+    default-window-height { fixed 600; }
+}
+
+window-rule {
+    match app-id=r#"^io\.missioncenter\.MissionCenter$"#
+    match app-id="^nwg-displays$"
+    open-floating true
+    default-column-width { fixed 900; }
+    default-window-height { fixed 600; }
+}
+
+window-rule {
+    match title="^ChatGPT"
+    match title="^(pavucontrol|blueman-manager|nm-connection-editor|qalculate-gtk)$"
+    match app-id="^missioncenter$" title="^Preferences$"
+    match app-id="^xdg-desktop-portal-gtk$" title="^(Open.*Files?|Save.*Files?|All Files|Save)"
+    open-floating true
+}
+
+window-rule {
+    match title=r#"chat\.openai\.com"#
+    open-floating true
+    default-column-width { fixed 500; }
+    default-window-height { proportion 0.5; }
+    default-floating-position x=20 y=70
+}
+
+window-rule {
+    match title="^(Microsoft-edge|Brave-browser|Chromium)$"
+    open-floating false
+}
+
+window-rule {
+    match title="^Picture-in-Picture$"
+    open-floating true
+    default-floating-position x=32 y=32 relative-to="top-right"
+}
+
+window-rule {
+    match app-id="^resolve$"
+    background-effect {
+        blur false
+    }
+}
+
+window-rule {
+    match app-id="^gamescope$"
+    open-fullscreen true
+    background-effect {
+        blur false
+    }
+}
+
+binds {
+    Mod+Return { spawn "ghostty"; }
+    Mod+B { spawn "brave"; }
+    Mod+E { spawn "nautilus" "--new-window"; }
+    Mod+Ctrl+E { spawn "rofi" "-modi" "emoji" "-show" "emoji"; }
+    Mod+Ctrl+C { spawn "gnome-calculator"; }
+
+    Mod+Q repeat=false { close-window; }
+    Mod+Shift+Q { spawn-sh "niri msg -j focused-window | jq '.pid // empty' | xargs -r kill"; }
+    Mod+F { fullscreen-window; }
+    Mod+M { maximize-window-to-edges; }
+    Mod+G { maximize-window-to-edges; }
+    Mod+D { toggle-window-floating; }
+    Mod+Shift+T { spawn "~/.config/niri/scripts/workspace.sh" "float-all"; }
+    // Closest scrolling-layout analogues of dwindle's togglesplit / swapsplit.
+    Mod+J { consume-or-expel-window-left; }
+    Mod+K { swap-window-left; }
+
+    Mod+Left  { focus-column-or-monitor-left; }
+    Mod+Right { focus-column-or-monitor-right; }
+    Mod+Up    { focus-window-or-monitor-up; }
+    Mod+Down  { focus-window-or-monitor-down; }
+
+    Mod+Shift+Left  { move-column-left-or-to-monitor-left; }
+    Mod+Shift+Right { move-column-right-or-to-monitor-right; }
+    Mod+Shift+Up    { move-window-up; }
+    Mod+Shift+Down  { move-window-down; }
+
+    Mod+Alt+Left  { swap-window-left; }
+    Mod+Alt+Right { swap-window-right; }
+    Mod+Alt+Up    { move-window-up; }
+    Mod+Alt+Down  { move-window-down; }
+
+
+    Mod+Ctrl+R { spawn "niri" "msg" "action" "load-config-file"; }
+    Mod+Shift+R { spawn "niri" "msg" "action" "load-config-file"; }
+    Mod+Shift+A { spawn "~/.config/niri/scripts/toggle.sh" "animations"; }
+    Mod+Alt+G { spawn "~/.config/niri/scripts/toggle.sh" "gamemode"; }
+    Mod+Print { screenshot; }
+    Mod+Alt+F { screenshot-screen; }
+    Mod+Shift+S { screenshot; }
+    Mod+Alt+R { spawn "~/.config/niri/scripts/record-area.sh"; }
+    Mod+Ctrl+Q { spawn-sh "m=$(( $(niri msg -j focused-output | jq '.logical.height') * 27 / 100 )); wlogout -b 5 -T $m -B $m"; }
+    Ctrl+Shift+Space { switch-layout "next"; }
+    Mod+Space { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    // code:201 in Hyprland: F23, which the Copilot key sends as Super+Shift+F23.
+    XF86TouchpadOff { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    Mod+Shift+XF86TouchpadOff { spawn "dms" "ipc" "call" "spotlight" "toggle"; }
+    Mod+Ctrl+K { show-hotkey-overlay; }
+    Mod+N { spawn "dms" "ipc" "call" "control-center" "toggle"; }
+    Mod+Shift+B { spawn "dms" "ipc" "call" "bar" "toggle"; }
+    Mod+V { spawn "dms" "ipc" "call" "clipboard" "toggle"; }
+    Mod+Ctrl+T { spawn "dms" "ipc" "call" "settings" "browse" "general"; }
+    Mod+Ctrl+L { spawn "dms" "ipc" "call" "lock" "lock"; }
+    Mod+Shift+H { spawn "dms" "ipc" "call" "night" "toggle"; }
+    Ctrl+Tab { spawn "~/.config/niri/scripts/focus.sh"; }
+
+    // Workspace indices are per monitor, which is what switch-workspace.sh emulated on Hyprland.
+    Mod+1 { focus-workspace 1; }
+    Mod+2 { focus-workspace 2; }
+    Mod+3 { focus-workspace 3; }
+    Mod+4 { focus-workspace 4; }
+    Mod+5 { focus-workspace 5; }
+    Mod+6 { focus-workspace 6; }
+    Mod+7 { focus-workspace 7; }
+    Mod+8 { focus-workspace 8; }
+    Mod+9 { focus-workspace 9; }
+    Mod+0 { focus-workspace 10; }
+    Mod+Shift+1 { move-window-to-workspace 1; }
+    Mod+Shift+2 { move-window-to-workspace 2; }
+    Mod+Shift+3 { move-window-to-workspace 3; }
+    Mod+Shift+4 { move-window-to-workspace 4; }
+    Mod+Shift+5 { move-window-to-workspace 5; }
+    Mod+Shift+6 { move-window-to-workspace 6; }
+    Mod+Shift+7 { move-window-to-workspace 7; }
+    Mod+Shift+8 { move-window-to-workspace 8; }
+    Mod+Shift+9 { move-window-to-workspace 9; }
+    Mod+Shift+0 { move-window-to-workspace 10; }
+    Mod+Ctrl+1 { spawn "~/.config/niri/scripts/workspace.sh" "move-all" "1"; }
+    Mod+Ctrl+2 { spawn "~/.config/niri/scripts/workspace.sh" "move-all" "2"; }
+    Mod+Ctrl+3 { spawn "~/.config/niri/scripts/workspace.sh" "move-all" "3"; }
+    Mod+Ctrl+4 { spawn "~/.config/niri/scripts/workspace.sh" "move-all" "4"; }
+    Mod+Ctrl+5 { spawn "~/.config/niri/scripts/workspace.sh" "move-all" "5"; }
+    Mod+Ctrl+6 { spawn "~/.config/niri/scripts/workspace.sh" "move-all" "6"; }
+    Mod+Ctrl+7 { spawn "~/.config/niri/scripts/workspace.sh" "move-all" "7"; }
+    Mod+Ctrl+8 { spawn "~/.config/niri/scripts/workspace.sh" "move-all" "8"; }
+    Mod+Ctrl+9 { spawn "~/.config/niri/scripts/workspace.sh" "move-all" "9"; }
+    Mod+Ctrl+0 { spawn "~/.config/niri/scripts/workspace.sh" "move-all" "10"; }
+
+    XF86MonBrightnessUp { spawn "brightnessctl" "-q" "s" "+5%"; }
+    XF86MonBrightnessDown { spawn "brightnessctl" "-q" "s" "5%-"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "-l" "1" "@DEFAULT_AUDIO_SINK@" "2%+"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "2%-"; }
+    XF86AudioMute { spawn "pactl" "set-sink-mute" "@DEFAULT_SINK@" "toggle"; }
+    XF86AudioPlay { spawn "playerctl" "play-pause"; }
+    XF86AudioPause { spawn "playerctl" "pause"; }
+    XF86AudioNext { spawn "playerctl" "next"; }
+    XF86AudioPrev { spawn "playerctl" "previous"; }
+    XF86AudioMicMute { spawn "pactl" "set-source-mute" "@DEFAULT_SOURCE@" "toggle"; }
+    XF86Calculator { spawn "gnome-calculator"; }
+    XF86KbdBrightnessUp { spawn "brightnessctl" "-d" "smc::kbd_backlight" "s" "+10"; }
+    XF86KbdBrightnessDown { spawn "brightnessctl" "-d" "smc::kbd_backlight" "s" "10-"; }
+
+    // niri-only: nothing in the Hyprland config maps to these, but a scrolling layout needs them.
+    Mod+R { switch-preset-column-width; }
+    Mod+Minus { set-column-width "-10%"; }
+    Mod+Equal { set-column-width "+10%"; }
+    Mod+Shift+Minus { set-window-height "-10%"; }
+    Mod+Shift+Equal { set-window-height "+10%"; }
+    Mod+Ctrl+F { expand-column-to-available-width; }
+    Mod+C { center-column; }
+    Mod+W { toggle-column-tabbed-display; }
+    Mod+O repeat=false { toggle-overview; }
+    Mod+Page_Down { focus-workspace-down; }
+    Mod+Page_Up { focus-workspace-up; }
+    Mod+WheelScrollDown cooldown-ms=150 { focus-workspace-down; }
+    Mod+WheelScrollUp cooldown-ms=150 { focus-workspace-up; }
+    Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
+    Mod+Shift+E { quit; }
+}
+
+// Session-only overrides written by scripts/toggle.sh; last so they beat everything above.
+include optional=true "/run/user/1000/niri/animations.kdl"
+include optional=true "/run/user/1000/niri/gamemode.kdl"

@@ -1,0 +1,71 @@
+// Desktop. Outputs match by make/model/serial because DP-x renumbers on reconnect.
+
+output "ASUSTek COMPUTER INC ASUS PA279 0x00027393" {
+    mode "3840x2160"
+    scale 2
+    position x=0 y=0
+}
+
+// VRR only while a game is on screen (Hyprland vrr=2); needed for G-Sync on this OLED.
+output "Samsung Electric Company Odyssey G81SF HNBY800179" {
+    mode "3840x2160"
+    scale 1.5
+    position x=1920 y=0
+    variable-refresh-rate on-demand=true
+    focus-at-startup
+}
+
+// Named so they persist and pin like Hyprland's 1-10 (main) and 11-20 (secondary).
+workspace "1" { open-on-output "Samsung Electric Company Odyssey G81SF HNBY800179"; }
+workspace "2" { open-on-output "Samsung Electric Company Odyssey G81SF HNBY800179"; }
+workspace "3" { open-on-output "Samsung Electric Company Odyssey G81SF HNBY800179"; }
+workspace "4" { open-on-output "Samsung Electric Company Odyssey G81SF HNBY800179"; }
+workspace "5" { open-on-output "Samsung Electric Company Odyssey G81SF HNBY800179"; }
+workspace "6" { open-on-output "Samsung Electric Company Odyssey G81SF HNBY800179"; }
+workspace "7" { open-on-output "Samsung Electric Company Odyssey G81SF HNBY800179"; }
+workspace "8" { open-on-output "Samsung Electric Company Odyssey G81SF HNBY800179"; }
+workspace "9" { open-on-output "Samsung Electric Company Odyssey G81SF HNBY800179"; }
+workspace "10" { open-on-output "Samsung Electric Company Odyssey G81SF HNBY800179"; }
+workspace "11" { open-on-output "ASUSTek COMPUTER INC ASUS PA279 0x00027393"; }
+workspace "12" { open-on-output "ASUSTek COMPUTER INC ASUS PA279 0x00027393"; }
+workspace "13" { open-on-output "ASUSTek COMPUTER INC ASUS PA279 0x00027393"; }
+workspace "14" { open-on-output "ASUSTek COMPUTER INC ASUS PA279 0x00027393"; }
+workspace "15" { open-on-output "ASUSTek COMPUTER INC ASUS PA279 0x00027393"; }
+workspace "16" { open-on-output "ASUSTek COMPUTER INC ASUS PA279 0x00027393"; }
+workspace "17" { open-on-output "ASUSTek COMPUTER INC ASUS PA279 0x00027393"; }
+workspace "18" { open-on-output "ASUSTek COMPUTER INC ASUS PA279 0x00027393"; }
+workspace "19" { open-on-output "ASUSTek COMPUTER INC ASUS PA279 0x00027393"; }
+workspace "20" { open-on-output "ASUSTek COMPUTER INC ASUS PA279 0x00027393"; }
+
+spawn-at-startup "prismlauncher" "-l" "GTNH"
+spawn-at-startup "steam"
+
+window-rule {
+    match app-id="^steam_app_"
+    match app-id="^gamescope$"
+    variable-refresh-rate true
+}
+
+window-rule {
+    match app-id="^brave-browser$"
+    open-on-workspace "1"
+    open-focused false
+}
+
+window-rule {
+    match app-id="^steam$"
+    open-on-workspace "3"
+    open-focused false
+}
+
+window-rule {
+    match app-id="^hearth$"
+    open-on-workspace "11"
+    open-focused false
+}
+
+window-rule {
+    match app-id=r#"^com\.github\.th_ch\.youtube_music$"#
+    open-on-workspace "12"
+    open-focused false
+}
