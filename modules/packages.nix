@@ -8,7 +8,7 @@
 # the SteelSeries headset, VR, the nvidia GPU, the Iriun virtual webcam) lives
 # in hosts/desktop/packages.nix instead — it would install fine on the laptop
 # and simply have nothing to talk to.
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 {
   environment.systemPackages = with pkgs; [
     # ── CLI / shell tools ──────────────────────────────────────────
@@ -53,6 +53,7 @@
     # ── GUI apps ───────────────────────────────────────────────────
     brave google-chrome tor-browser            # firefox via programs.firefox
     discord vesktop element-desktop slack telegram-desktop
+    inputs.hearth.packages.${pkgs.stdenv.hostPlatform.system}.default   # Hearth, our Vesktop fork, from its own flake
     spotify obsidian gparted thunderbird
     bitwarden-desktop keepassxc anydesk rustdesk-flutter
     onlyoffice-desktopeditors figma-linux

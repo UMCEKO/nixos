@@ -139,6 +139,26 @@
         "url": "https://flakehub.com/f/DeterminateSystems/flake-schemas/%3D0.5.0.tar.gz"
       }
     },
+    "hearth": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790624338,
+        "narHash": "sha256-YpIXB+7RcKrYSWepfvXEU5PAbam1nEyc/kr/EYLh2AE=",
+        "owner": "hearthdesktop",
+        "repo": "hearth",
+        "rev": "cca2c599b62f62958b82b175dbcbb56b13b22991",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hearthdesktop",
+        "repo": "hearth",
+        "type": "github"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -379,6 +399,7 @@
       "inputs": {
         "chaotic": "chaotic",
         "chatmixd": "chatmixd",
+        "hearth": "hearth",
         "home-manager": "home-manager_2",
         "hush": "hush",
         "lanzaboote": "lanzaboote",

@@ -64,6 +64,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Hearth, our Vesktop fork. `follows` reuses this nixpkgs (no 2nd copy).
+    hearth = {
+      url = "github:hearthdesktop/hearth";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
   };
 
   outputs = { self, nixpkgs, home-manager, ... }@inputs:
