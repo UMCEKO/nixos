@@ -29,7 +29,7 @@ hl.on("hyprland.start", function()
   -- App autostart. Workspace pinning lives in window_rules.lua (class-based)
   -- so apps that spawn helper windows still land on the right workspace.
   hl.exec_cmd("brave")
-  hl.exec_cmd("discord")
+  hl.exec_cmd("hearth")
   -- Steam library + GTNH live on the desktop; hosts/desktop/gaming.nix is not
   -- imported on the laptop, so these binaries do not exist there and every
   -- login spent two exec-onces failing silently.

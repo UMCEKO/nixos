@@ -220,7 +220,6 @@ in
     neovim
     inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.claude-code
     brave
-    discord
     zapret
   ];
 

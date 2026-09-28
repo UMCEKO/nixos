@@ -322,7 +322,7 @@ in
                 "applications:brave-browser.desktop"
                 "applications:com.mitchellh.ghostty.desktop"
                 "applications:org.gnome.Nautilus.desktop"
-                "applications:discord.desktop"
+                "applications:hearth.desktop"
                 "applications:spotify.desktop"
                 "applications:org.kde.kcalc.desktop"
               ];

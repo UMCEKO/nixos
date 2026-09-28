@@ -52,7 +52,7 @@
 
     # ── GUI apps ───────────────────────────────────────────────────
     brave google-chrome tor-browser            # firefox via programs.firefox
-    discord vesktop element-desktop slack telegram-desktop
+    element-desktop slack telegram-desktop
     inputs.hearth.packages.${pkgs.stdenv.hostPlatform.system}.default   # Hearth, our Vesktop fork, from its own flake
     spotify obsidian gparted thunderbird
     bitwarden-desktop keepassxc anydesk rustdesk-flutter

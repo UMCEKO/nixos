@@ -126,13 +126,13 @@ hl.window_rule({
 --
 -- The 11-20 range is the DESKTOP's second monitor (see lua/workspaces.lua). The
 -- laptop only defines 1-10, and scripts/switch-workspace.sh maps SUPER+1..0 onto
--- exactly that range — so pinning Discord to ws 11 there parked it on a
+-- exactly that range — so pinning Hearth to ws 11 there parked it on a
 -- workspace no keybind could reach. Fold the secondary-monitor apps into the
 -- primary range on single-panel hosts.
-local ws_discord = host.is_laptop and "4 silent" or "11 silent"
+local ws_hearth = host.is_laptop and "4 silent" or "11 silent"
 local ws_ytmusic = host.is_laptop and "5 silent" or "12 silent"
 
 hl.window_rule({ name = "brave-ws1",  match = { class = "^(brave-browser)$" },                        workspace = "1 silent" })
-hl.window_rule({ name = "discord-ws", match = { class = "^(discord)$" },                              workspace = ws_discord })
+hl.window_rule({ name = "hearth-ws",  match = { class = "^(hearth)$" },                               workspace = ws_hearth })
 hl.window_rule({ name = "steam-ws3",  match = { class = "^(steam)$" },                                workspace = "3 silent" })
 hl.window_rule({ name = "pear-ws",    match = { class = "^(com\\.github\\.th_ch\\.youtube_music)$" }, workspace = ws_ytmusic })
