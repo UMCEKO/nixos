@@ -54,9 +54,6 @@ in
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
 
-  # Drawing tablet (OpenTabletDriver) — installs pkg + udev rules + user service.
-  hardware.opentabletdriver.enable = true;
-
   # Razer peripherals (openrazer + polychromatic GUI).
   hardware.openrazer.enable = true;
   hardware.openrazer.users = [ "umceko" ];
@@ -93,7 +90,9 @@ in
       RestartSec = 3;
     };
   };
-
+  hardware.opentabletdriver.enable = true;
+  hardware.uinput.enable = true;
+  boot.kernelModules = [ "uinput" ];
   # fwupd for firmware updates (you had fwupd).
   services.fwupd.enable = true;
 }
