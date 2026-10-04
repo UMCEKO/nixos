@@ -54,6 +54,7 @@
     brave google-chrome tor-browser            # firefox via programs.firefox
     element-desktop slack telegram-desktop
     inputs.hearth.packages.${pkgs.stdenv.hostPlatform.system}.default   # Hearth, our Vesktop fork, from its own flake
+    inputs.zapfast.packages.${pkgs.stdenv.hostPlatform.system}.default  # ZapFast, native WhatsApp client
     spotify obsidian gparted thunderbird
     bitwarden-desktop keepassxc anydesk rustdesk-flutter
     onlyoffice-desktopeditors figma-linux
