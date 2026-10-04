@@ -27,9 +27,6 @@ hl.env("HYPRCURSOR_SIZE", "24")
 hl.env("OZONE_PLATFORM",                "wayland")
 hl.env("ELECTRON_OZONE_PLATFORM_HINT",  "wayland")
 
--- SDL
-hl.env("SDL_VIDEODRIVER", "wayland")
-
 -- Dolphin / KService "Open With" fix
 -- XDG_MENU_PREFIX is the key — without it kbuildsycoca6 indexes 0 apps
 -- NixOS paths (was hardcoded Arch /usr/share — broke rofi drun: zero .desktop files)

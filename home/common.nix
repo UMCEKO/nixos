@@ -315,8 +315,6 @@ in
       Restart = "on-failure";
       RestartSec = 2;
       Slice = "session.slice";
-      # Inherited by apps launched from DMS; SDL3 otherwise picks X11 on niri (no fifo-v1) and games crawl through xwayland-satellite.
-      Environment = [ "SDL_VIDEODRIVER=wayland" ];
     };
     # deliberately no Install.WantedBy — only Hyprland/niri autostart starts it, keeping DMS out of KDE (see dms.nix).
   };
