@@ -138,12 +138,19 @@ in
   };
 
   # Router SERVFAILs DS/DNSKEY over UDP instead of setting TC, so allow-downgrade still fails shut.
-  # Baseline only: hosts/desktop/dns.nix raises this to strict DoT on the fixed line.
+  #
+  # Baseline only, and as of 2026-09-15 no host actually runs on it: both
+  # hosts/desktop/dns.nix and hosts/elitebook/dns.nix override every value here
+  # with cert-named public resolvers under strict DoT. These mkDefaults are what
+  # a *new* host gets before anyone has thought about its network, so they stay
+  # deliberately timid -- opportunistic still resolves behind a captive portal,
+  # which is the right failure mode for a machine nobody has characterised yet.
+  # It is not a privacy setting: opportunistic downgrades to cleartext silently.
+  # Give a new host its own dns.nix rather than leaving it here.
   services.resolved = {
     enable = true;
     settings.Resolve = {
       DNSSEC = lib.mkDefault "false";
-      # Roaming hosts keep opportunistic: a captive portal must be able to answer before login.
       DNSOverTLS = lib.mkDefault "opportunistic";
       FallbackDNS = lib.mkDefault [ "9.9.9.9" ];
     };

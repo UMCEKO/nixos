@@ -4,8 +4,8 @@
 # *.nix files (gaming, desktop, peripherals, vr) — NOT here.
 # See MORNING-README.md for the full mapping + the "needs manual attention" list.
 #
-# SHARED BY BOTH HOSTS. Anything bound to desktop hardware (OpenRGB, Razer,
-# the SteelSeries headset, VR, the nvidia GPU, the Iriun virtual webcam) lives
+# SHARED BY BOTH HOSTS. Anything bound to desktop hardware (OpenRGB, the
+# SteelSeries headset, VR, the nvidia GPU, the Iriun virtual webcam) lives
 # in hosts/desktop/packages.nix instead — it would install fine on the laptop
 # and simply have nothing to talk to.
 { pkgs, inputs, ... }:
@@ -74,6 +74,7 @@
     qpwgraph carla          # PipeWire patchbay + LV2/VST host
     openvpn
     cemu
+    polychromatic           # Razer GUI — both hosts enable hardware.openrazer
 
     # ── Wayland / Hyprland desktop stack ───────────────────────────
     # Bar/popups/notifications/wallpaper/idle all retired → DankMaterialShell:

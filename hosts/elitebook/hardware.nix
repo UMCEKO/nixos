@@ -394,4 +394,11 @@
   # desktop-only (it also carries Wooting/Razer/OpenRGB).
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
+
+  # Razer — same story as Bluetooth: the desktop gets it from peripherals.nix.
+  # A DeathAdder V3 Pro (1532:00b7) travels with this machine, and polychromatic
+  # in modules/packages.nix is inert without the out-of-tree razermouse driver,
+  # openrazer-daemon and the openrazer group this module provides (2026-09-21).
+  hardware.openrazer.enable = true;
+  hardware.openrazer.users = [ "umceko" ];
 }

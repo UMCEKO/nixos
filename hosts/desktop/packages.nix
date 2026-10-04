@@ -6,7 +6,7 @@
   environment.systemPackages = with pkgs; [
     # RGB / peripherals — OpenRGB controllers, Razer devices, the SteelSeries
     # headset (headsetcontrol), nvidia telemetry.
-    openrgb polychromatic headsetcontrol gpustat
+    openrgb headsetcontrol gpustat
 
     # VR — see vr.nix. wayvr/xrizer are the OpenXR overlay bits.
     wayvr xrizer

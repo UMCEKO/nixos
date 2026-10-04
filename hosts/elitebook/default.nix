@@ -7,7 +7,9 @@
 #   gaming.nix / vr.nix   Steam library and VR hardware live on the desktop
 #   nginx.nix             the *.umceko.com vhosts are a desktop role
 #   drives.nix            those UUIDs do not exist here
-#   peripherals.nix       Wooting / Razer / OpenRGB / SteelSeries
+#   peripherals.nix       Wooting / OpenRGB / SteelSeries. Its Razer and
+#                         Bluetooth lines ARE wanted here and are repeated in
+#                         hardware.nix.
 #   system-tweaks.nix     7900X wake-fault mitigations, igc NIC reload,
 #                         v4l2loopback, nvidia Wayland env, scx_lavd,
 #                         performance governor.
@@ -17,12 +19,20 @@
 #                         copied into hardware.nix rather than imported —
 #                         the watchdog needs a sleep guard on this host that
 #                         the desktop has no use for.
+#
+# Two desktop roles ARE wanted here but with different values, so this host has
+# its own ./dns.nix and ./zapret.nix rather than importing the desktop's
+# (2026-09-15). The zapret one in particular MUST stay separate: the desktop
+# pins a TTL measured from its position on its own line. Read both headers
+# before merging either back together.
 { config, pkgs, ... }:
 {
   imports = [
     ./hardware-configuration.nix
     ./hardware.nix
     ./face-unlock.nix
+    ./dns.nix
+    ./zapret.nix
   ];
 
   networking.hostName = "elitebook";

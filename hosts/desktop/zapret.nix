@@ -15,9 +15,15 @@
 # the Arch build box no longer get the bypass. Put it back on the router (or a
 # future OpenWrt gateway) if whole-LAN coverage is wanted again.
 #
-# NOT in modules/common.nix on purpose: that is shared with the roaming
-# EliteBook, and a fixed-TTL fake tuned for this TT line is wrong on any other
-# network -- a mistuned TTL is what broke sahibinden/hepsiburada in 2026-07.
+# NOT in modules/common.nix on purpose: a fixed-TTL fake tuned for this TT line
+# is wrong on any other network -- a mistuned TTL is what broke
+# sahibinden/hepsiburada in 2026-07.
+#
+# The roaming EliteBook does run the bypass now (hosts/elitebook/zapret.nix,
+# 2026-09-15), which is why this still cannot move into common.nix: it differs
+# in exactly one parameter, measuring the hop count with --dpi-desync-autottl
+# instead of hardcoding the 5 below. Keep the strategy flags in sync between the
+# two files. Do NOT sync the TTL -- that number is specific to this line.
 { ... }:
 {
   services.zapret = {

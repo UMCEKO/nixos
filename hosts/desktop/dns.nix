@@ -1,10 +1,13 @@
 # Strict DNS-over-TLS.
 #
-# Desktop-only, deliberately. This box sits on one fixed TT line, so pinning
-# public resolvers is safe here; on the roaming EliteBook it is not, because a
-# captive portal has to be able to answer before you have logged in. That is
-# what bc9f663 ("opportunistic DoT so roaming links can resolve") was about --
-# the mistake was applying the roaming compromise to this machine too.
+# This box sits on one fixed TT line, so pinning public resolvers costs nothing
+# here -- there is no captive portal to answer before login. bc9f663
+# ("opportunistic DoT so roaming links can resolve") had applied the roaming
+# compromise to this machine too, which was the mistake this file corrected.
+#
+# No longer desktop-only: hosts/elitebook/dns.nix went strict as well on
+# 2026-09-15, accepting the captive-portal breakage with a manual escape hatch
+# documented in that file. Keep the two in sync where the reasoning is shared.
 #
 # Opportunistic is not a weaker DoT, it is no DoT: it silently falls back to
 # cleartext, so an ISP that strips :853 gets your queries anyway. Strict is the
