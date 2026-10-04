@@ -77,6 +77,8 @@
     enable = true;
     package = pkgs.ananicy-cpp;            # the cpp rewrite CachyOS ships
     rulesProvider = pkgs.ananicy-rules-cachyos;  # CachyOS's own rules pack
+    # Moving realtime Hyprland to the root cgroup cuts it off from the login session, so logind refuses Ctrl+Alt+Fn.
+    settings.cgroup_realtime_workaround = lib.mkForce false;
   };
   services.irqbalance.enable = true;       # spread IRQs across cores (CachyOS default)
   services.mullvad-vpn.enable = true;      # NOTE: you also run tailscale — watch for routing conflicts
