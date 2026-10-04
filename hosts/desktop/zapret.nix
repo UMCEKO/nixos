@@ -25,6 +25,13 @@
 
     # No fake/disorder2: api.pttavm.com's origin RSTs any ClientHello that uses them.
     params = [
+      # multidisorder alone lost ~1 in 5 to webshare.io on some routes; fake+md5sig went 20/20 (2026-10-02).
+      "--filter-tcp=80,443"
+      "--hostlist-domains=webshare.io"
+      "--dpi-desync=fake,multidisorder"
+      "--dpi-desync-split-pos=1,midsld"
+      "--dpi-desync-fooling=md5sig"
+      "--new"
       "--dpi-desync=multidisorder"
       "--dpi-desync-split-pos=1,midsld"
     ];
