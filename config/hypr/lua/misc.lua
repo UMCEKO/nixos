@@ -8,6 +8,8 @@ hl.config({
     -- VRR mode 2 = on for fullscreen apps only. Required for G-Sync on the
     -- Samsung G81SF OLED; eliminates compositor-driven frame pacing while gaming.
     vrr                         = 2,
+    -- The default 15 is too slow for a game hosting a lobby from a hidden workspace.
+    render_unfocused_fps        = 60,
   },
 })
 

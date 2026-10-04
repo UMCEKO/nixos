@@ -112,6 +112,13 @@ hl.window_rule({
   no_blur      = true,
 })
 
+-- Hidden workspaces get no frame callbacks, so games block in present and a hosted server freezes.
+hl.window_rule({
+  name             = "games-render-unfocused",
+  match            = { class = "^(steam_app_\\d+|gamescope)$" },
+  render_unfocused = true,
+})
+
 -- GTNH → special workspace
 hl.window_rule({
   name      = "gtnh-special",
