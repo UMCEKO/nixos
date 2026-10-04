@@ -7,6 +7,7 @@
   programs.hyprland = {
     enable = true;
     withUWSM = true;   # session manager; clean env for Wayland
+    package = pkgs.hyprland.overrideAttrs (old: { patches = (old.patches or [ ]) ++ [ ./hyprland-scroll-move-mouse-drag.patch ]; });
   };
 
   # niri as a second session; its config lives in config/niri. useNautilus=false keeps FileChooser on gtk, as below.

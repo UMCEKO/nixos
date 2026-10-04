@@ -13,7 +13,7 @@ hl.config({
       active_border   = color_active,
       inactive_border = color_inactive,
     },
-    layout            = "dwindle",
+    layout            = "scrolling",
     resize_on_border  = true,
     no_focus_fallback = true,  -- from custom-settings.conf
   },

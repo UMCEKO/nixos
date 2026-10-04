@@ -1,0 +1,165 @@
+diff --git a/src/config/lua/bindings/LuaBindingsDispatchers.cpp b/src/config/lua/bindings/LuaBindingsDispatchers.cpp
+index 748b641a..25b9b334 100644
+--- a/src/config/lua/bindings/LuaBindingsDispatchers.cpp
++++ b/src/config/lua/bindings/LuaBindingsDispatchers.cpp
+@@ -685,6 +685,13 @@ static int dsp_mouseDrag(lua_State* L) {
+     return Internal::checkResult(L, CA::mouse("movewindow"));
+ }
+ 
++static int dsp_mouseScrollMove(lua_State* L) {
++    if (g_pKeybindManager->m_currentKeybind)
++        g_pKeybindManager->m_currentKeybind->releasePending = true;
++
++    return Internal::checkResult(L, CA::mouse("scrollmove"));
++}
++
+ static int dsp_mouseResize(lua_State* L) {
+     if (g_pKeybindManager->m_currentKeybind)
+         g_pKeybindManager->m_currentKeybind->releasePending = true;
+@@ -1069,6 +1076,11 @@ static int hlWindowDrag(lua_State* L) {
+     return 1;
+ }
+ 
++static int hlScrollMove(lua_State* L) {
++    lua_pushcclosure(L, dsp_mouseScrollMove, 0);
++    return 1;
++}
++
+ static int hlWindowResize(lua_State* L) {
+     if (lua_gettop(L) == 0 || lua_isnil(L, 1)) {
+         lua_pushnumber(L, 0);
+@@ -1404,6 +1416,7 @@ void Internal::registerDispatcherBindings(lua_State* L) {
+         Internal::setFn(L, "send_shortcut", hlSendShortcut);
+         Internal::setFn(L, "send_key_state", hlSendKeyState);
+         Internal::setFn(L, "layout", hlLayout);
++        Internal::setFn(L, "scroll_move", hlScrollMove);
+         Internal::setFn(L, "dpms", hlDpms);
+         Internal::setFn(L, "event", hlEvent);
+         Internal::setFn(L, "global", hlGlobal);
+diff --git a/src/config/shared/actions/ConfigActions.cpp b/src/config/shared/actions/ConfigActions.cpp
+index cf388167..d83ea4e8 100644
+--- a/src/config/shared/actions/ConfigActions.cpp
++++ b/src/config/shared/actions/ConfigActions.cpp
+@@ -14,6 +14,7 @@
+ #include "../../../managers/EventManager.hpp"
+ #include "../../../managers/KeybindManager.hpp"
+ #include "../../../managers/input/InputManager.hpp"
++#include "../../../managers/input/trackpad/gestures/ScrollMoveGesture.hpp"
+ #include "../../../managers/fullscreen/FullscreenController.hpp"
+ #include "../../../layout/LayoutManager.hpp"
+ #include "../../../layout/space/Space.hpp"
+@@ -1639,9 +1640,23 @@ ActionResult Actions::global(const std::string& action) {
+ ActionResult Actions::mouse(const std::string& action) {
+     const bool PRESSED = Config::Actions::state()->m_passPressed == 1;
+ 
++    if (!PRESSED && g_pInputManager->m_scrollMoveDrag) {
++        g_pInputManager->m_scrollMoveDrag->end({});
++        g_pInputManager->m_scrollMoveDrag.reset();
++        return {};
++    }
++
+     if (!PRESSED)
+         return SActionResult{.passEvent = CKeybindManager::changeMouseBindMode(MBIND_INVALID).passEvent};
+ 
++    if (action == "scrollmove") {
++        if (!g_pInputManager->m_scrollMoveDrag) {
++            g_pInputManager->m_scrollMoveDrag = makeUnique<CScrollMoveTrackpadGesture>();
++            g_pInputManager->m_scrollMoveDrag->begin({});
++        }
++        return {};
++    }
++
+     if (action == "movewindow")
+         return SActionResult{.passEvent = CKeybindManager::changeMouseBindMode(MBIND_MOVE).passEvent};
+ 
+diff --git a/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.cpp b/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.cpp
+index 4aa11854..6c7ed7cc 100644
+--- a/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.cpp
++++ b/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.cpp
+@@ -1854,6 +1854,10 @@ double CScrollingAlgorithm::normalizedTapeOffset() {
+     return m_scrollingData->controller->getOffset() / primary;
+ }
+ 
++bool CScrollingAlgorithm::isPrimaryHorizontal() {
++    return m_scrollingData->controller->isPrimaryHorizontal();
++}
++
+ std::optional<Vector2D> CScrollingAlgorithm::predictSizeForNewTarget() {
+     return std::nullopt;
+ }
+diff --git a/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.hpp b/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.hpp
+index 98a43bed..8a2af555 100644
+--- a/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.hpp
++++ b/src/layout/algorithm/tiled/scrolling/ScrollingAlgorithm.hpp
+@@ -121,6 +121,7 @@ namespace Layout::Tiled {
+ 
+         double                                     primaryViewportSize();
+         double                                     normalizedTapeOffset();
++        bool                                       isPrimaryHorizontal();
+ 
+         CBox                                       usableArea() const;
+         SP<SScrollingTargetData>                   dataFor(SP<ITarget> t, bool stepIntoGroups = false) const;
+diff --git a/src/managers/input/InputManager.cpp b/src/managers/input/InputManager.cpp
+index 187dbe89..232a0182 100644
+--- a/src/managers/input/InputManager.cpp
++++ b/src/managers/input/InputManager.cpp
+@@ -157,6 +157,11 @@ void CInputManager::onMouseMoved(IPointer::SMotionEvent e) {
+     if (PROTO::inputCapture->isCaptured())
+         return;
+ 
++    if (m_scrollMoveDrag) {
++        const IPointer::SSwipeUpdateEvent SWIPE = {.timeMs = e.timeMs, .delta = DELTA};
++        m_scrollMoveDrag->update({.swipe = &SWIPE});
++    }
++
+     mouseMoveUnified(e.timeMs, false, e.mouse);
+ 
+     m_lastCursorMovement.reset();
+diff --git a/src/managers/input/InputManager.hpp b/src/managers/input/InputManager.hpp
+index 9c32988a..66ecb38b 100644
+--- a/src/managers/input/InputManager.hpp
++++ b/src/managers/input/InputManager.hpp
+@@ -20,6 +20,7 @@ class CIdleInhibitor;
+ class CVirtualKeyboardV1Resource;
+ class CVirtualPointerV1Resource;
+ class IKeyboard;
++class ITrackpadGesture;
+ 
+ AQUAMARINE_FORWARD(IPointer);
+ AQUAMARINE_FORWARD(IKeyboard);
+@@ -161,6 +162,8 @@ class CInputManager {
+     // for refocus to be forced
+     PHLWINDOWREF                 m_forcedFocus;
+ 
++    UP<ITrackpadGesture>         m_scrollMoveDrag;
++
+     std::vector<SP<IKeyboard>>   m_keyboards;
+     std::vector<SP<IPointer>>    m_pointers;
+     std::vector<SP<ITouch>>      m_touches;
+diff --git a/src/managers/input/trackpad/gestures/ScrollMoveGesture.cpp b/src/managers/input/trackpad/gestures/ScrollMoveGesture.cpp
+index af20c019..46a2b4f1 100644
+--- a/src/managers/input/trackpad/gestures/ScrollMoveGesture.cpp
++++ b/src/managers/input/trackpad/gestures/ScrollMoveGesture.cpp
+@@ -34,11 +34,12 @@ static Layout::Tiled::CScrollingAlgorithm* currentScrollingLayout() {
+     return dynamic_cast<Layout::Tiled::CScrollingAlgorithm*>(ALGORITHM->tiledAlgo().get());
+ }
+ 
+-static float deltaForUpdate(const ITrackpadGesture::STrackpadGestureUpdate& e) {
++static float deltaForUpdate(const ITrackpadGesture::STrackpadGestureUpdate& e, bool horizontal) {
+     if (!e.swipe)
+         return 0.F;
+ 
+     switch (e.direction) {
++        case TRACKPAD_GESTURE_DIR_NONE: return (horizontal ? e.swipe->delta.x : e.swipe->delta.y) * e.scale;
+         case TRACKPAD_GESTURE_DIR_LEFT:
+         case TRACKPAD_GESTURE_DIR_RIGHT:
+         case TRACKPAD_GESTURE_DIR_HORIZONTAL: return e.swipe->delta.x * e.scale;
+@@ -71,7 +72,7 @@ void CScrollMoveTrackpadGesture::update(const ITrackpadGesture::STrackpadGesture
+     if (!SCROLLING)
+         return;
+ 
+-    const float  DELTA   = deltaForUpdate(e);
++    const float  DELTA   = deltaForUpdate(e, SCROLLING->isPrimaryHorizontal());
+     const double PRIMARY = SCROLLING->primaryViewportSize();
+ 
+     if (DELTA == 0.F || PRIMARY <= 0.0)
