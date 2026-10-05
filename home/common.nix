@@ -116,7 +116,7 @@ in
   # KDE/Plasma is managed declaratively by plasma-manager. The whole captured
   # setup — shortcuts, panel, app prefs — lives in ./plasma.nix, which also
   # documents the rc2nix workflow for folding in future GUI changes.
-  imports = [ ./plasma.nix ];
+  imports = [ ./plasma.nix ./claude.nix ];
 
   # The scheme workspace.colorScheme in ./plasma.nix resolves against.
   home.file.".local/share/color-schemes/CatppuccinMochaMauve.colors".source =
