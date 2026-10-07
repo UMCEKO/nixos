@@ -4,12 +4,19 @@ let
   home = config.home.homeDirectory;
   shared = "${home}/.claude-shared/mcp";
   hypr-computer-mcp = pkgs.callPackage ../pkgs/hypr-computer-mcp.nix { };
+  headless-computer-mcp = pkgs.callPackage ../pkgs/headless-computer-mcp.nix { };
 
   # Merged into ~/.claude.json, which also holds per-machine login and state, so the file itself is never synced.
   servers = {
     hypr-computer = {
       type = "stdio";
       command = lib.getExe hypr-computer-mcp;
+      args = [ ];
+      env = { };
+    };
+    headless-computer = {
+      type = "stdio";
+      command = lib.getExe headless-computer-mcp;
       args = [ ];
       env = { };
     };
@@ -24,7 +31,10 @@ let
   jq = lib.getExe pkgs.jq;
 in
 {
-  home.packages = [ hypr-computer-mcp ];
+  home.packages = [
+    hypr-computer-mcp
+    headless-computer-mcp
+  ];
 
   home.file.".claude/mcp".source = config.lib.file.mkOutOfStoreSymlink shared;
 
