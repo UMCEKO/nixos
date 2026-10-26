@@ -201,6 +201,25 @@ in
   # network is actively wrong.
   services.tailscale.enable = true;
 
+  # ts-input drops 100.64/10 from any non-tailscale0 iface, which kills NetBird (wt0) replies; we own the jumps and skip wt0.
+  services.tailscale.extraSetFlags = [ "--netfilter-mode=nodivert" "--operator=umceko" ];
+  networking.firewall.extraCommands = ''
+    for chain in ts-input ts-forward; do ip46tables -N "$chain" 2>/dev/null || true; done
+    ip46tables -t nat -N ts-postrouting 2>/dev/null || true
+    ip46tables -D INPUT ! -i wt0 -j ts-input 2>/dev/null || true
+    ip46tables -D FORWARD -m comment --comment nixos-ts -j ts-forward 2>/dev/null || true
+    ip46tables -t nat -D POSTROUTING -m comment --comment nixos-ts -j ts-postrouting 2>/dev/null || true
+    ip46tables -I INPUT 1 ! -i wt0 -j ts-input
+    # The comment makes these differ from tailscaled's own jumps, which its startup cleanup deletes even in nodivert.
+    ip46tables -I FORWARD 1 -m comment --comment nixos-ts -j ts-forward
+    ip46tables -t nat -I POSTROUTING 1 -m comment --comment nixos-ts -j ts-postrouting
+  '';
+  networking.firewall.extraStopCommands = ''
+    ip46tables -D INPUT ! -i wt0 -j ts-input 2>/dev/null || true
+    ip46tables -D FORWARD -m comment --comment nixos-ts -j ts-forward 2>/dev/null || true
+    ip46tables -t nat -D POSTROUTING -m comment --comment nixos-ts -j ts-postrouting 2>/dev/null || true
+  '';
+
   # Set explicitly, never omitted: the module only writes keys into config.json and never unsets them again.
   services.netbird.enable = true;
   services.netbird.clients.default.config = {
