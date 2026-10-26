@@ -208,11 +208,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1787080416,
-        "narHash": "sha256-XdKfX91nnFy5KO6nnnYH6rJFUIxhTDrsLWDqUas3SBs=",
+        "lastModified": 1793024488,
+        "narHash": "sha256-7qNFx5wd3hRMJU96+A5o/mIG/SD8L2AsBnIRIjU8neo=",
         "owner": "UMCEKO",
         "repo": "hush",
-        "rev": "ed1be245664bf2786023e2c2b8b3620d60b372eb",
+        "rev": "c5dce69b6b67a9880f7f766011fa093627aa588b",
         "type": "github"
       },
       "original": {
