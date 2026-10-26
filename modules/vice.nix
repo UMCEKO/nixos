@@ -33,7 +33,9 @@ in
     systemd.user.services.vice = {
       description = "Vice game clip recorder daemon";
       after = [ "graphical-session.target" ];
-      wantedBy = lib.optionals cfg.autoStart [ "graphical-session.target" "default.target" ];
+      partOf = [ "graphical-session.target" ];
+      # Not default.target: that starts it at login, before WAYLAND_DISPLAY is imported, and gsr aborts.
+      wantedBy = lib.optionals cfg.autoStart [ "graphical-session.target" ];
 
       unitConfig = {
         StartLimitIntervalSec = 60;

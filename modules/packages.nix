@@ -122,4 +122,10 @@ in
     (prismlauncher.override { additionalLibs = [ libxkbcommon ]; })
     osu-lazer-bin     # official release repack (tracks ppy servers; source build = osu-lazer). Settings live in ~/.local/share/osu/client.realm, not declarative
   ];
+
+  # Ghostty's notify-reload unit races systemd's SIGUSR2-handler check and fails to launch about half the time; wait on the bus name instead.
+  systemd.user.services."app-com.mitchellh.ghostty" = {
+    overrideStrategy = "asDropin";
+    serviceConfig.Type = "dbus";
+  };
 }
