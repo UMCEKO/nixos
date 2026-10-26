@@ -26,11 +26,6 @@
   # the pre-lanzaboote path, kept so disabling secureboot.nix still boots.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  # Memtest entry in the boot menu (2026-08-03). The hard lockups leave no
-  # kernel trace at all, which is what memory/SoC instability looks like, and
-  # the box has no ECC reporting to rule DRAM in or out. Boot it overnight:
-  # a single error means stop debugging software.
-  boot.loader.systemd-boot.memtest86.enable = true;
 
   # Memory headroom: max-jobs defaults to `auto` = 24 on this 7900X, and 24
   # concurrent derivations can each take GBs. A rebuild that races the desktop
