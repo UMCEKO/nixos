@@ -25,7 +25,6 @@ let
     # so home-manager writes ~/.zshrc directly. The old ~/.config/zshrc/*
     # modular files (ML4W, oh-my-posh) are no longer sourced.
     "ml4w" # NOT the ML4W rice — your de-ML4W'd configs still read its settings/library files
-    "quickshell" # editable DMS fork (config/quickshell/dms) — dms-shell.service runs it via -c
     "DankMaterialShell" # DMS settings (settings.json etc.) — DMS writes these at runtime
     "danksearch" # dsearch config.toml
     # Retired 2026-07-09 (→ DankMaterialShell): waybar, eww, swaync, waypaper,
@@ -91,22 +90,6 @@ let
     [ -e "$1" ] || exec cat            # no host files yet: pass through
     keys=$(${pkgs.jq}/bin/jq -s 'add | keys' "$@")
     exec ${pkgs.jq}/bin/jq --argjson k "$keys" 'delpaths([$k[] | [.]])'
-  '';
-
-  # dms-shell >=1.6 embeds the QML in the binary; rebuild the old assets/ layout from src (fonts live in the dank-qml-common submodule).
-  dmsAssets = pkgs.runCommand "dms-shell-assets-${pkgs.dms-shell.version}" { } ''
-    cp -r --no-preserve=mode ${pkgs.dms-shell.src}/quickshell/assets $out
-    ln -s ${pkgs.dms-shell.src}/dank-qml-common/DankCommon/assets/fonts $out/fonts
-    substituteInPlace $out/pam/fprint \
-      --replace-fail pam_fprintd.so ${pkgs.fprintd}/lib/security/pam_fprintd.so \
-      --replace-fail pam_deny.so ${pkgs.pam}/lib/security/pam_deny.so \
-      --replace-fail pam_permit.so ${pkgs.pam}/lib/security/pam_permit.so
-    substituteInPlace $out/pam/u2f \
-      --replace-fail pam_u2f.so ${pkgs.pam_u2f}/lib/security/pam_u2f.so \
-      --replace-fail pam_deny.so ${pkgs.pam}/lib/security/pam_deny.so \
-      --replace-fail pam_permit.so ${pkgs.pam}/lib/security/pam_permit.so
-    substituteInPlace $out/pam/other \
-      --replace-fail pam_deny.so ${pkgs.pam}/lib/security/pam_deny.so
   '';
 
 in
@@ -307,11 +290,8 @@ in
       # reads it. This is the one that matters: whatever value the other
       # machine last committed, this host starts with its own.
       ExecStartPre = "${dmsHostSettings}";
-      # -c points at the editable clone (config/quickshell/dms, live-symlinked to
-      # ~/.config/quickshell/dms). The dms wrapper hardcodes -c <store>; a second
-      # -c wins, so this overrides it. Lets us hand-edit the QML. NOTE: on a
-      # dms-shell package bump, re-sync the clone from the new store path.
-      ExecStart = "${pkgs.dms-shell}/bin/dms run --session -c ${config.home.homeDirectory}/.config/quickshell/dms";
+      # No -c override: a hand-edited QML clone drifts from the packaged backend on every bump (lost icons, broken Lua dispatch).
+      ExecStart = "${pkgs.dux-shell}/bin/dms run --session";
       Restart = "on-failure";
       RestartSec = 2;
       Slice = "session.slice";
@@ -334,58 +314,6 @@ in
     };
     Install.WantedBy = [ "timers.target" ];
   };
-
-  # DMS editable clone: relink the heavy read-only assets from the packaged
-  # dms-shell on every activation.
-  #
-  # dms-shell.service runs the clone at ~/.config/quickshell/dms (-c above), and
-  # DMS loads its fonts by RELATIVE PATH, not by fontconfig family:
-  #   Widgets/DankIcon.qml    -> ../assets/fonts/material-design-icons/...MaterialSymbolsRounded...ttf
-  #   Widgets/StyledText.qml  -> ../assets/fonts/inter/InterVariable.ttf
-  #                              ../assets/fonts/nerd-fonts/FiraCodeNerdFont-Regular.ttf
-  # .gitignore excludes config/quickshell/dms/assets (and translations) as
-  # "heavy binary assets", so a fresh clone of this repo has no assets/ at all —
-  # every FontLoader resolves to nothing and EVERY ICON IN DMS DISAPPEARS. That
-  # is exactly what happened on the laptop's first install; the desktop only
-  # looked fine because its assets/ was left over, untracked, from the original
-  # copy out of the store. Adding material-symbols/inter to fonts.packages does
-  # NOT fix this — the FontLoader wants that path, not a font family.
-  #
-  # Symlinking from the pinned package makes the .gitignore comment true and
-  # ties the assets to the same dms-shell version everything else uses. Done in
-  # an activation script rather than xdg.configFile because ~/.config/quickshell
-  # is itself one mkOutOfStoreSymlink (see writableConfigs) and home-manager
-  # cannot place a file inside it.
-  #
-  # NOTE: the clone is currently v1.4.6 against a v1.5.3 package — re-sync it
-  # (see the ExecStart comment above) or drop the -c override entirely.
-  home.activation.dmsCloneAssets =
-    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      clone="$HOME/nixos/config/quickshell/dms"
-      if [ -d "$clone" ]; then
-        # NOT plain `ln -sfn`: against an EXISTING REAL DIRECTORY that creates
-        # the link *inside* it (assets/assets -> ...) and exits 0, so the fix
-        # silently does nothing. Both hosts had a real assets/ dir — an
-        # untracked copy left over from when the clone was made — so this is
-        # the normal case on first activation, not an edge case.
-        relink() {
-          if [ -L "$2" ]; then
-            run ln -sfn "$1" "$2"
-          elif [ -e "$2" ]; then
-            # Preserve the old copy once rather than deleting it outright; it
-            # is gitignored, and on the desktop it predates the current
-            # dms-shell so it is stale rather than precious.
-            if [ -e "$2.pre-symlink" ]; then run rm -rf "$2"
-            else run mv "$2" "$2.pre-symlink"; fi
-            run ln -s "$1" "$2"
-          else
-            run ln -s "$1" "$2"
-          fi
-        }
-        relink ${dmsAssets}                                   "$clone/assets"
-        relink ${pkgs.dms-shell.src}/quickshell/translations "$clone/translations"
-      fi
-    '';
 
   # niri config has no conditionals; config.kdl includes host.kdl, a gitignored link to hosts/<hostname>.kdl.
   home.activation.niriHostConfig =

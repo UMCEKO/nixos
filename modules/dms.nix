@@ -17,7 +17,7 @@
     })
   ];
 
-  programs.dms-shell = {
+  programs.dux-shell = {
     enable = true;
     # KDE-gating: the module's dms.service is wantedBy=graphical-session.target,
     # which KDE starts too → DMS would leak into Plasma. Off; launched from
@@ -26,9 +26,8 @@
     # No enableSystemMonitoring/enableClipboardPaste (dgop, wtype): both are
     # built into the dms-shell package now, and the options were removed.
   };
-  programs.dsearch.enable = true;
+  programs.dux-search.enable = true;
 
-  # The packaged dms.service is also masked at the user level (it ships with
-  # Requisite=graphical-session.target → journal spam under UWSM, Plasma leak
-  # under KDE). If a rebuild clears it: systemctl --user mask dms.service
+  # Mask the packaged dms.service: its Requisite=graphical-session.target spams the journal under UWSM and leaks DMS into Plasma.
+  systemd.user.units."dms.service".enable = false;
 }
