@@ -1,8 +1,8 @@
 -- Persistent workspace → monitor mapping — per host (see lua/host.lua).
 --
 -- Desktop (2 monitors):
---   Main monitor (Samsung DP-3):    workspaces 1-10
---   Secondary monitor (ASUS DP-4):  workspaces 11-20
+--   Main monitor (Samsung):    workspaces 1-10
+--   Secondary monitor (ASUS):  workspaces 11-20 (matched by desc: since DP-x ports renumber)
 --
 -- Laptop (1 panel): everything on eDP-1, workspaces 1-10.
 --   The desktop's DP-3/DP-4 rules used to apply here as well. DP-3 and DP-4 are
@@ -27,6 +27,6 @@ end
 if host.is_laptop then
   bind(1, 10, "eDP-1")
 else
-  bind(1, 10, "DP-3")
-  bind(11, 20, "DP-4")
+  bind(1, 10, "desc:Samsung Electric Company Odyssey G81SF HNBY800179")
+  bind(11, 20, "desc:ASUSTek COMPUTER INC ASUS PA279 0x00027393")
 end

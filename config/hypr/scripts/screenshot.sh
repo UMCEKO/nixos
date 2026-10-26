@@ -67,7 +67,7 @@ if [[ "$1" == "--instant" ]]; then
   exit 0
 elif [[ "$1" == "--instant-area" ]]; then
   if [[ "$2" == "--clipboard" ]]; then
-    grimblast --notify copy area
+    grimblast --freeze --notify copy area
     exit 0
   else
     take_instant_area
@@ -224,7 +224,7 @@ timer() {
 # take shots
 takescreenshot() {
   sleep 1
-  grimblast --notify "$option_chosen" "$option_type_screenshot" $NAME
+  grimblast -f --notify "$option_chosen" "$option_type_screenshot" $NAME
   if [ -f $HOME/$NAME ]; then
     if [ -d $screenshot_folder ]; then
       mv $HOME/$NAME $screenshot_folder/
@@ -236,7 +236,7 @@ takescreenshot_timer() {
   sleep 1
   timer
   sleep 1
-  grimblast --notify "$option_chosen" "$option_type_screenshot" $NAME
+  grimblast -f --notify "$option_chosen" "$option_type_screenshot" $NAME
   if [ -f $HOME/$NAME ]; then
     if [ -d $screenshot_folder ]; then
       mv $HOME/$NAME $screenshot_folder/

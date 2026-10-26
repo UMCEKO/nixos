@@ -267,9 +267,9 @@
   },
   "audioOutputDevicePins": {
     "preferredOutput": [
+      "alsa_output.pci-0000_01_00.1.pro-output-3",
       "wivrn.sink",
-      "alsa_output.pci-0000_01_00.1.pro-output-7",
-      "Game"
+      "alsa_output.pci-0000_01_00.1.pro-output-7"
     ]
   },
   "gtkThemingEnabled": false,
@@ -526,7 +526,8 @@
     "hslHue": -1,
     "hslSaturation": 0,
     "hslLightness": 1,
-    "valid": true
+    "valid": true,
+    "rgba": -1
   },
   "desktopClockShowDate": true,
   "desktopClockShowAnalogNumbers": false,
@@ -553,7 +554,8 @@
     "hslHue": -1,
     "hslSaturation": 0,
     "hslLightness": 1,
-    "valid": true
+    "valid": true,
+    "rgba": -1
   },
   "systemMonitorShowCpu": true,
   "systemMonitorShowCpuGraph": true,

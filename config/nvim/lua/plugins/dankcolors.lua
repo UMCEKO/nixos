@@ -6,9 +6,9 @@ return {
 			require('base16-colorscheme').setup({
 				base00 = '#1a1110',
 				base01 = '#1a1110',
-				base02 = '#4c3f3e',
-				base03 = '#4c3f3e',
-				base04 = '#ffe8e7',
+				base02 = '#4c3f3f',
+				base03 = '#4c3f3f',
+				base04 = '#ffe7e7',
 				base05 = '#fff5f5',
 				base06 = '#fff5f5',
 				base07 = '#fff5f5',
@@ -23,7 +23,7 @@ return {
 			})
 
 			vim.api.nvim_set_hl(0, 'Visual', {
-				bg = '#4c3f3e',
+				bg = '#4c3f3f',
 				fg = '#fff5f5',
 				bold = true
 			})
@@ -31,7 +31,7 @@ return {
 				bg = '#ff6156',
 				fg = '#1a1110',
 			})
-			vim.api.nvim_set_hl(0, 'LineNr', { fg = '#4c3f3e' })
+			vim.api.nvim_set_hl(0, 'LineNr', { fg = '#4c3f3f' })
 			vim.api.nvim_set_hl(0, 'CursorLineNr', { fg = '#ffaba5', bold = true })
 
 			vim.api.nvim_set_hl(0, 'Statement', {
@@ -64,13 +64,13 @@ return {
 				italic = true
 			})
 
-			vim.api.nvim_set_hl(0, 'Operator', { fg = '#ffe8e7' })
-			vim.api.nvim_set_hl(0, 'Delimiter', { fg = '#ffe8e7' })
+			vim.api.nvim_set_hl(0, 'Operator', { fg = '#ffe7e7' })
+			vim.api.nvim_set_hl(0, 'Delimiter', { fg = '#ffe7e7' })
 			vim.api.nvim_set_hl(0, '@punctuation.bracket', { link = 'Delimiter' })
 			vim.api.nvim_set_hl(0, '@punctuation.delimiter', { link = 'Delimiter' })
 
 			vim.api.nvim_set_hl(0, 'Comment', {
-				fg = '#4c3f3e',
+				fg = '#4c3f3f',
 				italic = true
 			})
 
