@@ -30,6 +30,8 @@ hl.on("hyprland.start", function()
   -- so apps that spawn helper windows still land on the right workspace.
   hl.exec_cmd("brave")
   hl.exec_cmd("hearth")
+  -- T3's backend lives inside the desktop app, so the app must run for phone/remote access.
+  hl.exec_cmd("t3code-desktop")
   -- Steam library + GTNH live on the desktop; hosts/desktop/gaming.nix is not
   -- imported on the laptop, so these binaries do not exist there and every
   -- login spent two exec-onces failing silently.

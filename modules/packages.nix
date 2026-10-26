@@ -9,6 +9,24 @@
 # in hosts/desktop/packages.nix instead — it would install fine on the laptop
 # and simply have nothing to talk to.
 { pkgs, inputs, ... }:
+let
+  # dontPatchELF leaves prebuilt addons without libstdc++/libxkbcommon rpaths; nixpkgs#569702 only fixed node-pty, sharp/utf-8-validate/xa11y still need this.
+  t3code = pkgs.t3code.override {
+    t3code-unwrapped = pkgs.t3code.unwrapped.overrideAttrs (old: {
+      # T3 Connect (Google sign-in) is compiled out without these; public values copied from the official 0.0.45 build.
+      env = (old.env or { }) // {
+        T3CODE_RELAY_URL = "https://relay.t3.codes";
+        T3CODE_CLERK_PUBLISHABLE_KEY = "pk_live_Y2xlcmsudDMuY29kZXMk";
+        T3CODE_CLERK_JWT_TEMPLATE = "t3-relay";
+        T3CODE_CLERK_CLI_OAUTH_CLIENT_ID = "hzxSgY2cH10sDU2r";
+      };
+      postFixup = (old.postFixup or "") + ''
+        find "$out"/libexec/t3code -name '*.node' -path '*linux-x64*' -not -path '*musl*' -type f \
+          -exec patchelf --add-rpath ${pkgs.lib.makeLibraryPath [ pkgs.stdenv.cc.cc.lib pkgs.libxkbcommon ]} {} \;
+      '';
+    });
+  };
+in
 {
   environment.systemPackages = with pkgs; [
     # ── CLI / shell tools ──────────────────────────────────────────
@@ -27,7 +45,7 @@
     gh github-desktop meld
     kubectl kubernetes-helm k9s argocd pulumi
     awscli2 google-cloud-sdk stripe-cli mongosh
-    codex
+    codex t3code antigravity-acp
     android-tools apktool jadx
     dioxus-cli
     temurin-bin flutter tree-sitter imagemagick
@@ -58,7 +76,8 @@
     spotify obsidian gparted thunderbird
     bitwarden-desktop keepassxc anydesk rustdesk-flutter
     onlyoffice-desktopeditors figma-linux
-    vlc haruna gpu-screen-recorder krita mpv
+    (callPackage ../pkgs/photocraft.nix { })   # PhotoCraft, Rust Photoshop clone (official AppImage)
+    vlc haruna gpu-screen-recorder mpv
     # OBS wrapped with vkcapture: provides `obs-gamecapture` (Finals launch opts)
     (wrapOBS { plugins = with obs-studio-plugins; [ obs-vkcapture obs-multi-rtmp obs-pipewire-audio-capture ]; })
     qdirstat quickemu unetbootin pavucontrol
@@ -92,7 +111,8 @@
 
     # ── Theming / fonts helpers ────────────────────────────────────
     kdePackages.qtstyleplugin-kvantum
-    adw-gtk3 bibata-cursors pywal papirus-icon-theme
+    # pywal dropped 2026-10-22: nixpkgs 2026-10-20 pywal16 dies in makeWrapper; re-add once that's fixed.
+    adw-gtk3 bibata-cursors papirus-icon-theme
 
     # ── Hardware / misc utilities ──────────────────────────────────
     vulkan-tools
