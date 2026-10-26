@@ -238,9 +238,6 @@ in
   programs.chromium.extensions = [ "nngceckbapebfimnlniiiahkandclblb" ];
 
   nixpkgs.config.allowUnfree = true;
-  # An installed app bundles an EOL Electron. Permitted so the build passes;
-  # see MORNING-README.md (security note) — remove the app to drop this.
-  nixpkgs.config.permittedInsecurePackages = [ "electron-39.8.10" ];
 
   environment.systemPackages = with pkgs; [
     neovim

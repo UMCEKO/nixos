@@ -40,7 +40,7 @@ in
     extraCompatPackages = [
       pkgs.proton-ge-bin                 # ProtonGE, like protonup gave you
       # From the chaotic flake, package only (see flake.nix warning).
-      inputs.chaotic.legacyPackages.${pkgs.system}.proton-cachyos_x86_64_v3
+      inputs.chaotic.legacyPackages.${pkgs.stdenv.hostPlatform.system}.proton-cachyos_x86_64_v3
       sniper-selectable                  # makes Steam's sniper container selectable for native games
     ];
   };

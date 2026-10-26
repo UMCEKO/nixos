@@ -17,7 +17,7 @@
     postgres-language-server
     matlab-language-server
     gopls                            # you do Go dev
-    typescript-language-server 
+    typescript-language-server
     vtsls
     rust-analyzer
 

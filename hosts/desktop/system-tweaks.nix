@@ -24,24 +24,9 @@
 
   # Module tweaks.
   boot.blacklistedKernelModules = [ "wacom" ];
-  # v4l2loopback exonerated in the 2026-08 lockup hunt (box crashed with it
-  # never loaded); 0.15.4 override below fixes a real UAF race in 0.15.3.
   boot.kernelModules = [ "v4l2loopback" "snd-aloop" ];      # Iriun virtual cam + audio loopback (chatmix)
-  boot.extraModulePackages = [
-    # 0.15.4 (2026-06-24) instead of nixpkgs' 0.15.3: fixes a kernel UAF race
-    # ("dev->image could be freed by concurrent VIDIOC_S_FMT during memcpy")
-    # matching the 2026-08-02 lockup signature — dies on first writer/reader
-    # touch, memory corruption = total wedge with zero logs.
-    (config.boot.kernelPackages.v4l2loopback.overrideAttrs (old: {
-      version = "0.15.4";
-      src = pkgs.fetchFromGitHub {
-        owner = "v4l2loopback";
-        repo = "v4l2loopback";
-        rev = "v0.15.4";
-        hash = "sha256-+9wJIeEUP6iaGnfKPl06OuPW5oZdQyHuNDN/1SeHw5s=";
-      };
-    }))
-  ];
+  # Keep >= 0.15.4: 0.15.3 has a UAF race in VIDIOC_S_FMT that wedges the box with zero logs.
+  boot.extraModulePackages = [ config.boot.kernelPackages.v4l2loopback ];
   boot.extraModprobeConfig = ''
     options v4l2loopback exclusive_caps=1 devices=1 card_label="Iriun Webcam,Iriun Webcam #2,Iriun Webcam #3,Iriun Webcam #4"
   '';
@@ -122,16 +107,11 @@
     size = 32 * 1024;   # MB
     priority = 1;       # < zramSwap's default priority of 5
   }];
-  # sched-ext gaming scheduler, PINNED TO 1.1.2 on 2026-08-28.
-  # 1.1.3 arrived with gen 137 (nixpkgs 20260819→20260823) and stalls runnable
-  # tasks 32-45s on kernel 7.2. That is longer than softlockup_panic's ~26s
-  # threshold and the 30s watchdog below, so every bad stall became a silent
-  # hard reboot (4 in 90 min on 2026-08-28). 1.1.2 held multi-day uptimes.
-  # Upstream sched-ext/scx#3750 is open; unpin once 1.1.4 ships.
+  # sched-ext gaming scheduler. scx 1.1.3 stalled tasks 32-45s (sched-ext/scx#3750); if 30s+ freezes return, pin back to 1.1.2.
   services.scx = {
     enable = true;
     scheduler = "scx_lavd";
-    package = inputs.nixpkgs-scx.legacyPackages.${pkgs.stdenv.hostPlatform.system}.scx.full;
+    package = pkgs.scx.full;
   };
   boot.kernel.sysctl = {
     "vm.max_map_count" = 2147483642;    # big / Proton / anticheat games
