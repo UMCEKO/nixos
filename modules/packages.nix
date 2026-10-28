@@ -77,6 +77,7 @@ in
     bitwarden-desktop keepassxc anydesk rustdesk-flutter
     onlyoffice-desktopeditors figma-linux
     (callPackage ../pkgs/photocraft.nix { })   # PhotoCraft, Rust Photoshop clone (official AppImage)
+    (callPackage ../pkgs/kopuz-nightly.nix { }) # Kopuz Nightly (official AppImage); bump version + hash per nightly
     vlc haruna gpu-screen-recorder mpv
     # OBS wrapped with vkcapture: provides `obs-gamecapture` (Finals launch opts)
     (wrapOBS { plugins = with obs-studio-plugins; [ obs-vkcapture obs-multi-rtmp obs-pipewire-audio-capture ]; })
@@ -88,7 +89,6 @@ in
     kdePackages.kdenlive kdePackages.filelight kdePackages.okular kdePackages.kcalc
     nautilus                # file manager from CachyOS (SUPER+E)
     inkscape
-    kopuz                   # goated music player fr
     audacity
     qpwgraph carla          # PipeWire patchbay + LV2/VST host
     openvpn
