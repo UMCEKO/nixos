@@ -75,7 +75,9 @@ in
     inputs.hearth.packages.${pkgs.stdenv.hostPlatform.system}.default   # Hearth, our Vesktop fork, from its own flake
     inputs.zapfast.packages.${pkgs.stdenv.hostPlatform.system}.default  # ZapFast, native WhatsApp client
     spotify obsidian gparted thunderbird
-    bitwarden-desktop keepassxc anydesk rustdesk-flutter
+    # AnyDesk replaced its 8.1.0 tarball in place; nixpkgs 2026-11-07 still has the old hash.
+    (anydesk.overrideAttrs (o: { src = o.src.overrideAttrs (_: { outputHash = "sha256-zS5P2eyTHZY7cBW8mQ2Q6M0lXcx9VZZTtpG3Bb6u7IQ="; }); }))
+    bitwarden-desktop keepassxc rustdesk-flutter
     onlyoffice-desktopeditors figma-linux
     (callPackage ../pkgs/photocraft.nix { })   # PhotoCraft, Rust Photoshop clone (official AppImage)
     (callPackage ../pkgs/kopuz-nightly.nix { }) # Kopuz Nightly (official AppImage); bump version + hash per nightly
