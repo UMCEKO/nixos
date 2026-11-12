@@ -64,7 +64,8 @@ in
     luarocks lua5_1    # luarocks plugins (lazy.nvim hererocks)
     lazygit            # lazygit integration
     ghostscript        # `gs` — PDF rendering in render-markdown
-    tectonic           # LaTeX math rendering (instead of pdflatex)
+    # nixpkgs 2026-11-07 builds tectonic's aws-lc-sys with AWS_LC_SYS_USE_SYSTEM=1 but gives it no aws-lc; drop once nixpkgs adds it.
+    (tectonic.override { tectonic-unwrapped = tectonic-unwrapped.overrideAttrs (o: { buildInputs = (o.buildInputs or [ ]) ++ [ aws-lc ]; AWS_LC_SYS_SYSTEM_DIR = "${aws-lc.dev}"; }); })  # LaTeX math rendering
     mermaid-cli        # `mmdc` — Mermaid diagram rendering
     zed-editor sublime-merge hoppscotch
 

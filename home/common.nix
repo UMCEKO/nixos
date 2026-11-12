@@ -95,11 +95,13 @@ let
 in
 {
   home.stateVersion = "26.05";
+  # mbx's cargo shim for non-interactive shells and GUI-started tools too
+  home.sessionPath = [ "$HOME/.local/share/crew/bin" "$HOME/.local/share/mbx/bin" ];
 
   # KDE/Plasma is managed declaratively by plasma-manager. The whole captured
   # setup — shortcuts, panel, app prefs — lives in ./plasma.nix, which also
   # documents the rc2nix workflow for folding in future GUI changes.
-  imports = [ ./plasma.nix ./claude.nix ];
+  imports = [ ./plasma.nix ./claude.nix ./crew.nix ];
 
   # The scheme workspace.colorScheme in ./plasma.nix resolves against.
   home.file.".local/share/color-schemes/CatppuccinMochaMauve.colors".source =
@@ -229,6 +231,10 @@ in
     initContent = ''
       # PATH additions from your CachyOS .zshrc (bun/ccache dropped — not installed)
       export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+      # mbx's cargo shim first: every cargo build shares the mbx cache (mbx setup installs it)
+      [[ -x $HOME/.local/share/mbx/bin/cargo ]] && export PATH="$HOME/.local/share/mbx/bin:$PATH"
+      # crew's cargo shim goes before mbx's: cargo runs as `crew cargo` (usher build grant, then mbx); CREW_CARGO=0 skips it
+      [[ -x $HOME/.local/share/crew/bin/cargo ]] && export PATH="$HOME/.local/share/crew/bin:$PATH"
       setopt append_history
 
       # pyenv (installed via nix; init still works even without $PYENV_ROOT/bin)
