@@ -5,13 +5,13 @@ let
   src = fetchFromGitHub {
     owner = "crew-sh";
     repo = "crew";
-    rev = "bd8228137d30d07f617436e727455d766b54526c";
-    hash = "sha256-AVy+ALAZJs6oDD59uyU7GGJSiRFTrg5+71j6sNQwLZQ=";
+    rev = "04a0f23d7e77ec1933d20a8116a3d33fc9a100c4";
+    hash = "sha256-CBoC2W+aH31rgBOlhPCkUs6+UbqhvnznlkT36zPoXmY=";
   };
 in
 rustPlatform.buildRustPackage {
   pname = "crew";
-  version = "0.1.0-unstable-bd82281";
+  version = "0.1.0-unstable-04a0f23";
   inherit src;
   cargoLock.lockFile = "${src}/Cargo.lock";
   nativeBuildInputs = [ protobuf pkg-config ];
